@@ -17,7 +17,7 @@ def train(
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), 
 ):
     dataset = Dataset3DMri()
-    dataloader = DataLoader(dataset=dataset, )
+    dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=2, persistent_workers=True)
     
     model = FirstRes3DModel()
 
@@ -48,9 +48,9 @@ def train(
             loss.backward()
             optimizer.step()
             average_loss += loss.item()
-            
-            training_visualizer.set_description(f'EPOCH {epoch}/{epochs+1}')
-            training_visualizer.set_postfix(loss=loss.item())
+            if epoch % 40 == 0: 
+                training_visualizer.set_description(f'EPOCH {epoch}/{epochs+1}')
+                training_visualizer.set_postfix(loss=loss.item())
 
         average_loss = average_loss / len(dataloader)
         print(f'AVERAGE LOSS OF EPOCH {epoch} : {average_loss}')
