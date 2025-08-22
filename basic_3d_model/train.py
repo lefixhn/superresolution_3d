@@ -7,8 +7,7 @@ import os
 SAFE_CHECKPOINT_PATH = '/content/drive/MyDrive/superresolution_3d_data/models'
 
 def train(
-    
-    model_store_name='MyModel'
+    model_store_name='MyModel',
     learning_rate=1e-4, 
     epochs=10, 
     batch_size=4, 
