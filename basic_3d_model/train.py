@@ -17,9 +17,10 @@ def train(
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), 
 ):
     dataset = Dataset3DMri()
-    dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=2, persistent_workers=True)
+    dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=4, persistent_workers=True)
     
     model = FirstRes3DModel()
+    model = model.to(device)
 
     loss_criterion = nn.L1Loss()
 
