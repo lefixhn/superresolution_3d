@@ -1,6 +1,9 @@
 from dataset import Dataset3DMri
+from model import FirstRes3DModel
+from tqdm import tqdm
 from torch.utils.data import DataLoader
 import torch.nn as nn 
+import torch
 import torch.optim as optim
 import os
 
@@ -27,7 +30,7 @@ def train(
     print(f'STARTING TO TRAIN ON {device}')
     # Iterate the epochs 
     for epoch in range(1, epochs + 1):
-        training_visualizer = tqdm(train_loader, leave=True)
+        training_visualizer = tqdm(dataloader, leave=True)
         average_loss = 0.0
         # Iterate though training dataset 
         for lr_image, hr_image in dataloader: 
