@@ -5,16 +5,16 @@ import torch
 class PreprocessedDataset(Dataset): 
     '''Expects the given paths to direct to .npy files. '''
     def __init__(self, 
-    hr_paths=[f'/content/drive/MyDrive/superresolution_3d_data/datasets/superresolution_brats/hr_images/hr_image{i:03d}.npy' for i in range(0, 484)], 
-    lr_paths=[f'/content/drive/MyDrive/superresolution_3d_data/datasets/superresolution_brats/lr_images/lr_image{i:03d}.npy' for i in range(0, 484)]
+    hr_paths=[f'/content/drive/MyDrive/superresolution_3d_data/datasets/superresolution_brats/hr_images/hr_image{i:03d}.npy' for i in range(0, 481)], 
+    lr_paths=[f'/content/drive/MyDrive/superresolution_3d_data/datasets/superresolution_brats/lr_images/lr_image{i:03d}.npy' for i in range(0, 481)]
     ): 
         super().__init__()
         print("PRELOADING DATA")
         assert len(lr_paths) == len(hr_paths)
         self.data = [
             (self._get_image_as_tensor_(lr_paths[i]), 
-            self._get_image_as_tensor_(hr_paths[i]) )
-            for i in range(0, len(hr_paths)
+            self._get_image_as_tensor_(hr_paths[i]))
+            for i in range(0, len(hr_paths))
         ]
         print("DATA LOADED")
 

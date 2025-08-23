@@ -1,4 +1,4 @@
-from dataset import Dataset3DMri
+from preprocessed_dataset import PreprocessedDataset
 from model import FirstRes3DModel
 from tqdm import tqdm
 from torch.utils.data import DataLoader
@@ -16,7 +16,7 @@ def train(
     batch_size=4, 
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), 
 ):
-    dataset = Dataset3DMri()
+    dataset = PreprocessedDataset()
     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=4, persistent_workers=True)
     
     model = FirstRes3DModel()
