@@ -24,7 +24,7 @@ class PixelShuffle3D(nn.Module):
         return x
 
 class FirstRes3DModel(nn.Module): 
-    def __init__(self, upscale_factor=2):
+    def __init__(self, upscale_factor=2, parameter_path=None):
         super().__init__()
         self.base_upscale = nn.ConvTranspose3d(1, 1, kernel_size=4, stride=2, padding=1)
         self.upscale_factor = upscale_factor
@@ -34,6 +34,10 @@ class FirstRes3DModel(nn.Module):
         self.relu2 = nn.ReLU()
         self.conv3 = nn.Conv3d(32, 8, 3, 1, 1)
         self.pixelshuffle = PixelShuffle3D(upscale_factor=self.upscale_factor)
+
+        # Load parameters if path is given 
+        if parameter_path is not None: 
+            self.load_parameters(parameter_path)
 
     def forward(self, x):
         # Upscaling base 
