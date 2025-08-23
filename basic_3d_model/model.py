@@ -42,7 +42,7 @@ class FirstRes3DModel(nn.Module):
     def forward(self, x):
         # Upscaling base 
         # TODO: check weather mode trilinear is maybe stupid, because it is to blurry
-        x_upscaled =  self.base_upscale(x)
+        x_upscaled =  F.interpolate(x, scale_factor=self.upscale_factor, mode='trilinear', )
         # Calculating residual
         residual = self.conv1(x)
         residual = self.relu1(residual)
