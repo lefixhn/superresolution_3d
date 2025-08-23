@@ -26,7 +26,6 @@ class PixelShuffle3D(nn.Module):
 class FirstRes3DModel(nn.Module): 
     def __init__(self, upscale_factor=2, parameter_path=None):
         super().__init__()
-        self.base_upscale = nn.ConvTranspose3d(1, 1, kernel_size=4, stride=2, padding=1)
         self.upscale_factor = upscale_factor
         self.conv1 = nn.Conv3d(1, 32, 3, 1, 1)
         self.relu1 = nn.ReLU()
