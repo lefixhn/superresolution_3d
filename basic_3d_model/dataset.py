@@ -28,7 +28,7 @@ def generate_paths(start_index = 3, end_index = 400):
 
 class Dataset3DMri(Dataset):
 
-    def __init__(self, paths=generate_paths(), downscale_factor = 2, cube_side_length = 64, channel=0):
+    def __init__(self, paths=generate_paths(), downscale_factor = 2, cube_side_length = None, channel=0):
         super().__init__()
         assert cube_side_length % downscale_factor == 0
         self.channel = channel
@@ -44,7 +44,7 @@ class Dataset3DMri(Dataset):
         path = self.paths[index]
         mri = nib.load(path)
         mri = mri.get_fdata()
-        # Reduce one dimension 
+        # Reduce channel dimension > from 4D to 3D
         mri = mri[:, :, :, self.channel]
         # Normalize 0-1
         max_val = mri.max()
@@ -53,8 +53,18 @@ class Dataset3DMri(Dataset):
         # Cast from double to float 
         mri = mri.astype(np.float32)
         
-        # Get sub sub cube from image 
-        rand_pos = [random.randint(0, dlength-self.cube_side_length) for dlength in mri.shape]
+        
+        if cube_side_length is not None:
+            # Get sub sub cube from image 
+            rand_pos = [random.randint(0, dlength-self.cube_side_length) for dlength in mri.shape]
+        else: 
+            # Crop image to make it dividable by downskale_factor 
+            shape = mri.shape
+            x_crop, y_crop, z_crop = shape[0] % downscale_factor, shape[1] % downscale_factor, shape[2] % downscale_factor
+            x_stop, y_stop, z_stop = shape[0] - x_crop, shape[1] - y_crop, shape[2] - z_crop
+            mri = mri[:x_stop, :y_stop, :z_stop]
+
+
         mri = mri[rand_pos[0]:(rand_pos[0]+self.cube_side_length), rand_pos[1]:(rand_pos[1]+self.cube_side_length), rand_pos[2]:(rand_pos[2]+self.cube_side_length)]
 
         mri_downsampled = image_degradation(mri, scale_factor = self.downscale_factor)

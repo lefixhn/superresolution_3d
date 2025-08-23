@@ -35,9 +35,9 @@ class FirstRes3DModel(nn.Module):
         self.conv3 = nn.Conv3d(32, 8, 3, 1, 1)
         self.pixelshuffle = PixelShuffle3D(upscale_factor=self.upscale_factor)
 
-        # Load parameters if path is given 
         if parameter_path is not None: 
-            self.load_parameters(parameter_path)
+            checkpoint = torch.load(parameter_path)
+            self.load_state_dict(checkpoint)
 
     def forward(self, x):
         # Upscaling base 
