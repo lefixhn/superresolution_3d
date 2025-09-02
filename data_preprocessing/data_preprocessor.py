@@ -8,7 +8,7 @@ STORE_PATH = ''
 FILE_CHANNEL_INDICATOR = ''
 
 def load_mri_as_nparray(load_path): 
-    
+
 
 def image_degradation(image: np.array): 
 
@@ -27,3 +27,4 @@ def preprocess_data():
 
 
 if __name__ == '__main__': 
+    preprocess_data()
