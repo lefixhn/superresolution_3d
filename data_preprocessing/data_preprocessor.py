@@ -1,6 +1,8 @@
 import os
 import numpy as np 
 import nibabel as nib
+
+
 SOURCE_PATH = ''
 STORE_PATH = ''
 
@@ -21,6 +23,12 @@ def preprocess_data():
         for sub_file in os.listdir(sub_folder_path): 
             if FILE_CHANNEL_INDICATOR in sub_file:
                 sub_file_path = os.path.join(sub_folder_path, sub_file)
+                image_loaded = nib.load(sub_file_path)
+                image = image_loaded.get_fdata().astype(np.float32)
+                # Normalize to max 1
+                image = image / np.max(image)
+
+
 
 
 
