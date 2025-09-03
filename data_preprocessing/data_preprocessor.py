@@ -4,28 +4,22 @@ import nibabel as nib
 from scipy import ndimage
 
 
-SOURCE_PATH = ''
-STORE_BASE_PATH = ''
+SOURCE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data'
+STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets'
 STORE_LR_PATH = os.path.join(STORE_BASE_PATH, 'lr')
 STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
 
 
 
-# This is 
-FILE_CHANNEL_INDICATOR = ''
-
-def load_mri_as_nparray(load_path): 
-
-
-def default_image_degradation(image: np.array, noise_sigma, blur_sigma):
-    blurred_image =  
+# This ensures that the correct mri channel is loaded
+FILE_CHANNEL_INDICATOR = 'flair'
 
 
 def preprocess_data(degradation_model=None, item_limit=None): 
     element_counter = 0
     # Ensure folders exist
-    os.makedirs(STORE_LR_PATH, exists_ok=True)
-    os.makedirs(STORE_HR_PATH, exists_ok=True)
+    os.makedirs(STORE_LR_PATH, exist_ok=True)
+    os.makedirs(STORE_HR_PATH, exist_ok=True)
 
     # Iterate though subfolders
     for sub_folder in os.listdir(SOURCE_PATH):
@@ -68,18 +62,5 @@ def preprocess_data(degradation_model=None, item_limit=None):
 
 
 
-            
-                
-
-
-
-                    
-
-
-
-
-
-
-
 if __name__ == '__main__': 
-    preprocess_data()
+    preprocess_data(item_limit=3)
