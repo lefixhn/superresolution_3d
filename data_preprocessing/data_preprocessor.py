@@ -6,8 +6,8 @@ from scipy import ndimage
 
 SOURCE_PATH = ''
 STORE_BASE_PATH = ''
-STORE_LR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
-STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'lr')
+STORE_LR_PATH = os.path.join(STORE_BASE_PATH, 'lr')
+STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
 
 
 
@@ -35,9 +35,9 @@ def preprocess_data(degradation_model=None):
                 image_loaded = nib.load(sub_file_path)
                 image = image_loaded.get_fdata().astype(np.float32)
                 # Normalize 0-1
-                image = (image-np.min(image)) / np.max(image)
+                image = (image-np.min(image)) / (np.max(image)- np.min(image))
                 # Apply degradation model 
-                downscaled_image = None
+                lr_image = None
                 if degradation_model is None: 
                     blur_sigma = 0.5
                     noise_sigma = 0.03
@@ -49,12 +49,14 @@ def preprocess_data(degradation_model=None):
                     downscaled_image = ndimage.zoom(blurred_image, zoom=(1/downscale_factor, 1/downscale_factor, 1/downscale_factor), order = 3)
                     # Add noise 
                     noise = np.random.normal(0,noise_sigma, downscaled_image.shape)
-                    downscaled_image = downscaled_image + noise
+                    lr_image = downscaled_image + noise
+                    # Clib values 
+                    lr_image = np.clip(lr_image, 0, 1)
                 
                 # Store LR image as np
-                np.save(os.path.join(STORE_LR_PATH, f'{element_counter}.npy'))
+                np.save(os.path.join(STORE_LR_PATH, f'{element_counter}.npy'), lr_image)
                 # Store HR image as np
-                np.save(os.path.join(STORE_HR_PATH, f'{element_counter}.npy'))
+                np.save(os.path.join(STORE_HR_PATH, f'{element_counter}.npy'), image)
 
         element_counter = element_counter + 1 
 
