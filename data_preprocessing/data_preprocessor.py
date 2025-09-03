@@ -23,6 +23,8 @@ def default_image_degradation(image: np.array, noise_sigma, blur_sigma):
 
 def preprocess_data(degradation_model=None): 
     element_counter = 0
+    # Ensure folders exist
+    os.makedirs(STORE_LR_PATH, exists_ok)
 
     # Iterate though subfolders
     for sub_folder in os.listdir(SOURCE_PATH):
@@ -50,7 +52,7 @@ def preprocess_data(degradation_model=None):
                     # Add noise 
                     noise = np.random.normal(0,noise_sigma, downscaled_image.shape)
                     lr_image = downscaled_image + noise
-                    # Clib values 
+                    # Clib values
                     lr_image = np.clip(lr_image, 0, 1)
                 
                 # Store LR image as np
