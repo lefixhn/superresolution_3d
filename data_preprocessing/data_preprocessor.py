@@ -21,10 +21,11 @@ def default_image_degradation(image: np.array, noise_sigma, blur_sigma):
     blurred_image =  
 
 
-def preprocess_data(degradation_model=None): 
+def preprocess_data(degradation_model=None, item_limit=None): 
     element_counter = 0
     # Ensure folders exist
-    os.makedirs(STORE_LR_PATH, exists_ok)
+    os.makedirs(STORE_LR_PATH, exists_ok=True)
+    os.makedirs(STORE_HR_PATH, exists_ok=True)
 
     # Iterate though subfolders
     for sub_folder in os.listdir(SOURCE_PATH):
@@ -61,6 +62,11 @@ def preprocess_data(degradation_model=None):
                 np.save(os.path.join(STORE_HR_PATH, f'{element_counter}.npy'), image)
 
         element_counter = element_counter + 1 
+        if item_limit is not None: 
+            if item_limit < element_counter: 
+                break
+
+
 
             
                 
