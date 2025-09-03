@@ -5,7 +5,7 @@ from scipy import ndimage
 
 
 SOURCE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data'
-STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets'
+STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/degradation_v0'
 STORE_LR_PATH = os.path.join(STORE_BASE_PATH, 'lr')
 STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
 
@@ -41,7 +41,7 @@ def preprocess_data(degradation_model=None, item_limit=None):
                     downscale_factor = 2
 
                     # Apply gaussian blur 
-                    blurred_image = ndimage.gaussian_filter(imgae, sigma=blur_sigma)
+                    blurred_image = ndimage.gaussian_filter(image, sigma=blur_sigma)
                     # Scale down 
                     downscaled_image = ndimage.zoom(blurred_image, zoom=(1/downscale_factor, 1/downscale_factor, 1/downscale_factor), order = 3)
                     # Add noise 
@@ -55,7 +55,7 @@ def preprocess_data(degradation_model=None, item_limit=None):
                 # Store HR image as np
                 np.save(os.path.join(STORE_HR_PATH, f'{element_counter}.npy'), image)
 
-        element_counter = element_counter + 1 
+                element_counter = element_counter + 1 
         if item_limit is not None: 
             if item_limit < element_counter: 
                 break
