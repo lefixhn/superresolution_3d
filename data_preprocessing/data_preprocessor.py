@@ -22,9 +22,12 @@ def default_image_degradation(image: np.array, noise_sigma, blur_sigma):
 
 
 def preprocess_data(degradation_model=None): 
+    element_counter = 0
+
     # Iterate though subfolders
     for sub_folder in os.listdir(SOURCE_PATH):
         sub_folder_path = os.path.join(SOURCE_PATH, sub_folder)
+        
         # Search correct file in folder 
         for sub_file in os.listdir(sub_folder_path): 
             if FILE_CHANNEL_INDICATOR in sub_file:
@@ -34,6 +37,7 @@ def preprocess_data(degradation_model=None):
                 # Normalize 0-1
                 image = (image-np.min(image)) / np.max(image)
                 # Apply degradation model 
+                downscaled_image = None
                 if degradation_model is None: 
                     blur_sigma = 0.5
                     noise_sigma = 0.03
@@ -46,6 +50,17 @@ def preprocess_data(degradation_model=None):
                     # Add noise 
                     noise = np.random.normal(0,noise_sigma, downscaled_image.shape)
                     downscaled_image = downscaled_image + noise
+                
+                # Store LR image as np
+                np.save(os.path.join(STORE_LR_PATH, f'{element_counter}.npy'))
+                # Store HR image as np
+                np.save(os.path.join(STORE_HR_PATH, f'{element_counter}.npy'))
+
+        element_counter = element_counter + 1 
+
+            
+                
+
 
 
                     
