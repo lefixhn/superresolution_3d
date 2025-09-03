@@ -5,7 +5,11 @@ from scipy import ndimage
 
 
 SOURCE_PATH = ''
-STORE_PATH = ''
+STORE_BASE_PATH = ''
+STORE_LR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
+STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'lr')
+
+
 
 # This is 
 FILE_CHANNEL_INDICATOR = ''
@@ -29,12 +33,20 @@ def preprocess_data(degradation_model=None):
                 image = image_loaded.get_fdata().astype(np.float32)
                 # Normalize 0-1
                 image = (image-np.min(image)) / np.max(image)
-
+                # Apply degradation model 
                 if degradation_model is None: 
+                    blur_sigma = 0.5
+                    noise_sigma = 0.03
+                    downscale_factor = 2
+
                     # Apply gaussian blur 
                     blurred_image = ndimage.gaussian_filter(imgae, sigma=blur_sigma)
                     # Scale down 
-                    downscaled_image = ndimage.zoom(blurred_image, zoom=(1/do))
+                    downscaled_image = ndimage.zoom(blurred_image, zoom=(1/downscale_factor, 1/downscale_factor, 1/downscale_factor), order = 3)
+                    # Add noise 
+                    noise = np.random.normal(0,noise_sigma, downscaled_image.shape)
+                    downscaled_image = downscaled_image + noise
+
 
                     
 
