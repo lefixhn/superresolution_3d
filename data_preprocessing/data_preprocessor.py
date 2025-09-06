@@ -32,7 +32,7 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2)
                 # Normalize 0-1
                 image = (image-np.min(image)) / (np.max(image)- np.min(image))
                 # Crop to image to make dividable by downscale_factor
-                image = imd.crop_image_for_downscale
+                image = imd.crop_image_for_downscale(image, downscale_factor=downscale_factor)
                 # Apply degradation model 
                 lr_image = degradation_model(image=image, downscale_factor=downscale_factor)
                 # Store LR image as np
@@ -47,4 +47,4 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2)
 
 
 if __name__ == '__main__': 
-    preprocess_data(degradation_model=imd.advanced_image_degradation_model)
+    preprocess_data(degradation_model=imd.advanced_image_degradation_model, item_limit=10)
