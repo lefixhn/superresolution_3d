@@ -3,8 +3,7 @@ from functools import partial
 import numpy as np 
 import nibabel as nib
 from scipy import ndimage
- 
-# Set seed 
+
 np.random.seed(42)
 
 def crop_image_for_downscale(image, downscale_factor): 
@@ -62,7 +61,7 @@ def default_degradation(image, downscale_factor):
     return general_image_degradation_model(image, noise_sigma, downscale_function, downscale_factor, blur_sigma) 
 
 
-def advanced_image_degradation_model(image, downscale_factor):
+def advanced_image_degradation_model(image, downscale_factor, sfulle_operations=False):
     '''
     Here we apply the degradation operations in random order 
     ''' 
@@ -78,20 +77,16 @@ def advanced_image_degradation_model(image, downscale_factor):
     downscale_operation = downscale_operations[np.random.randint(0, 3)]
 
     degradation_operations = [
-        partial(add_gaus_noise, noise_sigma=noise_sigma),
         partial(apply_gaus_blur, blur_sigma=blur_sigma),
-        partial(downscale_operation, downscale_factor = downscale_factor)
+        partial(downscale_operation, downscale_factor = downscale_factor),
+        partial(add_gaus_noise, noise_sigma=noise_sigma)
     ]
-    # Apply operations in random order 
-    np.random.shuffle(degradation_operations)
+    if sfulle_operations: 
+        # Apply operations in random order 
+        np.random.shuffle(degradation_operations)
+
     for operation in degradation_operations: 
         degradation_image = operation(degradation_image)
     
     return degradation_image
-
-
-
-
-    
-
 
