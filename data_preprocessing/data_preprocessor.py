@@ -2,7 +2,7 @@ import os
 import numpy as np 
 import nibabel as nib
 from scipy import ndimage
-import image_degradation as id
+import image_degradation as imd
 
 SOURCE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data'
 STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/degradation_v0'
@@ -31,13 +31,10 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2)
                 image = image_loaded.get_fdata().astype(np.float32)
                 # Normalize 0-1
                 image = (image-np.min(image)) / (np.max(image)- np.min(image))
+                # Crop to image to make dividable by downscale_factor
+                image = imd.crop_image_for_downscale
                 # Apply degradation model 
-                lr_image = None
-                if degradation_model is None: 
-                    lr_image = id.default_degradation(image, downscale_factor)
-                else: 
-                    image = id.crop_image_for_downscale(image, downscale_factor)
-                    lr_iamge = degradation_model(image)
+                lr_image = degradation_model(image, downscale_factor)
 
                 # Store LR image as np
                 np.save(os.path.join(STORE_LR_PATH, f'{element_counter}.npy'), lr_image)
@@ -51,4 +48,4 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2)
 
 
 if __name__ == '__main__': 
-    preprocess_data(item_limit=3)
+    preprocess_data(degradation_model=imd.advanced_image_degradation_model)
