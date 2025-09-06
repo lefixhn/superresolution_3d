@@ -5,7 +5,7 @@ from scipy import ndimage
 import image_degradation as imd
 
 SOURCE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data'
-STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/degradation_v0'
+STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_v0'
 STORE_LR_PATH = os.path.join(STORE_BASE_PATH, 'lr')
 STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
 
@@ -34,8 +34,7 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2)
                 # Crop to image to make dividable by downscale_factor
                 image = imd.crop_image_for_downscale
                 # Apply degradation model 
-                lr_image = degradation_model(image, downscale_factor)
-
+                lr_image = degradation_model(image=image, downscale_factor=downscale_factor)
                 # Store LR image as np
                 np.save(os.path.join(STORE_LR_PATH, f'{element_counter}.npy'), lr_image)
                 # Store HR image as np

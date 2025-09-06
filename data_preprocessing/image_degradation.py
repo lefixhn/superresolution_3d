@@ -4,7 +4,6 @@ import numpy as np
 import nibabel as nib
 from scipy import ndimage
 
-
 np.random.seed(42)
 
 def crop_image_for_downscale(image, downscale_factor): 
