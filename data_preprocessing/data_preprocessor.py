@@ -38,16 +38,23 @@ def image_degradation(image: np.array ,noise_sigma, downscale_function ,downscal
     degradation_image = np.clip(degradation_image, 0, 1)
     return degradation_image
     
-def scale_down_with_order(image, downscale_factor, order): 
-    return ndimage.zoom(image, zoom=1/downscale_factor, order=order)
+# Define downscale functions 
+def nearest_neighbor_downscale(image, downscale_factor): 
+    return ndimage.zoom(image, zoom=1/downscale_factor, order=0)
+
+def neares_neighbor_downscale(image, downscale_factor): 
+    return ndimage.zoom(image, zoom=1/downscale_factor, order=0)
+
+def nearest_neighbor_downscale(image, downscale_factor): 
+    return ndimage.zoom(image, zoom=1/downscale_factor, order=0)
 
 def default_degradation(image, downscale_factor):
     # Generate number from 1/255 to 25/255
     noise_sigma = np.random.randint(1, 26) / 255
     blur_sigma = 0
-    downscale_orders = (0, 1, 3) # 0 
+    downscale_orders = (0, 1, 3) # 0 -> Nearest neighbour, 1 -> linear, 3 -> cubic
     downsale_order = downscale_orders[np.random.randint(0, 3)]
-
+    return image_degradation(image, noise_sigma, ) 
 
 def preprocess_data(degradation_model=None, item_limit=None): 
     element_counter = 0
