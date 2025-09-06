@@ -14,6 +14,29 @@ STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
 # This ensures that the correct mri channel is loaded
 FILE_CHANNEL_INDICATOR = 'flair'
 
+def crop_image_for_downscale(image, downscale_factor): 
+    '''Changes the shape of an image, to make all dimensions dividable by 
+    downscale_factor'''
+    cropped_shape = [(dimension - (dimension % downscale_factor)) for dimension in image.shape]
+    cropped_ranges = tuple(slice(0, cropped_dimension) for cropped_dimension in cropped_shape)
+    cropped_image = image[cropped_ranges]
+    return cropped_image
+
+def image_degradation(image: np.array ,noise_sigma, downscale_factor=2 ,blur_sigma = 0):
+    degradation_image = image
+    # Apply gaussian blur 
+    if blur_sigma != 0: 
+        degradation_image = ndimage.gaussian_filter(image, sigma=blur_sigma)
+    # Scale down 
+    degradation_image = crop_image_for_downscale(degradation_image, downscale_factor)
+    
+    
+
+
+
+
+
+
 
 def preprocess_data(degradation_model=None, item_limit=None): 
     element_counter = 0
@@ -40,8 +63,7 @@ def preprocess_data(degradation_model=None, item_limit=None):
                     noise_sigma = 0.03
                     downscale_factor = 2
 
-                    # Apply gaussian blur 
-                    blurred_image = ndimage.gaussian_filter(image, sigma=blur_sigma)
+                    
                     # Scale down 
                     downscaled_image = ndimage.zoom(blurred_image, zoom=(1/downscale_factor, 1/downscale_factor, 1/downscale_factor), order = 3)
                     # Add noise 
@@ -49,7 +71,10 @@ def preprocess_data(degradation_model=None, item_limit=None):
                     lr_image = downscaled_image + noise
                     # Clib values
                     lr_image = np.clip(lr_image, 0, 1)
-                
+                else: 
+                    image = crop_image_for_downscale(image, downscale_factor)
+                    lr_iamge = degradation_model(image)
+
                 # Store LR image as np
                 np.save(os.path.join(STORE_LR_PATH, f'{element_counter}.npy'), lr_image)
                 # Store HR image as np
