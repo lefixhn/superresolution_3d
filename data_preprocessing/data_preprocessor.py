@@ -42,21 +42,22 @@ def image_degradation(image: np.array ,noise_sigma, downscale_function ,downscal
 def nearest_neighbor_downscale(image, downscale_factor): 
     return ndimage.zoom(image, zoom=1/downscale_factor, order=0)
 
-def neares_neighbor_downscale(image, downscale_factor): 
-    return ndimage.zoom(image, zoom=1/downscale_factor, order=0)
+def linear_downscale(image, downscale_factor): 
+    return ndimage.zoom(image, zoom=1/downscale_factor, order=1)
 
-def nearest_neighbor_downscale(image, downscale_factor): 
-    return ndimage.zoom(image, zoom=1/downscale_factor, order=0)
+def cubic_downscale(image, downscale_factor): 
+    return ndimage.zoom(image, zoom=1/downscale_factor, order=3)
 
 def default_degradation(image, downscale_factor):
     # Generate number from 1/255 to 25/255
     noise_sigma = np.random.randint(1, 26) / 255
     blur_sigma = 0
-    downscale_orders = (0, 1, 3) # 0 -> Nearest neighbour, 1 -> linear, 3 -> cubic
-    downsale_order = downscale_orders[np.random.randint(0, 3)]
-    return image_degradation(image, noise_sigma, ) 
+    downscale_functions = (nearest_neighbor_downscale, linear_downscale, cubic_downscale) 
+    # Select random downscale function 
+    downsale_function = downscale_functions[np.random.randint(0, 3)]
+    return image_degradation(image, noise_sigma, downsale_function, downscale_factor, blur_sigma) 
 
-def preprocess_data(degradation_model=None, item_limit=None): 
+def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2): 
     element_counter = 0
     # Ensure folders exist
     os.makedirs(STORE_LR_PATH, exist_ok=True)
@@ -77,11 +78,7 @@ def preprocess_data(degradation_model=None, item_limit=None):
                 # Apply degradation model 
                 lr_image = None
                 if degradation_model is None: 
-                    
-                    
-
-                    
-                    
+                    lr_image = default_degradation(image, downscale_factor)
                 else: 
                     image = crop_image_for_downscale(image, downscale_factor)
                     lr_iamge = degradation_model(image)
