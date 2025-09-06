@@ -31,8 +31,11 @@ def image_degradation(image: np.array ,noise_sigma, downscale_function ,downscal
     degradation_image = crop_image_for_downscale(degradation_image, downscale_factor)
     degradation_image = downscale_function(degradation_image, downscale_factor)
     # Add gaussian noise 
+    noise = np.random.normal(0,noise_sigma, degradation_image.shape)
+    degradation_image = degradation_image + nosie 
+    # Clip values outside 0-1
+    degradation_image = np.clip(degradation_image, 0, 1)
     
-
     
 
 
