@@ -22,6 +22,7 @@ def crop_image_for_downscale(image, downscale_factor):
     cropped_image = image[cropped_ranges]
     return cropped_image
 
+
 def image_degradation(image: np.array ,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0):
     degradation_image = image
     # Apply gaussian blur 
@@ -35,13 +36,17 @@ def image_degradation(image: np.array ,noise_sigma, downscale_function ,downscal
     degradation_image = degradation_image + nosie 
     # Clip values outside 0-1
     degradation_image = np.clip(degradation_image, 0, 1)
+    return degradation_image
     
-    
+def scale_down_with_order(image, downscale_factor, order): 
+    return ndimage.zoom(image, zoom=1/downscale_factor, order=order)
 
-
-
-
-
+def default_degradation(image, downscale_factor):
+    # Generate number from 1/255 to 25/255
+    noise_sigma = np.random.randint(1, 26) / 255
+    blur_sigma = 0
+    downscale_orders = (0, 1, 3) # 0 
+    downsale_order = downscale_orders[np.random.randint(0, 3)]
 
 
 def preprocess_data(degradation_model=None, item_limit=None): 
@@ -65,18 +70,11 @@ def preprocess_data(degradation_model=None, item_limit=None):
                 # Apply degradation model 
                 lr_image = None
                 if degradation_model is None: 
-                    blur_sigma = 0.5
-                    noise_sigma = 0.03
-                    downscale_factor = 2
+                    
+                    
 
                     
-                    # Scale down 
-                    downscaled_image = ndimage.zoom(blurred_image, zoom=(1/downscale_factor, 1/downscale_factor, 1/downscale_factor), order = 3)
-                    # Add noise 
-                    noise = np.random.normal(0,noise_sigma, downscaled_image.shape)
-                    lr_image = downscaled_image + noise
-                    # Clib values
-                    lr_image = np.clip(lr_image, 0, 1)
+                    
                 else: 
                     image = crop_image_for_downscale(image, downscale_factor)
                     lr_iamge = degradation_model(image)
