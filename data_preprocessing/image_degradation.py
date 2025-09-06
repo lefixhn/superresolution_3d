@@ -4,6 +4,8 @@ import numpy as np
 import nibabel as nib
 from scipy import ndimage
  
+# Set seed 
+np.random.seed(42)
 
 def crop_image_for_downscale(image, downscale_factor): 
     '''Changes the shape of an image, to make all dimensions dividable by 
@@ -42,7 +44,7 @@ def general_image_degradation_model(image: np.array ,noise_sigma, downscale_func
     degradation_image = image
     # Apply gaussian blur 
     if blur_sigma != 0: 
-        degradation_image = ndimage.gaussian_filter(image, sigma=blur_sigma)
+        degradation_image = ndimage.gaussian_filter(degradation_image, sigma=blur_sigma, truncate=3.0)
     # Scale down 
     degradation_image = crop_image_for_downscale(degradation_image, downscale_factor)
     degradation_image = downscale_function(degradation_image, downscale_factor)
@@ -73,17 +75,20 @@ def advanced_image_degradation_model(image, downscale_factor):
         blur_sigma = np.random.uniform(0.1, 2.4) 
     # Select downscale operation 
     downscale_operations = (nearest_neighbor_downscale, linear_downscale, cubic_downscale)
-    downsale_operation = downscale_operations[np.random.randint(0, 3)]
+    downscale_operation = downscale_operations[np.random.randint(0, 3)]
 
     degradation_operations = [
         partial(add_gaus_noise, noise_sigma=noise_sigma),
         partial(apply_gaus_blur, blur_sigma=blur_sigma),
-        partial(downsale_operation, downscale_factor = downscale_factor)
+        partial(downscale_operation, downscale_factor = downscale_factor)
     ]
-
+    # Apply operations in random order 
     np.random.shuffle(degradation_operations)
     for operation in degradation_operations: 
-        degradation_image = operation(degrad)
+        degradation_image = operation(degradation_image)
+    
+    return degradation_image
+
 
 
 
