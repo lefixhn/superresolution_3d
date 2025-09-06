@@ -38,10 +38,11 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2)
                 image = imd.crop_image_for_downscale(image, downscale_factor=downscale_factor)
                 # Apply degradation model 
                 lr_image = degradation_model(image=image, downscale_factor=downscale_factor)
+                
                 # Store LR image as np
-                np.save(os.path.join(STORE_LR_PATH, f'{element_counter}.npy'), lr_image)
+                np.save(os.path.join(STORE_LR_PATH, f'{element_counter:04d}.npy'), lr_image)
                 # Store HR image as np
-                np.save(os.path.join(STORE_HR_PATH, f'{element_counter}.npy'), image)
+                np.save(os.path.join(STORE_HR_PATH, f'{element_counter:04d}.npy'), image)
 
                 element_counter = element_counter + 1 
         if item_limit is not None: 
