@@ -9,8 +9,6 @@ STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/degra
 STORE_LR_PATH = os.path.join(STORE_BASE_PATH, 'lr')
 STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
 
-
-
 # This ensures that the correct mri channel is loaded
 FILE_CHANNEL_INDICATOR = 'flair'
 
@@ -21,7 +19,6 @@ def crop_image_for_downscale(image, downscale_factor):
     cropped_ranges = tuple(slice(0, cropped_dimension) for cropped_dimension in cropped_shape)
     cropped_image = image[cropped_ranges]
     return cropped_image
-
 
 def image_degradation(image: np.array ,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0):
     degradation_image = image
