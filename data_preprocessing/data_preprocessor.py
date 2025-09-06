@@ -22,14 +22,17 @@ def crop_image_for_downscale(image, downscale_factor):
     cropped_image = image[cropped_ranges]
     return cropped_image
 
-def image_degradation(image: np.array ,noise_sigma, downscale_factor=2 ,blur_sigma = 0):
+def image_degradation(image: np.array ,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0):
     degradation_image = image
     # Apply gaussian blur 
     if blur_sigma != 0: 
         degradation_image = ndimage.gaussian_filter(image, sigma=blur_sigma)
     # Scale down 
     degradation_image = crop_image_for_downscale(degradation_image, downscale_factor)
+    degradation_image = downscale_function(degradation_image, downscale_factor)
+    # Add gaussian noise 
     
+
     
 
 
