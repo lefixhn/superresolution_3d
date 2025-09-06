@@ -1,4 +1,5 @@
 import os
+from functools import partial
 import numpy as np 
 import nibabel as nib
 from scipy import ndimage
@@ -55,20 +56,37 @@ def default_degradation(image, downscale_factor):
     blur_sigma = 0
     downscale_functions = (nearest_neighbor_downscale, linear_downscale, cubic_downscale) 
     # Select random downscale function 
-    downsale_function = downscale_functions[np.random.randint(0, 3)]
-    return general_image_degradation_model(image, noise_sigma, downsale_function, downscale_factor, blur_sigma) 
+    downscale_function = downscale_functions[np.random.randint(0, 3)]
+    return general_image_degradation_model(image, noise_sigma, downscale_function, downscale_factor, blur_sigma) 
 
 
 def advanced_image_degradation_model(image, downscale_factor):
     '''
     Here we apply the degradation operations in random order 
     ''' 
-    noise_sigma = np.random.randint(1, 26) / 255
+    degradation_image = crop_image_for_downscale(image, downscale_factor)
+    noise_sigma = np.random.randint(1, 26) / 255  
     blur_sigma = None
     if downscale_factor > 2:
         blur_sigma = np.random.uniform(0.1, 2.8) 
     else: 
         blur_sigma = np.random.uniform(0.1, 2.4) 
+    # Select downscale operation 
+    downscale_operations = (nearest_neighbor_downscale, linear_downscale, cubic_downscale)
+    downsale_operation = downscale_operations[np.random.randint(0, 3)]
 
+    degradation_operations = [
+        partial(add_gaus_noise, noise_sigma=noise_sigma),
+        partial(apply_gaus_blur, blur_sigma=blur_sigma),
+        partial(downsale_operation, downscale_factor = downscale_factor)
+    ]
+
+    np.random.shuffle(degradation_operations)
+    for operation in degradation_operations: 
+        degradation_image = operation(degrad)
+
+
+
+    
 
 
