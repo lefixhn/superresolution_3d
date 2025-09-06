@@ -14,10 +14,13 @@ FILE_CHANNEL_INDICATOR = 'flair'
 
 
 def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2): 
-    element_counter = 0
+    
     # Ensure folders exist
     os.makedirs(STORE_LR_PATH, exist_ok=True)
     os.makedirs(STORE_HR_PATH, exist_ok=True)
+
+    sub_folder_counter = 0
+    element_counter = 0
 
     # Iterate though subfolders
     for sub_folder in os.listdir(SOURCE_PATH):
@@ -44,7 +47,12 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2)
         if item_limit is not None: 
             if item_limit < element_counter: 
                 break
+        
+        sub_folder_counter = sub_folder_counter + 1
+    
+    print(f'Searched through {sub_folder_counter} subfolders')
+    print(f'Added {element_counter} elements')
 
 
 if __name__ == '__main__': 
-    preprocess_data(degradation_model=imd.advanced_image_degradation_model, item_limit=10)
+    preprocess_data(degradation_model=imd.advanced_image_degradation_model)
