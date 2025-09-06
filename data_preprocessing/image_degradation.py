@@ -26,15 +26,16 @@ def cubic_downscale(image, downscale_factor):
 
 # Define blur function 
 def apply_gaus_blur(image, blur_sigma): 
-    
+    blurred_image = ndimage.gaussian_filter(image, sigma=blur_sigma, truncate=3.0)
+    return blurred_image
 
 def add_gaus_noise(image, noise_sigma): 
     # Add gaussian noise 
     noise = np.random.normal(0,noise_sigma, image.shape)
-    image = image + noise 
+    noised_image = image + noise 
     # Clip values outside 0-1
-    image = np.clip(image, 0, 1)
-    return image
+    noised_image = np.clip(noised_image, 0, 1)
+    return noised_image
 
 def general_image_degradation_model(image: np.array ,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0):
     degradation_image = image
@@ -62,8 +63,12 @@ def advanced_image_degradation_model(image, downscale_factor):
     '''
     Here we apply the degradation operations in random order 
     ''' 
-
-     
+    noise_sigma = np.random.randint(1, 26) / 255
+    blur_sigma = None
+    if downscale_factor > 2:
+        blur_sigma = np.random.uniform(0.1, 2.8) 
+    else: 
+        blur_sigma = np.random.uniform(0.1, 2.4) 
 
 
 
