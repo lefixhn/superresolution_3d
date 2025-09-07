@@ -13,7 +13,7 @@ class DenseBlock3D(nn.Module):
         self.num_layers = num_layers
         self.layers = nn.ModuleList([
             nn.Sequential([
-                nn.Conv3d(in_channels*i, in_channels)
+                nn.Conv3d(in_channels*i, in_channels),
                 nn.LeakyReLU(l_lrelu_alpha)
             ])
             for i in range(1, num_layers+1)
