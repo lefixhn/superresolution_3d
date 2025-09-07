@@ -11,7 +11,6 @@ class UNet(nn.Module):
     def forward(self, x):
         return x 
     
-    
     def _build_encoder_block(self, in_channels, out_channels):
         return None
 
@@ -19,8 +18,10 @@ class UNet(nn.Module):
     def _build_decoder_block(self, in_channels, out_channels):
         return None
 
-    def _build_ds_method(self):
+    def _build_ds_method(self, , in_channels, out_channels):
         return None 
+
+    def _build_bottom_block(self)
 
     def _build_us_method(self): 
         return None
