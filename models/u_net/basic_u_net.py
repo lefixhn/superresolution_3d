@@ -68,7 +68,7 @@ class BasicUNetU(nn.Module):
         level3_out_channels = 512
 
         self.encoder_level1 = nn.Sequential(
-            nn.Conv3d(in_channels=1, out_channels=level1_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=1, out_channels=level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
             nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
@@ -149,9 +149,13 @@ class BasicUNetU(nn.Module):
         decoder_level2_in = torch.cat([upscale(encoder_level3_out), encoder_level2_out], dim=1)
         decoder_level_2_out = self.decoder_level2(decoder_level2_in)
         decoder_level_1_in = torch.cat([upscale(decoder_level_2_out), encoder_level1_out, x], dim=1)
-        decoder_level_1_out = self.decoder_level1(devoder_level_1_in)
+        decoder_level_1_out = self.decoder_level1(decoder_level_1_in)
         out = self.pixel_shuffle(decoder_level_1_out)
         return out
+
+# Check weather this works
+x_odd = torch.randn(1, 1, 60, 62, 66)
+y_odd = model(x_odd)  # klappt, wenn alle Pads=1 gesetzt sind UND D/H/W % 4 == 0
 
 
 
