@@ -7,8 +7,13 @@ import torch.nn.functional as F
 
 class DenseBlock3D(nn.Module): 
 
-    def __init__(self, in_channels, out_channels,num_layers=4, l_lrelu_alpha=0.1): 
+    def __init__(self, in_channels, out_channels=None,num_layers=4, l_lrelu_alpha=0.1): 
         super().__init__()
+        if out_channels = None: 
+            out_channels = in_channels
+        
+        self.in_channels = in_channels
+        self.out_channels = out_channels
         # The layers have growing input sizes due to concatination, but the
         # Same output size 
         self.num_layers = num_layers
@@ -55,6 +60,9 @@ class BasicUNetU(nn.Module):
             mode='trilinear', align_corners=False
             )
             encoder_results.append(x)
+
+        for block in self.decoder_blocks: 
+            x = 
         
 
 
