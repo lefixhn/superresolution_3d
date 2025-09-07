@@ -34,35 +34,44 @@ class DenseBlock3D(nn.Module):
 
 class BasicUNetU(nn.Module): 
 
-    def __init__(self, upscale_factor=2, num_blocks=4):
+    def __init__(self, upscale_factor=2):
         super().__init__()
         self.upscale_factor = upscale_factor
-        # 4 Blocks, after each one we scale down
-        self.encoder_blocks = nn.ModuleList([        
-                DenseBlock3D(64*i)
-                for i in range(1, self.num_blocks+1)
+        entry_channels = 128
+
+        level1_out_channels = 128
+        level2_out_channels = 256
+        level3_out_channels = 512
+
+        self.level1 = nn.Sequential([
+            nn.Conv3d(in_channels=1, out_channels=level1_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels), 
+            nn.LeakyReLU(0.1),
         ])
 
-        self.decoder_blocks = nn.ModuleList([
-            DenseBlock3D(64*i)
-            for i in range(self.num_blocks+1, 1)
+        self.level1 = nn.Sequential([
+            nn.Conv3d(in_channels=level1_out_channels, out_channels=level2_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels), 
+            nn.LeakyReLU(0.1),
         ])
+
+        
 
         
     
     def forward(self, x):
-        # Stores the outputs of the encoder layers 
-        encoder_results = [x]
-        # Do the encoding and store results
-        for block in self.encoder_blocks: 
-            x = block(x)
-            x = F.interpolate(x, scale_factor=(1/self.upscale_factor, 1/self.upscale_factor,1/self.upscale_factor), 
-            mode='trilinear', align_corners=False
-            )
-            encoder_results.append(x)
-
-        for block in self.decoder_blocks: 
-            x = 
+        
+        
         
 
 
