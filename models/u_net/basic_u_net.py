@@ -61,7 +61,7 @@ class BasicUNetU(nn.Module):
     def __init__(self, upscale_factor=2):
         super().__init__()
         self.upscale_factor = upscale_factor
-        entry_channels = 128
+        
 
         level1_out_channels = 128
         level2_out_channels = 256
@@ -103,7 +103,7 @@ class BasicUNetU(nn.Module):
         decoder_level2_in_channels = level3_out_channels + level2_out_channels
         decoder_level2_out_channels = level2_out_channels
 
-        decoder_level1_in_channels = decoder_level2_out_channels + level1_out_channels
+        decoder_level1_in_channels = decoder_level2_out_channels + level1_out_channels + 1
         decoder_level1_out_channels = level1_out_channels
         
 
@@ -129,7 +129,7 @@ class BasicUNetU(nn.Module):
             nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=decoder_level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1), 
             # Adjust dimensions for pixelshuffle 
-            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=2**upscale_factor, kernel_size=3, padding=1), 
+            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=upscale_factor**3, kernel_size=3, padding=1), 
         )
         
         self.pixel_shuffle = PixelShuffle3D(upscale_factor=self.upscale_factor)
@@ -140,7 +140,7 @@ class BasicUNetU(nn.Module):
     def forward(self, x):
         pool = nn.MaxPool3d(2, 2)
         def upscale(data):
-            return F.interpolate(data, scale_factor=(2, 2r, self.upscale_factor), mode='trilinear', align_corners=False)
+            return F.interpolate(data, scale_factor=(2, 2, 2), mode='trilinear', align_corners=False)
 
         encoder_level1_out = self.encoder_level1(x)
         encoder_level2_out = self.encoder_level2(pool(encoder_level1_out))
@@ -148,9 +148,9 @@ class BasicUNetU(nn.Module):
         
         decoder_level2_in = torch.cat([upscale(encoder_level3_out), encoder_level2_out], dim=1)
         decoder_level_2_out = self.decoder_level2(decoder_level2_in)
-        devoder_level_1_in = torch.cat([upscale(decoder_level_2_out), encoder_level1_out], dim=1)
-        devoder_level_1_out = self.decoder_level1(devoder_level_1_in)
-        out = self.pixel_shuffle(devoder_level_1_out)
+        decoder_level_1_in = torch.cat([upscale(decoder_level_2_out), encoder_level1_out, x], dim=1)
+        decoder_level_1_out = self.decoder_level1(devoder_level_1_in)
+        out = self.pixel_shuffle(decoder_level_1_out)
         return out
 
 
