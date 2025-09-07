@@ -12,7 +12,11 @@ class UNet(nn.Module):
         return x 
 
     
+    def _build_encoder_block(self, in_channels, out_channels):
+        return None
 
-    def _build_ds_method():
-        return 
+    
+
+    def _build_ds_method(self):
+        return None 
 
