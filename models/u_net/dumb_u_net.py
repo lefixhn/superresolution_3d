@@ -56,7 +56,7 @@ class PixelShuffle3D(nn.Module):
 
 
 
-class DumbUNetU(nn.Module): 
+class BasicUNetU(nn.Module): 
 
     def __init__(self, upscale_factor=2):
         super().__init__()
@@ -154,7 +154,7 @@ class DumbUNetU(nn.Module):
         return out
 
 # Check weather this works
-model = DumbUNetU(upscale_factor=2)
+model = BasicUNetU(upscale_factor=2)
 x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
 y = model(x)
 print("in :", x.shape)  # torch.Size([2, 1, 64, 64, 64])
