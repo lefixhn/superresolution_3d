@@ -1,5 +1,6 @@
 import torch.nn as nn 
 import torch 
+import torch.nn.functional as F 
 
 # Data Structure: 
 # 5D Tensor (BatchIndex, Channel, Depth, Height, Width)
@@ -13,12 +14,11 @@ class DenseBlock3D(nn.Module):
         self.num_layers = num_layers
         self.layers = nn.ModuleList([
             nn.Sequential([
-                nn.Conv3d(in_channels*i, in_channels),
+                nn.Conv3d(in_channels*i, in_channels, ),
                 nn.LeakyReLU(l_lrelu_alpha)
             ])
             for i in range(1, num_layers+1)
         ])
-        
     
     def forward(self, x): 
         for layer in self.layers: 
@@ -29,10 +29,21 @@ class DenseBlock3D(nn.Module):
 
 class BasicUNetU(nn.Module): 
 
-    def __init__(self, upscale_factor):
+    def __init__(self, upscale_factor=2, num_blocks=4):
         super().__init__()
         self.upscale_factor = upscale_factor
+        # 4 Blocks, after each one we scale down
+        self.encoder_blocks = nn.ModuleList([        
+                DenseBlock3D(64)
+                for i in range(num_blocks)
+        ])
+
+        self.decoder_blocks = nn.ModuleList([
+            DenseBlock3D(64)
+            for i in range(num_blocks)
+        ])
 
     
     def forward(self, x):
+        
 
