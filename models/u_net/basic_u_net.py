@@ -34,14 +34,16 @@ class BasicUNetU(nn.Module):
         self.upscale_factor = upscale_factor
         # 4 Blocks, after each one we scale down
         self.encoder_blocks = nn.ModuleList([        
-                DenseBlock3D(64)
-                for i in range(num_blocks)
+                DenseBlock3D(64*i)
+                for i in range(1, self.num_blocks+1)
         ])
 
         self.decoder_blocks = nn.ModuleList([
             DenseBlock3D(64*i)
-            for i in range(1, self.num_blocks+1)
+            for i in range(self.num_blocks+1, 1)
         ])
+
+        
     
     def forward(self, x):
         # Stores the outputs of the encoder layers 
@@ -53,6 +55,8 @@ class BasicUNetU(nn.Module):
             mode='trilinear', align_corners=False
             )
             encoder_results.append(x)
+        
+
 
         
 
