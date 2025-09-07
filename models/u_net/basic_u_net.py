@@ -43,7 +43,7 @@ class BasicUNetU(nn.Module):
         level2_out_channels = 256
         level3_out_channels = 512
 
-        self.level1 = nn.Sequential([
+        self.encoder_level1 = nn.Sequential([
             nn.Conv3d(in_channels=1, out_channels=level1_out_channels), 
             nn.LeakyReLU(0.1),
             nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels), 
@@ -54,7 +54,7 @@ class BasicUNetU(nn.Module):
             nn.LeakyReLU(0.1),
         ])
 
-        self.level1 = nn.Sequential([
+        self.encoder_level2 = nn.Sequential([
             nn.Conv3d(in_channels=level1_out_channels, out_channels=level2_out_channels), 
             nn.LeakyReLU(0.1),
             nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels), 
@@ -65,8 +65,29 @@ class BasicUNetU(nn.Module):
             nn.LeakyReLU(0.1),
         ])
 
-        
+        self.encoder_level3 = nn.Sequential([
+            nn.Conv3d(in_channels=level2_out_channels, out_channels=level3_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels), 
+            nn.LeakyReLU(0.1),
+        ])
 
+        decoder_level2_in_channels = level3_out_channels + level2_out_channels
+       
+        self.decoder_level2 = nn.Sequential([
+            nn.Conv3d(in_channels=decoder_level2_in_channels, out_channels=level3_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels), 
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels), 
+            nn.LeakyReLU(0.1),
+        ])
         
     
     def forward(self, x):
