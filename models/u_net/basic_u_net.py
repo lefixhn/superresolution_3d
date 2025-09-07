@@ -39,11 +39,18 @@ class BasicUNetU(nn.Module):
         ])
 
         self.decoder_blocks = nn.ModuleList([
-            DenseBlock3D(64)
-            for i in range(num_blocks)
+            DenseBlock3D(64*i)
+            for i in range(1, self.num_blocks+1)
         ])
-
     
     def forward(self, x):
+        # Stores the outputs of the encoder layers 
+        encoder_results = []
+
+        for block in self.encoder_blocks: 
+            
+
+        
+
         
 
