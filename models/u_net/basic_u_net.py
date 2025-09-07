@@ -70,33 +70,33 @@ class BasicUNetU(nn.Module):
         self.encoder_level1 = nn.Sequential(
             nn.Conv3d(in_channels=1, out_channels=level1_out_channels, kernel_size=3), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level1_out_channels, out_channels=level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
         )
 
         self.encoder_level2 = nn.Sequential(
-            nn.Conv3d(in_channels=level1_out_channels, out_channels=level2_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level1_out_channels, out_channels=level2_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level2_out_channels, out_channels=level2_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
         )
 
         self.encoder_level3 = nn.Sequential(
-            nn.Conv3d(in_channels=level2_out_channels, out_channels=level3_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level2_out_channels, out_channels=level3_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=level3_out_channels, out_channels=level3_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
         )
 
@@ -109,27 +109,27 @@ class BasicUNetU(nn.Module):
 
        
         self.decoder_level2 = nn.Sequential(
-            nn.Conv3d(in_channels=decoder_level2_in_channels, out_channels=decoder_level2_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=decoder_level2_in_channels, out_channels=decoder_level2_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=decoder_level2_out_channels, out_channels=decoder_level2_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=decoder_level2_out_channels, out_channels=decoder_level2_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=decoder_level2_out_channels, out_channels=decoder_level2_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=decoder_level2_out_channels, out_channels=decoder_level2_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=decoder_level2_out_channels, out_channels=decoder_level2_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=decoder_level2_out_channels, out_channels=decoder_level2_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
         )
 
         self.decoder_level1 = nn.Sequential(
-            nn.Conv3d(in_channels=decoder_level1_in_channels, out_channels=decoder_level1_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=decoder_level1_in_channels, out_channels=decoder_level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=decoder_level1_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=decoder_level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=decoder_level1_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=decoder_level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1),
-            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=decoder_level1_out_channels, kernel_size=3), 
+            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=decoder_level1_out_channels, kernel_size=3, padding=1), 
             nn.LeakyReLU(0.1), 
             # Adjust dimensions for pixelshuffle 
-            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=2**upscale_factor, kernel_size=3), 
+            nn.Conv3d(in_channels=decoder_level1_out_channels, out_channels=2**upscale_factor, kernel_size=3, padding=1), 
         )
         
         self.pixel_shuffle = PixelShuffle3D(upscale_factor=self.upscale_factor)
@@ -139,7 +139,8 @@ class BasicUNetU(nn.Module):
     
     def forward(self, x):
         pool = nn.MaxPool3d(2, 2)
-        def upscale(data):F.interpolate(data, scale_factor=(self.upscale_factor, self.upscale_factor, self.upscale_factor), mode='trilinear', align_corners=False)
+        def upscale(data):
+            return F.interpolate(data, scale_factor=(2, 2r, self.upscale_factor), mode='trilinear', align_corners=False)
 
         encoder_level1_out = self.encoder_level1(x)
         encoder_level2_out = self.encoder_level2(pool(encoder_level1_out))
