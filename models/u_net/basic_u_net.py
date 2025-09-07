@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 class DenseBlock3D(nn.Module): 
 
-    def __init__(self, in_channels ,num_layers=4, l_lrelu_alpha=0.1): 
+    def __init__(self, in_channels, out_channels,num_layers=4, l_lrelu_alpha=0.1): 
         super().__init__()
         # The layers have growing input sizes due to concatination, but the
         # Same output size 
@@ -45,10 +45,14 @@ class BasicUNetU(nn.Module):
     
     def forward(self, x):
         # Stores the outputs of the encoder layers 
-        encoder_results = []
-
+        encoder_results = [x]
+        # Do the encoding and store results
         for block in self.encoder_blocks: 
-            
+            x = block(x)
+            x = F.interpolate(x, scale_factor=(1/self.upscale_factor, 1/self.upscale_factor,1/self.upscale_factor), 
+            mode='trilinear', align_corners=False
+            )
+            encoder_results.append(x)
 
         
 
