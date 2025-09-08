@@ -148,10 +148,19 @@ class BasicUNet(nn.Module):
         
         decoder_level2_in = torch.cat([upscale(encoder_level3_out), encoder_level2_out], dim=1)
         decoder_level_2_out = self.decoder_level2(decoder_level2_in)
-        decoder_level_1_in = torch.cat([upscale(decoder_level_2_out), encoder_level1_out, x], dim=1)
-        decoder_level_1_out = self.decoder_level1(decoder_level_1_in)
-        out = self.pixel_shuffle(decoder_level_1_out)
-        return out
+        try: 
+            decoder_level_1_in = torch.cat([upscale(decoder_level_2_out), encoder_level1_out, x], dim=1)
+            decoder_level_1_out = self.decoder_level1(decoder_level_1_in)
+            out = self.pixel_shuffle(decoder_level_1_out)
+            return out
+        except RuntimeError as e:
+            print("########### FEHLER ###########")
+            print(upscale(decoder_level_2_out).shape)
+            print(decoder_level_2_out.shape)
+            print(encoder_level1_out.shape)
+            print(x.shape)
+            print("Fehler:", e)
+            raise 
 
 # Check weather this works
 model = BasicUNet(upscale_factor=2)
