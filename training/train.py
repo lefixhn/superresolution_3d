@@ -5,6 +5,7 @@ import torch
 import torch.optim as optim
 import os
 import re
+import csv
 from typing import Optional 
 
 DEFAULT_MODELS_PATH = '/content/drive/MyDrive/superresolution_3d_data/models'
@@ -131,3 +132,30 @@ def _append_history_row(csv_path: str, epoch: int, train_loss: float, val_loss: 
         if header_needed:
             w.writerow(['epoch', 'train_loss', 'val_loss'])
         w.writerow([epoch, train_loss, ("" if val_loss is None else val_loss)])
+
+@torch.no_grad()
+def _evaluate(model, dataloader, loss_criterion, device):
+    if dataloader is None:
+        return None
+    model.eval()    # Go in eval mode
+    total = 0.0
+    for lr_image, hr_image in dataloader:
+        lr_image = lr_image.to(device)
+        hr_image = hr_image.to(device)
+        sr_image = model(lr_image)
+        total += loss_criterion(sr_image, hr_image).item()
+    model.train()   # Go in training mode 
+    return total / max(1, len(dataloader))
+
+def _save_checkpoint(ckpt_dir: str, epoch: int, model, optimizer, best_val_loss: float, is_best: bool):
+    state = {
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'best_val_loss': best_val_loss,
+    }
+    ep_path = os.path.join(ckpt_dir, f'epoch_{epoch:04d}.pt')  # Endung .pt ist üblich
+    torch.save(state, ep_path)
+    torch.save(state, os.path.join(ckpt_dir, 'last.pt'))
+    if is_best:
+        torch.save(state, os.path.join(ckpt_dir, 'best.pt'))
