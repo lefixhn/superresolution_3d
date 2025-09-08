@@ -30,13 +30,12 @@ class PreloadedBratsDataset(Dataset):
         if self.cube_side_length is None: 
             return data_tuple 
         else:
-            # Load sub cube 
-            lr_shape = data_tuple[0].shape
+            lr_shape = data_tuple[0].shape[1:]
             min_shape_dim = min(lr_shape)
             safe_side_length = min([min_shape_dim, self.cube_side_length])
             # Select random position 
-            x, y, z = np.random.randint(0, lr_shape[0] - safe_side_length), np.random.randint(0, lr_shape[1] - safe_side_length), np.random.randint(0, lr_shape[2] - safe_side_length)
-            # Lo
+            x, y, z = np.random.randint(0, lr_shape[0] - safe_side_length + 1), np.random.randint(0, lr_shape[1] - safe_side_length + 1), np.random.randint(0, lr_shape[2] - safe_side_length + 1)
+            # Select Sub cubes
             lr_tensor = data_tuple[0][:, x:x+safe_side_length, y:y+safe_side_length, z:z+safe_side_length]
             x, y, z, safe_side_length = 2*x, 2*y, 2*z, 2*safe_side_length
             hr_tensor = data_tuple[1][:, x:x+safe_side_length, y:y+safe_side_length, z:z+safe_side_length]
