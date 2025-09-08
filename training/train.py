@@ -13,23 +13,25 @@ def train(
     learning_rate=1e-4, 
     epochs=10, 
     batch_size=4, 
-    dataloader_num_workers=2
+    optimizer=None, 
+    dataloader_num_workers=2,
+    loss_criterion = nn.L1Loss(), 
     model_store_name='MyModel',
-    checkpoint_path=CHECKPOINT_DEFAULT_PATH
+    model_path=CHECKPOINT_DEFAULT_PATH,
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), 
 ):
     
     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=dataloader_num_workers, persistent_workers=True)
     
     model = model.to(device)
+    if optimizer is None: 
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    loss_criterion = nn.L1Loss()
+    # Create file
+    model_path = os.path.join()
+    os.makedirs(checkpoint_path, exist_ok=True)
 
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
-    os.makedirs(SAFE_CHECKPOINT_PATH, exist_ok=True)
-
-    print(f'STARTING TO TRAIN ON {device}')
+    print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate the epochs 
     for epoch in range(1, epochs + 1):
         training_visualizer = tqdm(dataloader, leave=True)
