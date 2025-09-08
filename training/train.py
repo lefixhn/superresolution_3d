@@ -17,10 +17,14 @@ def train(
     optimizer=None, 
     dataloader_num_workers=2,
     loss_criterion = nn.L1Loss(), 
+    train_from_last_checkpoint=Fal
     model_store_name=None,
     models_path=DEFAULT_MODELS_PATH,
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), 
 ):
+    validation_dataloader = None
+    if validation_dataset is not None: 
+        validation_dataloader = DataLoader(dataset=dataset, batch_size=1, shuffle=False, num_workers=dataloader_num_workers, persistent_workers=True)
     # Prepare DATALOADER, MODEL and OPTIMIZER
     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=dataloader_num_workers, persistent_workers=True)
     model = model.to(device)
@@ -70,6 +74,8 @@ def train(
         torch.save(model.state_dict(), f'{SAFE_CHECKPOINT_PATH}/{model_store_name}')
     # AFTER TRAINING
     print("TRAINING IS COMPLETED")
+
+
 
 if __name__ == "__main__":
     train()
