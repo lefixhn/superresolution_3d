@@ -63,7 +63,7 @@ def train(
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         epoch_index = _get_epoch_index(last_checkpoint_path)
         if epoch_index is int: 
-            epoch_counter =
+            epoch_counter = epoch_index + 1 # We start one epoch further than the last 
         
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
@@ -124,3 +124,10 @@ def _find_latest_ckeckpoint_dir(checkpoints_path: str) -> Optional[str]:
         checkpoints.sort(key=lambda checkpoint: int(re.findall(r"\d+", checkpoint)))
         return os.path.join(checkpoints_path, checkpoints[-1])
 
+def _append_history_row(csv_path: str, epoch: int, train_loss: float, val_loss: Optional[float]):
+    header_needed = not os.path.exists(csv_path)
+    with open(csv_path, 'a', newline='') as f:
+        w = csv.writer(f)
+        if header_needed:
+            w.writerow(['epoch', 'train_loss', 'val_loss'])
+        w.writerow([epoch, train_loss, ("" if val_loss is None else val_loss)])
