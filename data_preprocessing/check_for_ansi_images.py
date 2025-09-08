@@ -1,6 +1,7 @@
 '''
 This script searches through all .nii.gz files in a given directory. 
-It checks weather all images are isotropic, or weather there are also ansitropic images
+It checks whether all images are isotropic, or whether there are also anisotropic images.
+Now includes shape statistics and a simple progress bar.
 This code is AI generated
 '''
 #!/usr/bin/env python3
@@ -10,11 +11,11 @@ import os
 import sys
 import argparse
 import math
-from typing import Tuple, List, Dict
+from typing import Tuple, List
 from collections import Counter
 
 SEARCH_PATH = "/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data"
-
+print("analyzing data")
 try:
     import nibabel as nib
 except ImportError:
@@ -23,12 +24,7 @@ except ImportError:
 
 
 def is_isotropic(zooms: Tuple[float, ...], rel_tol: float = 1e-3, abs_tol: float = 1e-6) -> bool:
-    """
-    Prüft, ob die ersten drei Zooms (Voxelgrößen) isotrop sind.
-    Nutzt eine Kombination aus relativer und absoluter Toleranz.
-    """
     if len(zooms) < 3:
-        # Für 2D o.ä. behandeln wir das als nicht eindeutig → anisotrop
         return False
     z0, z1, z2 = zooms[:3]
     return (math.isclose(z0, z1, rel_tol=rel_tol, abs_tol=abs_tol) and
@@ -36,35 +32,20 @@ def is_isotropic(zooms: Tuple[float, ...], rel_tol: float = 1e-3, abs_tol: float
 
 
 def get_zooms(path: str) -> Tuple[float, ...]:
-    """
-    Lädt die Datei mit nibabel und gibt die Zooms/Spacings zurück.
-    """
     img = nib.load(path)
-    # header.get_zooms liefert Voxelgrößen (z.B. (sx, sy, sz, t, ...))
     return img.header.get_zooms()
 
 
 def get_spatial_shape(path: str) -> Tuple[int, ...]:
-    """
-    Liefert die ersten bis zu drei Dimensionen der Bildgröße (in Pixeln).
-    Lädt nur den Header (kein volles Bild in RAM).
-    Beispiele:
-      - 3D Volumen (D, H, W) -> (D, H, W)
-      - 2D Bild (H, W)       -> (H, W)
-      - 4D (D, H, W, T)      -> (D, H, W)
-    """
     img = nib.load(path)
-    shape = img.shape  # Tuple[int, ...]
+    shape = img.shape
     if len(shape) >= 3:
         return tuple(shape[:3])
     else:
-        return tuple(shape)  # z.B. (H, W)
+        return tuple(shape)
 
 
 def find_files(root: str) -> List[str]:
-    """
-    Sucht rekursiv nach .nii.gz-Dateien.
-    """
     hits = []
     for dirpath, _, filenames in os.walk(root):
         for fn in filenames:
@@ -92,11 +73,9 @@ def main():
     iso_count = 0
     aniso_count = 0
     error_count = 0
-
-    # Häufigkeiten der Shapes (erste drei Dimensionen)
     shape_counter: Counter[Tuple[int, ...]] = Counter()
 
-    for path in files:
+    for idx, path in enumerate(files, start=1):
         try:
             zooms = get_zooms(path)
             iso = is_isotropic(zooms, rel_tol=args.rel_tol, abs_tol=args.abs_tol)
@@ -105,7 +84,6 @@ def main():
             else:
                 aniso_count += 1
 
-            # Shape (Pixel) mitzählen
             shp = get_spatial_shape(path)
             shape_counter[shp] += 1
 
@@ -119,19 +97,27 @@ def main():
             if args.print_details:
                 print(f"[fehler   ] {path}  |  {e}")
 
+        # Fortschrittsanzeige nur alle 10 Dateien aktualisieren
+        if idx % 10 == 0 or idx == total:
+            percent = (idx / total) * 100
+            bar_length = 30
+            filled = int(bar_length * idx // total)
+            bar = "█" * filled + "-" * (bar_length - filled)
+            print(f"\rVerarbeite Dateien: |{bar}| {idx}/{total} ({percent:5.1f}%)", end="", flush=True)
+
+    print()  # Umbruch nach Fortschrittsbalken
+
     print("\n--- Zusammenfassung ---")
     print(f"Gefundene .nii.gz-Dateien : {total}")
     print(f"Isotrop                    : {iso_count}")
     print(f"Anisotrop                  : {aniso_count}")
     print(f"Fehler beim Einlesen       : {error_count}")
 
-    # Statistik der Bildgrößen ausgeben (absteigend nach Häufigkeit)
     if shape_counter:
         print("\n--- Häufigkeiten der Bildgrößen (Pixel) ---")
         for shp, cnt in sorted(shape_counter.items(), key=lambda kv: (-kv[1], kv[0])):
             print(f"{shp}  >  {cnt} mal enthalten")
 
-    # Exit-Code: 0 ok, 1 wenn Fehler auftraten
     sys.exit(0 if error_count == 0 else 1)
 
 
