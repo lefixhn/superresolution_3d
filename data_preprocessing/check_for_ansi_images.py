@@ -10,7 +10,8 @@ import os
 import sys
 import argparse
 import math
-from typing import Tuple, List
+from typing import Tuple, List, Dict
+from collections import Counter
 
 SEARCH_PATH = "/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data"
 
@@ -43,6 +44,23 @@ def get_zooms(path: str) -> Tuple[float, ...]:
     return img.header.get_zooms()
 
 
+def get_spatial_shape(path: str) -> Tuple[int, ...]:
+    """
+    Liefert die ersten bis zu drei Dimensionen der Bildgröße (in Pixeln).
+    Lädt nur den Header (kein volles Bild in RAM).
+    Beispiele:
+      - 3D Volumen (D, H, W) -> (D, H, W)
+      - 2D Bild (H, W)       -> (H, W)
+      - 4D (D, H, W, T)      -> (D, H, W)
+    """
+    img = nib.load(path)
+    shape = img.shape  # Tuple[int, ...]
+    if len(shape) >= 3:
+        return tuple(shape[:3])
+    else:
+        return tuple(shape)  # z.B. (H, W)
+
+
 def find_files(root: str) -> List[str]:
     """
     Sucht rekursiv nach .nii.gz-Dateien.
@@ -57,9 +75,8 @@ def find_files(root: str) -> List[str]:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Zählt isotrope vs. anisotrope NIfTI-Dateien (.nii.gz) in einem Verzeichnisbaum."
+        description="Zählt isotrope vs. anisotrope NIfTI-Dateien (.nii.gz) und gibt eine Statistik der Bildgrößen aus."
     )
-    
     parser.add_argument("--rel-tol", type=float, default=1e-3,
                         help="Relative Toleranz für die Isotropie-Prüfung (default: 1e-3)")
     parser.add_argument("--abs-tol", type=float, default=1e-6,
@@ -69,12 +86,15 @@ def main():
     args = parser.parse_args()
 
     root = SEARCH_PATH
-   
+
     files = find_files(root)
     total = len(files)
     iso_count = 0
     aniso_count = 0
     error_count = 0
+
+    # Häufigkeiten der Shapes (erste drei Dimensionen)
+    shape_counter: Counter[Tuple[int, ...]] = Counter()
 
     for path in files:
         try:
@@ -85,11 +105,14 @@ def main():
             else:
                 aniso_count += 1
 
+            # Shape (Pixel) mitzählen
+            shp = get_spatial_shape(path)
+            shape_counter[shp] += 1
+
             if args.print_details:
                 status = "isotrop" if iso else "anisotrop"
-                # nur die ersten 4 Zooms anzeigen, falls vorhanden
                 z_str = ", ".join(f"{z:g}" for z in zooms[:4])
-                print(f"[{status:9}] {path}  |  zooms: ({z_str}{', ...' if len(zooms) > 4 else ''})")
+                print(f"[{status:9}] {path}  |  zooms: ({z_str}{', ...' if len(zooms) > 4 else ''})  |  shape: {shp}")
 
         except Exception as e:
             error_count += 1
@@ -102,7 +125,13 @@ def main():
     print(f"Anisotrop                  : {aniso_count}")
     print(f"Fehler beim Einlesen       : {error_count}")
 
-    # Exit-Code optional sinnvoll setzen (0 ok, 1 wenn Fehler auftraten)
+    # Statistik der Bildgrößen ausgeben (absteigend nach Häufigkeit)
+    if shape_counter:
+        print("\n--- Häufigkeiten der Bildgrößen (Pixel) ---")
+        for shp, cnt in sorted(shape_counter.items(), key=lambda kv: (-kv[1], kv[0])):
+            print(f"{shp}  >  {cnt} mal enthalten")
+
+    # Exit-Code: 0 ok, 1 wenn Fehler auftraten
     sys.exit(0 if error_count == 0 else 1)
 
 
