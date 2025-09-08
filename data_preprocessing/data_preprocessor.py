@@ -34,8 +34,9 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2,
                 image = image_loaded.get_fdata().astype(np.float32)
                 # Normalize 0-1
                 image = (image-np.min(image)) / (np.max(image)- np.min(image))
-                # Crop to image to make dividable by downscale_factor
-                image = imd.crop_image_for_downscale(image, downscale_factor=downscale_factor)
+                # Crop to image to make dividable by downscale_factor * sub_dividability_factor
+                # This is important to enable u-nets to divide the image more often
+                image = imd.crop_image_for_downscale(image, downscale_factor=downscale_factor*sub_dividability_factor)
                 # Apply degradation model 
                 lr_image = degradation_model(image=image, downscale_factor=downscale_factor)
                 

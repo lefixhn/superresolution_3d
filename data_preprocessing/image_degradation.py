@@ -9,9 +9,17 @@ np.random.seed(42)
 def crop_image_for_downscale(image, downscale_factor): 
     '''Changes the shape of an image, to make all dimensions dividable by 
     downscale_factor'''
+    # List of integers > size of the dimensions
     cropped_shape = [(dimension - (dimension % downscale_factor)) for dimension in image.shape]
-    cropped_ranges = tuple(slice(0, cropped_dimension) for cropped_dimension in cropped_shape)
+    # How much is cropped away
+    cropped_overhead = [(dimension % downscale_factor) for dimension in image.shape]
+    # Half it to crop both sides equaly
+    crop_offset = [overhead//2 for overhead in cropped_overhead]
+    # Slice is like the start:stop:step syntax
+    cropped_ranges = tuple(slice(crop_offset[i], crop_offset[i] + cropped_shape[i]) for i in range(len(cropped_shape)))
     cropped_image = image[cropped_ranges]
+    for dimension in cropped_image.shape:
+        assert dimension % downscale_factor == 0
     return cropped_image
 
 
