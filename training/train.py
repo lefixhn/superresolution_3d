@@ -17,7 +17,7 @@ def train(
     optimizer=None, 
     dataloader_num_workers=2,
     loss_criterion = nn.L1Loss(), 
-    train_from_last_checkpoint=Fal
+    train_from_last_checkpoint=False, 
     model_store_name=None,
     models_path=DEFAULT_MODELS_PATH,
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), 
@@ -27,6 +27,7 @@ def train(
         validation_dataloader = DataLoader(dataset=dataset, batch_size=1, shuffle=False, num_workers=dataloader_num_workers, persistent_workers=True)
     # Prepare DATALOADER, MODEL and OPTIMIZER
     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=dataloader_num_workers, persistent_workers=True)
+
     model = model.to(device)
     if optimizer is None: 
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
