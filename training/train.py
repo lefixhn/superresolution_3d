@@ -58,13 +58,14 @@ def train(
     # LOAD CHECKPOINT
     if train_from_last_checkpoint: 
         last_checkpoint_path= _find_latest_ckeckpoint_dir(checkpoints_path)
-        checkpoint = torch.load(last_checkpoint_path, map_location=device)
-        model.load_state_dict(checkpoint['model_state_dict'])
-        if 'optimizer_state_dict' in checkpoint: 
-            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        epoch_index = _get_epoch_index(last_checkpoint_path)
-        if epoch_index is not None: 
-            start_epoch = start_epoch + 1 # We start one epoch further than the last 
+        if not last_checkpoint_path is None:
+            checkpoint = torch.load(last_checkpoint_path, map_location=device)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            if 'optimizer_state_dict' in checkpoint: 
+                optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            epoch_index = _get_epoch_index(last_checkpoint_path)
+            if epoch_index is not None: 
+                start_epoch = start_epoch + 1 # We start one epoch further than the last 
         
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
