@@ -13,7 +13,7 @@ STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
 FILE_CHANNEL_INDICATOR = 'flair'
 
 
-def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2): 
+def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2, sub_dividability_factor=2**4): 
     
     # Ensure folders exist
     os.makedirs(STORE_LR_PATH, exist_ok=True)
