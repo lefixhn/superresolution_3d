@@ -61,6 +61,9 @@ def train(
         model.load_state_dict(checkpoint['model_state_dict'])
         if 'optimizer_state_dict' in checkpoint: 
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch_index = _get_epoch_index(last_checkpoint_path)
+        if epoch_index is int: 
+            epoch_counter =
         
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
@@ -102,7 +105,7 @@ def train(
 
 def _get_epoch_index(checkpoint_path: str) -> Optional[int]: 
     '''
-    "/Models/Mymodel2025/checkpoints/epoch2"
+    /Models/Mymodel2025/checkpoints/epoch219.pt -> 219
     '''
     filename = os.path.basename(checkpoint_path)
     matching = re.search(f"\d+", filename)
