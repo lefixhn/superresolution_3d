@@ -56,7 +56,7 @@ class PixelShuffle3D(nn.Module):
 
 
 
-class BasicUNetU(nn.Module): 
+class BasicUNet(nn.Module): 
 
     def __init__(self, upscale_factor=2):
         super().__init__()
