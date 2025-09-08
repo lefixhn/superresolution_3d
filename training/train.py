@@ -54,7 +54,7 @@ def train(
     # Build training history path 
     train_history_path = os.path.join(model_path, 'training_history.csv')
 
-    epoch_counter = 1 
+    start_epoch = 1 
     # LOAD CHECKPOINT
     if train_from_last_checkpoint: 
         last_checkpoint_path= _find_latest_ckeckpoint_dir(checkpoints_path)
@@ -64,11 +64,11 @@ def train(
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         epoch_index = _get_epoch_index(last_checkpoint_path)
         if epoch_index is int: 
-            epoch_counter = epoch_index + 1 # We start one epoch further than the last 
+            start_epoch = start_epoch + 1 # We start one epoch further than the last 
         
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
-    for epoch in range(1, epochs + 1):
+    for epoch in range(start_epoch, start_epoch + epochs ):
         training_visualizer = tqdm(dataloader, leave=True)
         average_loss = 0.0
         # Iterate trough minibatches
@@ -87,17 +87,15 @@ def train(
             optimizer.step()
 
             average_loss += loss.item()
-            if epoch % 40 == 0: 
-                training_visualizer.set_description(f'EPOCH {epoch}/{epochs+1}')
-                training_visualizer.set_postfix(loss=loss.item())
+            
             # AFTER MINIBATCH
         # AFTER EPOCH 
         # TODO: Wie kann ich hier falls vorhanden validieren und werte speichern
         average_loss = average_loss / len(dataloader)
+        validation_loss = _evaluate(model, validation_dataloader, loss_criterion, device)
+        _append_history_row(train_history_path, epoch, train_loss=average_loss, val_loss=validation_loss)
         print(f'AVERAGE LOSS OF EPOCH {epoch} : {average_loss}')
-        # Safe the latest parameter settings 
-        # TODO: Wie muss hier die dateiendung sein? 
-        torch.save(model.state_dict(), f'{checkpoints_path}.')
+        
     # AFTER TRAINING
     # TODO: Wie kann ich hier eine trainingsgrafik erstellen und im modelordner sichern?
     
@@ -134,7 +132,7 @@ def _append_history_row(csv_path: str, epoch: int, train_loss: float, val_loss: 
         w.writerow([epoch, train_loss, ("" if val_loss is None else val_loss)])
 
 @torch.no_grad()
-def _evaluate(model, dataloader, loss_criterion, device):
+def _evaluate(model, dataloader, loss_criterion, device) -> Optional[float]:
     if dataloader is None:
         return None
     model.eval()    # Go in eval mode
