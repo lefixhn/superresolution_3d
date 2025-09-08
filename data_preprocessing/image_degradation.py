@@ -9,6 +9,7 @@ np.random.seed(42)
 def crop_image_for_downscale(image, downscale_factor): 
     '''Changes the shape of an image, to make all dimensions dividable by 
     downscale_factor'''
+    assert len(image.shape) <= 3
     # List of integers > size of the dimensions
     cropped_shape = [(dimension - (dimension % downscale_factor)) for dimension in image.shape]
     # How much is cropped away
