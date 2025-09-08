@@ -3,20 +3,21 @@ from torch.utils.data import Dataset
 import torch 
 import os 
 
-DEFAULT_LR_PATH = ''
-DEFAULT_HR_PATH = ''
+DEFAULT_LR_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_v0/lr'
+DEFAULT_HR_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_v0/hr'
 
 class PreloadedBratsDataset(Dataset): 
-    def __init__(self, item_count=1251 ,lr_path=DEFAULT_LR_PATH, hr_path=DEFAULT_HR_PATH):
+    def __init__(self, start_item_index=0, item_count=1251 ,lr_path=DEFAULT_LR_PATH, hr_path=DEFAULT_HR_PATH):
         super().__init__()
+        assert item_count + start_item_index <= 1251
 
         self.lr_path = lr_path
         self.hr_path = hr_path
 
         self.preloaded_data = [
-            (self._get_file_as_tensor(f'{DEFAULT_LR_PATH}/{i:04d}'),
-            self._get_file_as_tensor(f'{DEFAULT_HR_PATH}/'))
-            for i in range(item_count)
+            (self._get_file_as_tensor(f'{lr_path}/{i:04d}.npy'),
+            self._get_file_as_tensor(f'{hr_path}/{i:04d}.npy'))
+            for i in range(start_item_index, start_item_index+item_count)
         ]
     
 
@@ -33,7 +34,7 @@ class PreloadedBratsDataset(Dataset):
         tensor = torch.from_numpy(data)
         # Add dimension for channel 
         if tensor.ndim == 3: 
-            tensor.unsqueeze(0) 
+            tensor = tensor.unsqueeze(0) 
         return tensor 
 
 
