@@ -63,7 +63,7 @@ def train(
         if 'optimizer_state_dict' in checkpoint: 
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         epoch_index = _get_epoch_index(last_checkpoint_path)
-        if epoch_index is int: 
+        if epoch_index is not None: 
             start_epoch = start_epoch + 1 # We start one epoch further than the last 
         
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
@@ -102,8 +102,8 @@ def train(
     try:
         import pandas as pd
         import matplotlib.pyplot as plt
-        if os.path.exists(history_csv_path):
-            df = pd.read_csv(history_csv_path)
+        if os.path.exists(train_history_path):
+            df = pd.read_csv(train_history_path)
             plt.figure()
             plt.plot(df['epoch'], df['train_loss'], label='train')
             if 'val_loss' in df and df['val_loss'].notna().any():
@@ -122,7 +122,7 @@ def _get_epoch_index(checkpoint_path: str) -> Optional[int]:
     /Models/Mymodel2025/checkpoints/epoch219.pt -> 219
     '''
     filename = os.path.basename(checkpoint_path)
-    matching = re.search(f"\d+", filename)
+    matching = re.search(r"\d+", filename)
 
     if matching: 
         return matching.group(0)
