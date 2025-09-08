@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch
 import torch.optim as optim
 import os
+import re
+from typing import Optional 
 
 DEFAULT_MODELS_PATH = '/content/drive/MyDrive/superresolution_3d_data/models'
 
@@ -31,7 +33,7 @@ def train(
     '''
     validation_dataloader = None
     if validation_dataset is not None: 
-        validation_dataloader = DataLoader(dataset=dataset, batch_size=1, shuffle=False, num_workers=dataloader_num_workers, persistent_workers=True)
+        validation_dataloader = DataLoader(dataset=validation_dataset, batch_size=1, shuffle=False, num_workers=dataloader_num_workers, persistent_workers=True)
     # Prepare DATALOADER, MODEL and OPTIMIZER
     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=dataloader_num_workers, persistent_workers=True)
     # TODO: Wie kann ich die Modellparameter bei train_from_last_checkpoint=True laden
@@ -50,6 +52,14 @@ def train(
     os.makedirs(checkpoints_path, exist_ok=True)
     # Build training history path 
     train_history_path = os.path.join(model_path, 'training_history.csv')
+
+    if train_from_last_checkpoint: 
+        last_checkpoint_path= _find_latest_ckeckpoint_dir(checkpoints_path)
+        checkpoint = torch.load(last_checkpoint_path, map_location=device)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        if 'optimizer_state_dict' in checkpoint: 
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        
 
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
@@ -87,4 +97,13 @@ def train(
     # TODO: Wie kann ich hier eine trainingsgrafik erstellen und im modelordner sichern?
     
     print("TRAINING IS COMPLETED")
+
+def _find_latest_ckeckpoint_dir(checkpoints_path: str) -> Optional[str]: 
+    checkpoints = os.listdir(checkpoints_path)
+    if len(checkpoints) == 0: 
+        return None
+    else: 
+        # Find highest checkpoint 
+        checkpoints.sort(key=lambda checkpoint: int(re.findall(r"\d+", checkpoint)))
+        return os.path.join(checkpoints_path, checkpoints[-1])
 
