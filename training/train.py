@@ -10,6 +10,7 @@ DEFAULT_MODELS_PATH = '/content/drive/MyDrive/superresolution_3d_data/models'
 def train(
     dataset, 
     model, 
+    validation_dataset=None, 
     learning_rate=1e-4, 
     epochs=10, 
     batch_size=4, 
@@ -29,19 +30,20 @@ def train(
     # Prepare PATHS and FOLDERS
     if model_store_name is None: 
         model_store_name = type(model).__name__
-    # Create folder for 
+    # Create folder for model 
     model_path = os.path.join(models_path, model_store_name)
     os.makedirs(checkpoints_path, exist_ok=True)
+    # Create sub folder in model folder for checkpoints 
     checkpoints_path = os.path.join(model_path, 'checkpoints')
     ch = os.path.join()
     os.makedirs(checkpoints_path, exist_ok=True)
 
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
-    # Iterate the epochs 
+    # Iterate through epochs 
     for epoch in range(1, epochs + 1):
         training_visualizer = tqdm(dataloader, leave=True)
         average_loss = 0.0
-        # Iterate though training dataset 
+        # Iterate trough minibatches
         for lr_image, hr_image in dataloader: 
             # Inside this loop entire batches are handled, not just images
             # Moves data to GPU if available 
@@ -60,12 +62,13 @@ def train(
             if epoch % 40 == 0: 
                 training_visualizer.set_description(f'EPOCH {epoch}/{epochs+1}')
                 training_visualizer.set_postfix(loss=loss.item())
-
+            # AFTER MINIBATCH
+        # AFTER EPOCH 
         average_loss = average_loss / len(dataloader)
         print(f'AVERAGE LOSS OF EPOCH {epoch} : {average_loss}')
         # Safe the latest parameter settings 
         torch.save(model.state_dict(), f'{SAFE_CHECKPOINT_PATH}/{model_store_name}')
-    
+    # AFTER TRAINING
     print("TRAINING IS COMPLETED")
 
 if __name__ == "__main__":
