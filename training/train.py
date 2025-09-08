@@ -77,15 +77,15 @@ def train(
             # Moves data to GPU if available 
             lr_image = lr_image.to(device)
             hr_image = hr_image.to(device)
-            
-            result_image = model(lr_image)
-            loss = loss_criterion(result_image, hr_image)
-
+            # Make prediction 
+            sr_image = model(lr_image)
+            # Calculate loss 
+            loss = loss_criterion(sr_image, hr_image)
             # Delete old gradient 
             optimizer.zero_grad()
-
             loss.backward()
             optimizer.step()
+
             average_loss += loss.item()
             if epoch % 40 == 0: 
                 training_visualizer.set_description(f'EPOCH {epoch}/{epochs+1}')
