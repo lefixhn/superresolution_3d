@@ -154,7 +154,7 @@ class BasicUNet(nn.Module):
         return out
 
 # Check weather this works
-model = BasicUNetU(upscale_factor=2)
+model = BasicUNet(upscale_factor=2)
 x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
 y = model(x)
 print("in :", x.shape)  # torch.Size([2, 1, 64, 64, 64])

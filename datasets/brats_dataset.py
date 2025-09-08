@@ -20,6 +20,9 @@ class PreloadedBratsDataset(Dataset):
             self._get_file_as_tensor(f'{hr_path}/{i:04d}.npy'))
             for i in range(start_item_index, start_item_index+item_count)
         ]
+        num_elements = len(self.preloaded_data)
+        print(f"FINISHED PRELOADING OF {len(num_elements)} ELEMENTS")
+
     
 
     def __len__(self): 
