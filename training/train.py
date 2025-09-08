@@ -19,15 +19,22 @@ def train(
     loss_criterion = nn.L1Loss(), 
     train_from_last_checkpoint=False, 
     model_store_name=None,
+    epochs_per_checkpoint: int = 1, 
     models_path=DEFAULT_MODELS_PATH,
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), 
 ):
+    '''
+    This method creates a sub folder in the models_path directory for the model. 
+    It also creates a sub folder for the ckeckpoints, where they are stored. 
+    If train_from_last_checkpoint=True it 
+    
+    '''
     validation_dataloader = None
     if validation_dataset is not None: 
         validation_dataloader = DataLoader(dataset=dataset, batch_size=1, shuffle=False, num_workers=dataloader_num_workers, persistent_workers=True)
     # Prepare DATALOADER, MODEL and OPTIMIZER
     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=dataloader_num_workers, persistent_workers=True)
-
+    # TODO: Wie kann ich die Modellparameter bei train_from_last_checkpoint=True laden
     model = model.to(device)
     if optimizer is None: 
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -35,13 +42,14 @@ def train(
     # Prepare PATHS and FOLDERS
     if model_store_name is None: 
         model_store_name = type(model).__name__
-    # Create folder for model 
+    # Build paths
     model_path = os.path.join(models_path, model_store_name)
-    os.makedirs(checkpoints_path, exist_ok=True)
-    # Create sub folder in model folder for checkpoints 
     checkpoints_path = os.path.join(model_path, 'checkpoints')
-    ch = os.path.join()
+    # Create paths
+    os.makedirs(model_path, exist_ok=True)
     os.makedirs(checkpoints_path, exist_ok=True)
+    # Build training history path 
+    train_history_path = os.path.join(model_path, 'training_history.csv')
 
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
@@ -69,14 +77,14 @@ def train(
                 training_visualizer.set_postfix(loss=loss.item())
             # AFTER MINIBATCH
         # AFTER EPOCH 
+        # TODO: Wie kann ich hier falls vorhanden validieren und werte speichern
         average_loss = average_loss / len(dataloader)
         print(f'AVERAGE LOSS OF EPOCH {epoch} : {average_loss}')
         # Safe the latest parameter settings 
-        torch.save(model.state_dict(), f'{SAFE_CHECKPOINT_PATH}/{model_store_name}')
+        # TODO: Wie muss hier die dateiendung sein? 
+        torch.save(model.state_dict(), f'{checkpoints_path}.')
     # AFTER TRAINING
+    # TODO: Wie kann ich hier eine trainingsgrafik erstellen und im modelordner sichern?
+    
     print("TRAINING IS COMPLETED")
 
-
-
-if __name__ == "__main__":
-    train()
