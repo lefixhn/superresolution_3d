@@ -5,7 +5,7 @@ import torch
 import torch.optim as optim
 import os
 
-CHECKPOINT_DEFAULT_PATH = '/content/drive/MyDrive/superresolution_3d_data/models'
+DEFAULT_MODELS_PATH = '/content/drive/MyDrive/superresolution_3d_data/models'
 
 def train(
     dataset, 
@@ -16,20 +16,25 @@ def train(
     optimizer=None, 
     dataloader_num_workers=2,
     loss_criterion = nn.L1Loss(), 
-    model_store_name='MyModel',
-    model_path=CHECKPOINT_DEFAULT_PATH,
+    model_store_name=None,
+    models_path=DEFAULT_MODELS_PATH,
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu"), 
 ):
-    
+    # Prepare DATALOADER, MODEL and OPTIMIZER
     dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=dataloader_num_workers, persistent_workers=True)
-    
     model = model.to(device)
     if optimizer is None: 
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Create file
-    model_path = os.path.join()
-    os.makedirs(checkpoint_path, exist_ok=True)
+    # Prepare PATHS and FOLDERS
+    if model_store_name is None: 
+        model_store_name = type(model).__name__
+    # Create folder for 
+    model_path = os.path.join(models_path, model_store_name)
+    os.makedirs(checkpoints_path, exist_ok=True)
+    checkpoints_path = os.path.join(model_path, 'checkpoints')
+    ch = os.path.join()
+    os.makedirs(checkpoints_path, exist_ok=True)
 
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate the epochs 
