@@ -32,7 +32,7 @@ class PreloadedBratsDataset(Dataset):
         else:
             lr_shape = data_tuple[0].shape[1:]
             min_shape_dim = min(lr_shape)
-            safe_side_length = min([min_shape_dim, self.cube_side_length])
+            safe_side_length = int(min([min_shape_dim, self.cube_side_length]))
             # Select random position 
             x, y, z = np.random.randint(0, lr_shape[0] - safe_side_length + 1), np.random.randint(0, lr_shape[1] - safe_side_length + 1), np.random.randint(0, lr_shape[2] - safe_side_length + 1)
             # Select Sub cubes
