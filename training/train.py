@@ -53,6 +53,8 @@ def train(
     # Build training history path 
     train_history_path = os.path.join(model_path, 'training_history.csv')
 
+    epoch_counter = 1 
+    # LOAD CHECKPOINT
     if train_from_last_checkpoint: 
         last_checkpoint_path= _find_latest_ckeckpoint_dir(checkpoints_path)
         checkpoint = torch.load(last_checkpoint_path, map_location=device)
@@ -60,7 +62,6 @@ def train(
         if 'optimizer_state_dict' in checkpoint: 
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         
-
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
     for epoch in range(1, epochs + 1):
@@ -97,6 +98,19 @@ def train(
     # TODO: Wie kann ich hier eine trainingsgrafik erstellen und im modelordner sichern?
     
     print("TRAINING IS COMPLETED")
+
+
+def _get_epoch_index(checkpoint_path: str) -> Optional[int]: 
+    '''
+    "/Models/Mymodel2025/checkpoints/epoch2"
+    '''
+    filename = os.path.basename(checkpoint_path)
+    matching = re.search(f"\d+", filename)
+
+    if matching: 
+        return matching.group(0)
+    else: 
+        return None
 
 def _find_latest_ckeckpoint_dir(checkpoints_path: str) -> Optional[str]: 
     checkpoints = os.listdir(checkpoints_path)
