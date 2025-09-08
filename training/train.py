@@ -98,8 +98,23 @@ def train(
         
     # AFTER TRAINING
     # TODO: Wie kann ich hier eine trainingsgrafik erstellen und im modelordner sichern?
-    
     print("TRAINING IS COMPLETED")
+    try:
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        if os.path.exists(history_csv_path):
+            df = pd.read_csv(history_csv_path)
+            plt.figure()
+            plt.plot(df['epoch'], df['train_loss'], label='train')
+            if 'val_loss' in df and df['val_loss'].notna().any():
+                plt.plot(df['epoch'], df['val_loss'], label='val')
+            plt.xlabel('epoch'); plt.ylabel('loss'); plt.legend(); plt.tight_layout()
+            plt.savefig(os.path.join(model_path, 'loss_curve.png'), dpi=200)
+            plt.close()
+    except Exception as e:
+        print(f"Could not create loss plot: {e}")
+
+
 
 
 def _get_epoch_index(checkpoint_path: str) -> Optional[int]: 
