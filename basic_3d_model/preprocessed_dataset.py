@@ -6,7 +6,7 @@ class PreprocessedDataset(Dataset):
     '''Expects the given paths to direct to .npy files. '''
     def __init__(self, 
     hr_paths=[f'/content/drive/MyDrive/superresolution_3d_data/datasets/superresolution_brats/hr_images/hr_image{i:03d}.npy' for i in range(0, 481)], 
-    lr_paths=[f'/content/drive/MyDrive/superresolution_3d_data/datasets/superresolution_brats/lr_images/lr_image{i:03d}.npy' for i in range(0, 481)]
+    lr_paths=[f'/content/drive/MyDrive/superresolution_3d_data/datasets/superresolution_brats/lr_images/lr_image{i:03d}.npy' for i in range(0, 481)], 
     ): 
         super().__init__()
         print("PRELOADING DATA")
