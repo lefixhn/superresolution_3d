@@ -3,6 +3,7 @@ import numpy as np
 import nibabel as nib
 from scipy import ndimage
 import image_degradation as imd
+from tqdm import tqdm 
 
 SOURCE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data'
 STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_v0'
@@ -23,7 +24,7 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2,
     element_counter = 0
 
     # Iterate though subfolders
-    for sub_folder in os.listdir(SOURCE_PATH):
+    for sub_folder in tqdm(os.listdir(SOURCE_PATH), desc='Processing data'):
         sub_folder_path = os.path.join(SOURCE_PATH, sub_folder)
         
         # Search correct file in folder 
