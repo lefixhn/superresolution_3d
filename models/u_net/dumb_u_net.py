@@ -162,13 +162,15 @@ class BasicUNet(nn.Module):
             print("Fehler:", e)
             raise 
 
-# Check weather this works
-model = BasicUNet(upscale_factor=2)
-x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
-y = model(x)
-print("in :", x.shape)  # torch.Size([2, 1, 64, 64, 64])
-print("out:", y.shape)  # Erwartet: [2, 1, 128, 128, 128]
-assert y.shape == (2, 1, 128, 128, 128)
+if __name__ == "__main__":
+    print("Checking weather model works")
+    # Check weather this works
+    model = BasicUNet(upscale_factor=2)
+    x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
+    y = model(x)
+    print("in :", x.shape)  # torch.Size([2, 1, 64, 64, 64])
+    print("out:", y.shape)  # Erwartet: [2, 1, 128, 128, 128]
+    assert y.shape == (2, 1, 128, 128, 128)
 
 
         
