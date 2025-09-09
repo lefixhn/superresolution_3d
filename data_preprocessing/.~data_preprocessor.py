@@ -63,7 +63,7 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2,
 def _assert_dividability(image, divisor: int):
     for dimension in image.shape: 
         if dimension % divisor != 0:
-            raise AssertionError(f"Image with shape: {image.shape} not divdiable by {divisor}") 
+            raise AssertionError(f"Image with shape: {image.shape} not divdiable by {diviso}") 
 
 if __name__ == '__main__': 
     preprocess_data(degradation_model=imd.advanced_image_degradation_model)
