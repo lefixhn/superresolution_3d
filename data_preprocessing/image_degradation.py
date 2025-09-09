@@ -56,7 +56,8 @@ def general_image_degradation_model(image: np.array ,noise_sigma, downscale_func
     # Scale down 
     degradation_image = crop_image_for_downscale(degradation_image, downscale_factor)
     degradation_image = downscale_function(degradation_image, downscale_factor)
-    
+    degradation_image = add_gaus_noise(degradation_image, noise_sigma=noise_sigma)
+
     return degradation_image
 
 # Simple random settings for the general image degradation model 
