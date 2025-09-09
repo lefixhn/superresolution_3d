@@ -39,7 +39,11 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2,
                 image = imd.crop_image_for_downscale(image, downscale_factor=downscale_factor*sub_dividability_factor)
                 # Apply degradation model 
                 lr_image = degradation_model(image=image, downscale_factor=downscale_factor)
-                
+
+                # Assert divisability of both images
+                _assert_dividability(lr_image, sub_dividability_factor)
+                _assert_dividability(image, sub_dividability_factor)
+
                 # Store LR image as np
                 np.save(os.path.join(STORE_LR_PATH, f'{element_counter:04d}.npy'), lr_image)
                 # Store HR image as np
@@ -55,6 +59,10 @@ def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2,
     print(f'Searched through {sub_folder_counter} subfolders')
     print(f'Added {element_counter} elements')
 
+
+def _assert_dividability(image, divisor: int):
+    for dimension in image.shape: 
+        assert dimension % divisor == 0 
 
 if __name__ == '__main__': 
     preprocess_data(degradation_model=imd.advanced_image_degradation_model)
