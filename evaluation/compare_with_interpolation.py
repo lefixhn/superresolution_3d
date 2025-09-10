@@ -4,6 +4,8 @@ import torch
 import numpy as np
 import scipy.ndimage as nd
 
+
+
 def convert_to_numpy(tensor) -> np.array: 
     assert len(tensor.shape) == 5   # Ensure we have 3D Data
     tensor = tensor.squeeze(0)
@@ -19,3 +21,4 @@ def compare_model_with_interpolation(evaluation_dataset: Dataset, model: Module,
 
         model.to(device)
         sr_image = model(lr_image)
+
