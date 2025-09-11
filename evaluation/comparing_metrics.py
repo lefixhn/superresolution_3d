@@ -26,7 +26,7 @@ def compare_mae(sr_image, hr_image):
 
 
 def compare_psnr(sr_image, hr_image): 
-    return 
+    return 20 * np.log10(compare_mse(sr_image, hr_image ))
 
 
 def compare_ssim(sr_image, hr_image): 
