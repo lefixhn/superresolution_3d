@@ -1,7 +1,7 @@
 import torch 
 import torch.nn.functional as F  
 import numpy as np 
-from piqa import SSIM
+
 
 def _convert_to_5d_tensor(image): 
     '''
@@ -40,7 +40,7 @@ def compare_psnr(sr_image, hr_image):
 
 def compare_ssim(sr_image, hr_image):
     sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
-    return F.s
+    
 
 
 def compare_lpips(sr_image, hr_image):
