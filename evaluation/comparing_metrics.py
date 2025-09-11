@@ -18,20 +18,30 @@ def _convert_to_5d_tensor(image):
 
 
 def compare_mse(sr_image, hr_image): 
+    sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
     return F.mse_loss(sr_image, hr_image).item()
 
 
 def compare_mae(sr_image, hr_image): 
+    sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
     return F.l1_loss(sr_image, hr_image).item()
 
 
 def compare_psnr(sr_image, hr_image): 
-    return 20 * np.log10(compare_mse(sr_image, hr_image ))
+    '''
+    Calcualtes the psnr. Uses the max element of the hr_image so 
+    pay attention to the order of the images. 
+    '''
+    sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
+    max_element = torch.max(hr_image)
+    return 20 * np.log10(max_element) - 10 * np.log10(compare_mse(sr_image, hr_image ))
 
 
-def compare_ssim(sr_image, hr_image): 
+def compare_ssim(sr_image, hr_image):
+    sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
     return None
 
 
-def compare_lpips(sr_image, hr_image): 
+def compare_lpips(sr_image, hr_image):
+    sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
     return None 
