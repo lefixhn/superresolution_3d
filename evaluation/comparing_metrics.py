@@ -1,5 +1,12 @@
 import torch 
 import torch.nn.functional as F  
+import numpy as np 
+
+def _convert_to_5d_tensor(image): 
+    '''
+    Accepts nparray, or 3D 4D or 5d Tensor 
+    '''
+    if isinstance(image, np.)
 
 
 def compare_mse(sr_image, hr_image): 
@@ -7,11 +14,11 @@ def compare_mse(sr_image, hr_image):
 
 
 def compare_mae(sr_image, hr_image): 
-    return None
+    return F.l1_loss(sr_image, hr_image).item()
 
 
 def compare_psnr(sr_image, hr_image): 
-    return None 
+    return 
 
 
 def compare_ssim(sr_image, hr_image): 
