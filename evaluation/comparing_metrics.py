@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F  
 import numpy as np 
 from monai.metrics import SSIMMetric
-import lpips
+from piqa import LPIPS
 
 def _convert_to_5d_tensor(image): 
     '''
@@ -58,7 +58,7 @@ def compare_ssim(sr_image, hr_image):
     return ssim_mean_value
 
 
-def compare_lpips(sr_image, hr_image, lpips_2d_metric):
+def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(net='vgg').eval().to()):
     # Convert to 5D Tensors
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
     # Noramlize both images from [0, 1] range to [-1, 1] range 
@@ -70,7 +70,7 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric):
     for batch_index in range(tensor_shape[0]): 
 
         # Iterate through orientations coronar, axial and sagital
-        for shape_dim_index in range(2, 6): 
+        for shape_dim_index in range(2, 5): 
             lpips_sum_over_slices = 0
             dimension_length = tensor_shape[shape_dim_index]
             for slice_index in range(dimension_length): 
@@ -78,10 +78,10 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric):
                 # We put the slice index to the correct position inside the tuple
                 # therefore we have to check the_shape_dim index, wich tells us
                 # weather we are in a coronar, axial or sagital sclice
-                slice_coordinates = (batch_index, 0) + (slice_index if i == shape_dim_index-2 else slice(None))
+                slice_coordinates = (batch_index, 0) + (slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
                 sr_slice = sr_image[slice_coordinates]
                 hr_slice = hr_image[slice_coordinates]
-                lpips_sum_over_slices += lpips_2d_metric(sr_image, hr_image)
+                lpips_sum_over_slices += lpips_2d_metric(sr_slice, hr_slice)
             lpips_mean += lpips_sum_over_slices / dimension_length
     # Divide by the amount of orientations and the number of batches
     lpips_mean /= 3 * tensor_shape[0]
