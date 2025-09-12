@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F  
 import numpy as np 
 from monai.metrics import SSIMMetric
+import lpips
 
 def _convert_to_5d_tensor(image): 
     '''
@@ -57,6 +58,33 @@ def compare_ssim(sr_image, hr_image):
     return ssim_mean_value
 
 
-def compare_lpips(sr_image, hr_image):
-    sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
-    return None 
+def compare_lpips(sr_image, hr_image, lpips_2d_metric):
+    # Convert to 5D Tensors
+    sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
+    # Noramlize both images from [0, 1] range to [-1, 1] range 
+    sr_image, hr_image = 2 * sr_imgae - 1, 2 * hr_image - 1
+    
+    tensor_shape = hr_image.shape
+    lpips_mean = 0
+    # Look at D H W from the B C D H W of the tensor 
+    for batch_index in range(tensor_shape[0]): 
+
+        # Iterate through orientations coronar, axial and sagital
+        for shape_dim_index in range(2, 6): 
+            lpips_sum_over_slices = 0
+            dimension_length = tensor_shape[shape_dim_index]
+            for slice_index in range(dimension_length): 
+                # Create a tuple containing the correct coordinates / slices
+                # We put the slice index to the correct position inside the tuple
+                # therefore we have to check the_shape_dim index, wich tells us
+                # weather we are in a coronar, axial or sagital sclice
+                slice_coordinates = (batch_index, 0) + (slice_index if i == shape_dim_index-2 else slice(None))
+                sr_slice = sr_image[slice_coordinates]
+                hr_slice = hr_image[slice_coordinates]
+                lpips_sum_over_slices += lpips_2d_metric(sr_image, hr_image)
+            lpips_mean += lpips_sum_over_slices / dimension_length
+    # Divide by the amount of orientations and the number of batches
+    lpips_mean /= 3 * tensor_shape[0]
+    return lpips_mean
+
+
