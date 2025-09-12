@@ -23,12 +23,12 @@ def _convert_to_5d_tensor(image):
 
 
 def compare_mse(sr_image, hr_image): 
-    sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
+    sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
     return F.mse_loss(sr_image, hr_image).item()
 
 
 def compare_mae(sr_image, hr_image): 
-    sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
+    sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
     return F.l1_loss(sr_image, hr_image).item()
 
 
@@ -58,7 +58,7 @@ def compare_ssim(sr_image, hr_image):
     return ssim_mean_value
 
 
-def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(net='vgg').eval().to()):
+def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(net='vgg').eval().to('cuda')):
     # Convert to 5D Tensors
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
     # Noramlize both images from [0, 1] range to [-1, 1] range 
