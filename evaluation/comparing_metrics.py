@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F  
 import numpy as np 
 from monai.metrics import SSIMMetric
-import lpips
+from piqa import LPIPS
 
 def _convert_to_5d_tensor(image): 
     '''
@@ -43,7 +43,7 @@ def compare_psnr(sr_image, hr_image):
 
 # TODO: Check parametersettings and compare with other implementation
 def compare_ssim(sr_image, hr_image):
-    sr_iamge, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
+    sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
     ssim_metric = SSIMMetric(
         spatial_dims = 3, 
         data_range = 1, 
@@ -58,7 +58,7 @@ def compare_ssim(sr_image, hr_image):
     return ssim_mean_value
 
 
-def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(net='vgg').eval().to('cuda' if torch.cuda-is_available() else 'cpu')):
+def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(network='vgg').eval().to('cuda' if torch.cuda.is_available() else 'cpu')):
     # Convert to 5D Tensors
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
     # Noramlize both images from [0, 1] range to [-1, 1] range 
