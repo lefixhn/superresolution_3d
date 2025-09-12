@@ -87,4 +87,23 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(net='vgg').eval().to
     lpips_mean /= 3 * tensor_shape[0]
     return lpips_mean
 
+# Check weather it works properly
+if __name__ == "__main__": 
+    mock_hr = torch.rand(4, 1, 100, 90, 120)
+    noise_tensor = torch.from_numpy(np.random.normal(0, 0.01, size=(4, 1, 100, 90, 120)))
+    mock_sr = mock_hr + noise_tensor
+    compare_results = {
+        "MSE" : compare_mse(mock_sr, mock_hr), 
+        "MAE" : compare_mae(mock_sr, mock_hr), 
+        "PSNR" : compare_psnr(mock_sr, mock_hr), 
+        "SSIM" : compare_ssim(mock_sr, mock_hr),
+        "LPIPS" : compare_lpips(mock_sr, mock_hr) 
+    }
+    print("RESULTS FOR DUMMY DATA")
+    for metric in compare_results: 
+        print(f"{metric}: {compare_results[metric]}")
+
+
+    
+
 

@@ -14,7 +14,8 @@ import math
 from typing import Tuple, List
 from collections import Counter
 
-SEARCH_PATH = "/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data"
+# SEARCH_PATH = "/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data"
+SEARCH_PATH = "/content/drive/MyDrive/superresolution_3d_data/datasets/IXI-T1"
 print("analyzing data")
 try:
     import nibabel as nib
