@@ -78,7 +78,7 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(network='vgg').eval(
                 # We put the slice index to the correct position inside the tuple
                 # therefore we have to check the_shape_dim index, wich tells us
                 # weather we are in a coronar, axial or sagital sclice
-                slice_coordinates = (batch_index, 0) + (slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
+                slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
                 sr_slice = sr_image[slice_coordinates]
                 hr_slice = hr_image[slice_coordinates]
                 lpips_sum_over_slices += lpips_2d_metric(sr_slice, hr_slice)
