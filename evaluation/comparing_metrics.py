@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F  
 import numpy as np 
 from monai.metrics import SSIMMetric
-from piqa import LPIPS
+import lpips
 
 def _convert_to_5d_tensor(image): 
     '''
