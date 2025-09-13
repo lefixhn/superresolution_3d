@@ -13,7 +13,7 @@ def _convert_to_5d_tensor(image):
     else: 
         image = image.detach()  # To avoid gradient calculation if it is already a tensor
     # Ensure it is 5d
-
+    image = image.to(torch.float32)
     if len(image.shape) == 3: 
         image = image.unsqueeze(0).unsqueeze(0)
     if len(image.shape) == 4: 
