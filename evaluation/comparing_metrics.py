@@ -114,6 +114,9 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(network='vgg').eval(
                 slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
                 sr_slice = sr_image[slice_coordinates]
                 hr_slice = hr_image[slice_coordinates]
+                # Add batch and channel dimension 
+                sr_slice = sr_slice.unsqueeze(0).unsqueeze(0)
+                hr_slice = hr_slice.unsqueeze(0).unsqueeze(0)
                 lpips_sum_over_slices += lpips_2d_metric(sr_slice, hr_slice)
             lpips_mean += lpips_sum_over_slices / dimension_length
     # Divide by the amount of orientations and the number of batches
