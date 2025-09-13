@@ -94,9 +94,10 @@ def compare_ssim(sr, hr, data_range=None, ks=11, sigma=1.5, K1=0.01, K2=0.03, ep
 def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(network='vgg').eval().to('cuda' if torch.cuda.is_available() else 'cpu')):
     # Convert to 5D Tensors
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
+    # Not nessecary for the piqa lipips implementation 
     # Noramlize both images from [0, 1] range to [-1, 1] range 
     #sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
-    
+    sr_image, hr_image = sr_image.clamp(0, 1), hr_image.clamp(0, 1)
     tensor_shape = hr_image.shape
     lpips_mean = 0
     # Look at D H W from the B C D H W of the tensor 
