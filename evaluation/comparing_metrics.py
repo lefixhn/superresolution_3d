@@ -1,7 +1,6 @@
 import torch 
 import torch.nn.functional as F  
 import numpy as np 
-from monai.metrics import SSIMMetric
 from piqa import LPIPS
 
 def _convert_to_5d_tensor(image): 
@@ -96,7 +95,7 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=LPIPS(network='vgg').eval(
     # Convert to 5D Tensors
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
     # Noramlize both images from [0, 1] range to [-1, 1] range 
-    sr_image, hr_image = 2 * sr_imgae - 1, 2 * hr_image - 1
+    sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
     
     tensor_shape = hr_image.shape
     lpips_mean = 0
