@@ -11,7 +11,7 @@ STORE_LR_PATH = os.path.join(STORE_BASE_PATH, 'lr')
 STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
 
 # This ensures that the correct mri channel is loaded
-FILE_CHANNEL_INDICATOR = 'flair'
+FILE_CHANNEL_INDICATOR = 't1.nii.gz'
 
 
 def preprocess_data(degradation_model=None, item_limit=None, downscale_factor=2, sub_dividability_factor=2**4): 
