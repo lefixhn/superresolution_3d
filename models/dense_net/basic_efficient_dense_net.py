@@ -38,6 +38,7 @@ class DenseUnit(nn.Module):
         self.growth_rate = growth_rate
         self.build_activation_function = build_activation_function
         self.with_batch_norm = with_batch_norm
+        self.pre_activation = pre_activation
 
         self.bottleneck_batch_norm = nn.BatchNorm3d(in_channels)
         self.bottleneck_activation = nn.LeakyReLU(0.1) if build_activation_function is None else build_activation_function()
