@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn 
-# 
+# PixelShuffle3D was AI generated, because there is no implementation of it 
+# in pytorch 
 class PixelShuffle3D(nn.Module):
     """
     Rearranges elements in a tensor of shape (N, C*r^3, D, H, W)
@@ -114,6 +115,7 @@ class DenseBlock(nn.Module):
 class BasicEfficientDenseNet(nn.Module): 
     def __init__(
         self, 
+        upscale_factor=2, 
         num_dense_blocks=8, 
         num_units_per_dense_block=8, 
         growth_rate=12, 
@@ -127,13 +129,17 @@ class BasicEfficientDenseNet(nn.Module):
         self.growth_rate = growth_rate
         self.bottleneck_channels = bottleneck_channels
         self.with_batch_norm = with_batch_norm
+        # Set default value
+        if build_activation_function is None: 
+            build_activation_function = lambda: nn.LeakyReLU(0.1)
         self.build_activation_function = build_activation_function
         self.pre_activation = pre_activation
         # Calculated variables 
         self.dense_block_out_channels = growth_rate * num_units_per_dense_block
-
+        
         # One channel will be filled with the original image
-        self.entry = nn.Conv3d(in_channels=1, out_channels=bottleneck_channels-1)
+        entry_out_chanels = bottleneck_channels
+        self.entry = nn.Conv3d(in_channels=1, out_channels=entry_out_chanels-1)
         
         self.dense_blocks = nn.ModuleList([
             DenseBlock(
@@ -148,7 +154,21 @@ class BasicEfficientDenseNet(nn.Module):
             for i in range(num_dense_blocks)
         ])
 
-        self.upsampling = 
+        # 3x3x3 > 1x1x1 > pixelshuffle 
+        upsmpling_in_channels = entry_out_chanels + dense_block_out_channels * num_dense_blocks
+        self.upsampling = nn.Sequential([
+            build_activation_function(), 
+            nn.Conv3d(
+                in_channels=upsmpling_in_channels, 
+                out_channels=upsmpling_in_channels, 
+                kernel_size=3, 
+                padding=1
+            ),
+            build_activation_function(), 
+            nn.Conv3d(in_channels=upsmpling_in_channels, out_channels=upscale_factor**3)
+
+            PixelShuffle3D(upscale_factor=upscale_factor)
+        ])
 
     def forward(self): 
 
