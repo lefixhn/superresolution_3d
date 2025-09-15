@@ -179,7 +179,7 @@ class BasicEfficientDenseNet(nn.Module):
         
         # 3x3x3 > 1x1x1 > pixelshuffle 
         upsmpling_in_channels = entry_out_chanels + self.dense_block_out_channels * num_dense_blocks
-        self.upsampling = nn.Sequential([
+        self.upsampling = nn.Sequential(
             build_activation_function(), 
             nn.Conv3d(
                 in_channels=upsmpling_in_channels, 
@@ -190,7 +190,7 @@ class BasicEfficientDenseNet(nn.Module):
             build_activation_function(), 
             nn.Conv3d(in_channels=upsmpling_in_channels, out_channels=upscale_factor**3, kernel_size=1, padding=0),
             PixelShuffle3D(upscale_factor=upscale_factor)
-        ])
+        )
 
     def forward(self, x): 
         entry_out = torch.cat([x, self.entry(x)], dim=1)
