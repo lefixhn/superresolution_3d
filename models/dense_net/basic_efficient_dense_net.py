@@ -106,7 +106,6 @@ class BasicEfficientDenseNet(nn.Module):
 
         # One channel will be filled with the original image
         self.entry = nn.Conv3d(in_channels=1, out_channels=bottleneck_channels-1)
-
         
         self.dense_blocks = nn.ModuleList([
             DenseBlock(
@@ -120,6 +119,8 @@ class BasicEfficientDenseNet(nn.Module):
             )
             for i in range(num_dense_blocks)
         ])
+
+        self.upsampling = 
 
     def forward(self): 
 
