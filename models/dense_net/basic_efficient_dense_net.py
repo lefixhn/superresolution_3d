@@ -136,22 +136,41 @@ class BasicEfficientDenseNet(nn.Module):
         self.pre_activation = pre_activation
         # Calculated variables 
         self.dense_block_out_channels = growth_rate * num_units_per_dense_block
-        
+        self.dense_block_in_channels = 2 * growth_rate
+
         # One channel will be filled with the original image
         entry_out_chanels = bottleneck_channels
         self.entry = nn.Conv3d(in_channels=1, out_channels=entry_out_chanels-1)
         
+
+
         self.dense_blocks = nn.ModuleList([
-            DenseBlock(
-                in_channels = , 
+            nn.Sequential([
+                DenseBlock(
+                in_channels = 2 * growth_rate, 
                 num_units=num_units_per_dense_block, 
                 growth_rate=growth_rate, 
                 bottleneck_channels=bottleneck_channels, 
                 with_batch_norm=with_batch_norm, 
                 build_activation_function=build_activation_function, 
                 pre_activation=pre_activation
-            )
+                )
+            ])
             for i in range(num_dense_blocks)
+        ])
+
+        self.compressors = nn.ModuleList([
+            nn.Sequential([
+
+                build_activation_function(), 
+                nn.Conv3d(
+                    in_channels=dense_block_out_channels*i, 
+                    out_channels=dense_block_in_channels, 
+                    kernel_size=1, 
+                    padding=0
+                )
+            ])
+            for i in range(1, num_dense_blocks) 
         ])
 
         # 3x3x3 > 1x1x1 > pixelshuffle 
@@ -170,7 +189,12 @@ class BasicEfficientDenseNet(nn.Module):
             PixelShuffle3D(upscale_factor=upscale_factor)
         ])
 
-    def forward(self): 
+    def forward(self, x): 
+        entry_out = self.entry(x)
+        output = self.dense_blocks[0](entry_out)
+
+        for i in range(1, self.num_dense_blocks):
+            output = 
 
 if __name__ == "__main__": 
     print("Checking weather model works")
