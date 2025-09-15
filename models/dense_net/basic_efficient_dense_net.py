@@ -87,19 +87,17 @@ class DenseBlock(nn.Module):
         self.build_activation_function = build_activation_function
         self.pre_activation = pre_activation
 
-        self.dense_units = nn.ModuleList(
-            [
-                DenseUnit(
-                    in_channels = in_channels + i*growth_rate, 
-                    bottleneck_channels = bottleneck_channels, 
-                    growth_rate = growth_rate, 
-                    build_activation_function=build_activation_function, 
-                    with_batch_norm=with_batch_norm, 
-                    pre_activation=pre_activation
-                )
-            ]
+        self.dense_units = nn.ModuleList([
+            DenseUnit(
+                in_channels = in_channels + i*growth_rate, 
+                bottleneck_channels = bottleneck_channels, 
+                growth_rate = growth_rate, 
+                build_activation_function=build_activation_function, 
+                with_batch_norm=with_batch_norm, 
+                pre_activation=pre_activation
+            )
             for i in range(self.num_units)
-        )
+        ])
     def forward(self, x): 
         input_features=x
         output=self.dense_units[0](input_features)
@@ -141,7 +139,11 @@ class BasicEfficientDenseNet(nn.Module):
 
         # One channel will be filled with the original image
         entry_out_chanels = 2 * growth_rate
-        self.entry = nn.Conv3d(in_channels=1, out_channels=entry_out_chanels-1)
+        self.entry = nn.Conv3d(in_channels=1, 
+            out_channels=entry_out_chanels-1, 
+            kernel_size=3, 
+            padding=1
+        )
         
 
 
