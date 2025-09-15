@@ -101,8 +101,14 @@ class BasicEfficientDenseNet(nn.Module):
         self.with_batch_norm = with_batch_norm
         self.build_activation_function = build_activation_function
         self.pre_activation = pre_activation
-    
+        # Calculated variables 
+        self.dense_block_out_channels = growth_rate * num_units_per_dense_block
+
+
         self.dense_blocks = nn.ModuleList([
+            DenseBlock(
+                
+            )
             for i in range(num_dense_blocks)
         ])
 
