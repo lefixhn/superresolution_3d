@@ -155,27 +155,28 @@ class BasicEfficientDenseNet(nn.Module):
                 growth_rate=growth_rate, 
                 bottleneck_channels=bottleneck_channels, 
                 with_batch_norm=with_batch_norm, 
-                build_activation_function=build_activation_function, 
+                build_activation_function=self.build_activation_function, 
                 pre_activation=pre_activation
             )
             
             for i in range(num_dense_blocks)
         ])
 
-        self.compressors = nn.ModuleList([
-            nn.Sequential([
-
-                build_activation_function(), 
+        self.compressors = []
+        for i in range(1, num_dense_blocks): 
+            self.compressors.append(nn.Sequential(
+                self.build_activation_function(), 
                 nn.Conv3d(
                     in_channels=self.dense_block_out_channels*i + entry_out_chanels, 
                     out_channels=self.dense_block_in_channels, 
                     kernel_size=1, 
                     padding=0
                 )
-            ])
-            for i in range(1, num_dense_blocks) 
-        ])
+            ))   
 
+        self.compressors = nn.ModuleList(self.compressors) 
+        
+        
         # 3x3x3 > 1x1x1 > pixelshuffle 
         upsmpling_in_channels = entry_out_chanels + self.dense_block_out_channels * num_dense_blocks
         self.upsampling = nn.Sequential([
@@ -187,7 +188,7 @@ class BasicEfficientDenseNet(nn.Module):
                 padding=1
             ),
             build_activation_function(), 
-            nn.Conv3d(in_channels=upsmpling_in_channels, out_channels=upscale_factor**3),
+            nn.Conv3d(in_channels=upsmpling_in_channels, out_channels=upscale_factor**3, kernel_size=1, padding=0),
             PixelShuffle3D(upscale_factor=upscale_factor)
         ])
 
