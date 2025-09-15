@@ -48,10 +48,10 @@ class DenseUnit(nn.Module):
 
 # Attention: the output here are only the newly extraxted features
 class DenseBlock(nn.Module): 
-    def __init__(self, in_channels, num_layers=8, growth_rate=12, bottleneck_channels=48, with_batch_norm=True, build_activation_function=None, pre_activation=True): 
+    def __init__(self, in_channels, num_units=8, growth_rate=12, bottleneck_channels=48, with_batch_norm=True, build_activation_function=None, pre_activation=True): 
         super().__init__()
         self.in_channels = in_channels
-        self.num_layers = num_layers
+        self.num_units = num_units
         self.growth_rate = growth_rate
         self.bottleneck_channels = bottleneck_channels
         self.with_batch_norm = with_batch_norm
@@ -69,7 +69,7 @@ class DenseBlock(nn.Module):
                     pre_activation=pre_activation
                 )
             ]
-            for i in range(self.num_layers)
+            for i in range(self.num_units)
         )
     def forward(self, x): 
         input_features=x
@@ -107,7 +107,13 @@ class BasicEfficientDenseNet(nn.Module):
 
         self.dense_blocks = nn.ModuleList([
             DenseBlock(
-                
+                in_channels = , 
+                num_units=num_units_per_dense_block, 
+                growth_rate=growth_rate, 
+                bottleneck_channels=bottleneck_channels, 
+                with_batch_norm=with_batch_norm, 
+                build_activation_function=build_activation_function, 
+                pre_activation=pre_activation
             )
             for i in range(num_dense_blocks)
         ])
