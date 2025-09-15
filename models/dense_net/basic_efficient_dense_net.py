@@ -28,13 +28,22 @@ class DenseUnit(nn.Module):
             padding = 1
         )
     def forward(self, x): 
+        # BOTTLENECK LAYER 
         if with_batch_norm: 
             x = self.bottleneck_batch_norm(x)
-        # Control the order in wich the operations are being 
+        # Control the order in wich the operations are being executed 
         if pre_activation: 
             x = self.bottleneck_convolution(self.bottleneck_activation(x))
         else: 
             x = self.bottleneck_activation(self.bottleneck_convolution(x))
+        # EXTRACTION LAYER
+        if with_batch_norm: 
+            x = self.extraction_batch_norm(x)
+        if pre_activation: 
+            x = self.extraction_convolution(self.extraction_activation(x))
+        else: 
+            x = self.extraction_activation(self.extraction_convolution(x))
+            
 
 
 # Attention: the output here are only the newly extraxted features
