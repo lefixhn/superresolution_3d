@@ -94,9 +94,16 @@ class BasicEfficientDenseNet(nn.Module):
         build_activation_function=None, 
         pre_activation=True
     ): 
+        self.num_dense_blocks = num_dense_blocks
+        self.num_units_per_dense_block = num_units_per_dense_block
+        self.growth_rate = growth_rate
+        self.bottleneck_channels = bottleneck_channels
+        self.with_batch_norm = with_batch_norm
+        self.build_activation_function = build_activation_function
+        self.pre_activation = pre_activation
     
         self.dense_blocks = nn.ModuleList([
-            
+            for i in range(num_dense_blocks)
         ])
 
     def forward(self): 
