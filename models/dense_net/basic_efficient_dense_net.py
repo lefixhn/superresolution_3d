@@ -191,15 +191,19 @@ class BasicEfficientDenseNet(nn.Module):
 
     def forward(self, x): 
         entry_out = self.entry(x)
-        output = self.dense_blocks[0](entry_out)
-
+        dense_block_output = self.dense_blocks[0](entry_out)
+        dense_blocks_outputs_concatenated = dense_block_output
         for i in range(1, self.num_dense_blocks):
-            output = 
+            compressor_input = torch.cat([entry_out, dense_blocks_outputs_concatenated], dim=1)
+            dense_block_input = self.compressors[i-1](compressor_input)
+            dense_block_output = self.dense_blocks[i](dense_block_input)
+            dense_blocks_outputs_concatenated = torch.cat([dense_blocks_outputs_concatenated, dense_block_output], dim=1)
+        
+        upscaled = self.upsampling(torch.cat([entry_out ,dense_blocks_outputs_concatenated]))
+        return upscaled 
 
 if __name__ == "__main__": 
     print("Checking weather model works")
-
-
     # Check weather this works
     model = BasicEfficientDenseNet()
     x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
