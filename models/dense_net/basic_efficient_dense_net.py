@@ -104,7 +104,7 @@ class DenseBlock(nn.Module):
         input_features=x
         output=self.dense_units[0](input_features)
         concatenated_outputs=output
-        for i in range(1, self.num_layers): 
+        for i in range(1, self.num_units): 
             output = self.dense_units[i](torch.cat([input_features, concatenated_outputs], dim=1))
             concatenated_outputs = torch.cat([concatenated_outputs, output], dim=1)
         return concatenated_outputs
@@ -165,7 +165,7 @@ class BasicEfficientDenseNet(nn.Module):
 
                 build_activation_function(), 
                 nn.Conv3d(
-                    in_channels=dense_block_out_channels*i, 
+                    in_channels=dense_block_out_channels*i + entry_out_chanels, 
                     out_channels=dense_block_in_channels, 
                     kernel_size=1, 
                     padding=0
@@ -185,8 +185,7 @@ class BasicEfficientDenseNet(nn.Module):
                 padding=1
             ),
             build_activation_function(), 
-            nn.Conv3d(in_channels=upsmpling_in_channels, out_channels=upscale_factor**3)
-
+            nn.Conv3d(in_channels=upsmpling_in_channels, out_channels=upscale_factor**3),
             PixelShuffle3D(upscale_factor=upscale_factor)
         ])
 
