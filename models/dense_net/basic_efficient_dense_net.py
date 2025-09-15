@@ -148,8 +148,8 @@ class BasicEfficientDenseNet(nn.Module):
 
 
         self.dense_blocks = nn.ModuleList([
-            nn.Sequential([
-                DenseBlock(
+           
+            DenseBlock(
                 in_channels = 2 * growth_rate, 
                 num_units=num_units_per_dense_block, 
                 growth_rate=growth_rate, 
@@ -157,8 +157,8 @@ class BasicEfficientDenseNet(nn.Module):
                 with_batch_norm=with_batch_norm, 
                 build_activation_function=build_activation_function, 
                 pre_activation=pre_activation
-                )
-            ])
+            )
+            
             for i in range(num_dense_blocks)
         ])
 
@@ -167,8 +167,8 @@ class BasicEfficientDenseNet(nn.Module):
 
                 build_activation_function(), 
                 nn.Conv3d(
-                    in_channels=dense_block_out_channels*i + entry_out_chanels, 
-                    out_channels=dense_block_in_channels, 
+                    in_channels=self.dense_block_out_channels*i + entry_out_chanels, 
+                    out_channels=self.dense_block_in_channels, 
                     kernel_size=1, 
                     padding=0
                 )
@@ -177,7 +177,7 @@ class BasicEfficientDenseNet(nn.Module):
         ])
 
         # 3x3x3 > 1x1x1 > pixelshuffle 
-        upsmpling_in_channels = entry_out_chanels + dense_block_out_channels * num_dense_blocks
+        upsmpling_in_channels = entry_out_chanels + self.dense_block_out_channels * num_dense_blocks
         self.upsampling = nn.Sequential([
             build_activation_function(), 
             nn.Conv3d(
