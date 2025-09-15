@@ -1,6 +1,41 @@
 import torch
 import torch.nn as nn 
 
+class DenseUnit(nn.Module): 
+    def __init__(self, in_channels, bottleneck_channels=48 ,growth_rate=12, build_activation_function=None, with_batch_norm=True, pre_activation=True): 
+        super().__init__()
+        self.in_channels = in_channels
+        self.bottleneck_channels = bottleneck_channels
+        self.growth_rate = growth_rate
+        self.build_activation_function = build_activation_function
+        self.with_batch_norm = with_batch_norm
+
+        self.bottleneck_batch_norm = nn.BatchNorm3D(in_channels)
+        self.bottleneck_activation = nn.LeakyReLU(0.1) if build_activation_function is None else build_activation_function()
+        self.bottleneck_convolution = nn.Conv3d(
+            in_channels = in_channels,
+            out_channels = bottleneck_channels, 
+            kernel_size = 1, 
+            padding = 0
+        )
+
+        self.extraction_batch_norm = nn.BatchNorm3D(in_channels)
+        self.extraction_activation = nn.LeakyReLU(0.1) if build_activation_function is None else build_activation_function()
+        self.extraction_convolution = nn.Conv3d(
+            in_channels = bottleneck_channels, 
+            out_channels = growth_rate, 
+            kernel_size = 3, 
+            padding = 1
+        )
+    def forward(self, x): 
+        if with_batch_norm: 
+            x = self.bottleneck_batch_norm(x)
+        # Control the order in wich the operations are being 
+        if pre_activation: 
+            x = self.bottleneck_convolution(self.bottleneck_activation(x))
+        else: 
+            x = self.bottleneck_activation(self.bottleneck_convolution(x))
+
 
 # Attention: the output here are only the newly extraxted features
 class DenseBlock(nn.Module): 
@@ -12,12 +47,17 @@ class DenseBlock(nn.Module):
         self.bottleneck_channels = bottleneck_channels
         
         self.bottleneck_layers = nn.ModuleList([
-            nn.Conv3d(
+            nn.Sequential([
+                if with_batch_norm: nn.BatchNorm3D(in_channels + i*growth_rate), 
+
+                nn.Conv3d(
                 in_channels = in_channels + i*growth_rate, 
                 out_channels = bottleneck_channels, 
                 kernel_size = 1, 
                 padding = 0
-            )
+            ), 
+
+            ])
             for i in range(self.num_layers)
         ])
 
