@@ -72,19 +72,20 @@ class DenseBlock(nn.Module):
             for i in range(self.num_layers)
         )
     def forward(self, x): 
-        output=None
-        concatenated_outputs=x
-        for i in range(self.num_layers): 
-            output = self.dense_units[i](concatenated_outputs)
+        input_features=x
+        output=self.dense_units[0](input_features)
+        concatenated_outputs=output
+        for i in range(1, self.num_layers): 
+            output = self.dense_units[i](torch.cat([input_features, concatenated_outputs], dim=1))
             concatenated_outputs = torch.cat([concatenated_outputs, output], dim=1)
-        return output
+        return concatenated_outputs
 
 
 
 
 class BasicEfficientDenseNet(nn.Module): 
     def __init__(self): 
-
+        
 
     def forward(self): 
 
