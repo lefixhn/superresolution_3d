@@ -84,8 +84,20 @@ class DenseBlock(nn.Module):
 
 
 class BasicEfficientDenseNet(nn.Module): 
-    def __init__(self): 
-        
+    def __init__(
+        self, 
+        num_dense_blocks=8, 
+        num_units_per_dense_block=8, 
+        growth_rate=12, 
+        bottleneck_channels=48, 
+        with_batch_norm=True, 
+        build_activation_function=None, 
+        pre_activation=True
+    ): 
+    
+        self.dense_blocks = nn.ModuleList([
+            
+        ])
 
     def forward(self): 
 
