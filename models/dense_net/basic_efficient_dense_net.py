@@ -124,6 +124,7 @@ class BasicEfficientDenseNet(nn.Module):
         build_activation_function=None, 
         pre_activation=True
     ): 
+        super().__init__()
         self.num_dense_blocks = num_dense_blocks
         self.num_units_per_dense_block = num_units_per_dense_block
         self.growth_rate = growth_rate
@@ -139,7 +140,7 @@ class BasicEfficientDenseNet(nn.Module):
         self.dense_block_in_channels = 2 * growth_rate
 
         # One channel will be filled with the original image
-        entry_out_chanels = bottleneck_channels
+        entry_out_chanels = 2 * growth_rate
         self.entry = nn.Conv3d(in_channels=1, out_channels=entry_out_chanels-1)
         
 
@@ -190,7 +191,8 @@ class BasicEfficientDenseNet(nn.Module):
         ])
 
     def forward(self, x): 
-        entry_out = self.entry(x)
+        entry_out = torch.cat([x, self.entry(x)], dim=1)
+
         dense_block_output = self.dense_blocks[0](entry_out)
         dense_blocks_outputs_concatenated = dense_block_output
         for i in range(1, self.num_dense_blocks):
