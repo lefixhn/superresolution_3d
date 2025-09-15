@@ -104,9 +104,10 @@ class BasicEfficientDenseNet(nn.Module):
         # Calculated variables 
         self.dense_block_out_channels = growth_rate * num_units_per_dense_block
 
-        self.entry = nn.Conv3d(in_channels=1, out_channels=bottleneck_channels)
-        
+        # One channel will be filled with the original image
+        self.entry = nn.Conv3d(in_channels=1, out_channels=bottleneck_channels-1)
 
+        
         self.dense_blocks = nn.ModuleList([
             DenseBlock(
                 in_channels = , 
