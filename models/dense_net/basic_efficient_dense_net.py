@@ -161,9 +161,9 @@ class BasicEfficientDenseNet(nn.Module):
             
             for i in range(num_dense_blocks)
         ])
-        # A compressor will compress the output of a denseblock 
+        # A compressor after each denseblock 
         self.compressors = []
-        for i in range(1, num_dense_blocks): 
+        for i in range(num_dense_blocks): 
             self.compressors.append(nn.Sequential(
                 self.build_activation_function(), 
                 nn.Conv3d(
@@ -177,18 +177,18 @@ class BasicEfficientDenseNet(nn.Module):
         self.compressors = nn.ModuleList(self.compressors) 
         
         
-        # 3x3x3 > 1x1x1 > pixelshuffle 
-        upsmpling_in_channels = entry_out_chanels + self.dense_block_out_channels * num_dense_blocks
+        # Upsamoling gets all the features that have been extracted
+        upsmpling_in_channels = self.compressor_out_channels * self.num_dense_blocks + entry_out_chanels
         self.upsampling = nn.Sequential(
             build_activation_function(), 
             nn.Conv3d(
                 in_channels=upsmpling_in_channels, 
-                out_channels=upsmpling_in_channels, 
+                out_channels=48, # Reduce to a reasonable amount
                 kernel_size=3, 
                 padding=1
             ),
             build_activation_function(), 
-            nn.Conv3d(in_channels=upsmpling_in_channels, out_channels=upscale_factor**3, kernel_size=1, padding=0),
+            nn.Conv3d(in_channels=48, out_channels=upscale_factor**3, kernel_size=1, padding=0),
             PixelShuffle3D(upscale_factor=upscale_factor)
         )
 
@@ -203,18 +203,14 @@ class BasicEfficientDenseNet(nn.Module):
             # Calculate denseblock output
             dense_block_output = self.dense_blocks[i](input_features)
             
-            if i < len(self.compressors): 
-                # Compress denseblock output
-                compressed_dense_block_output = self.compressors[i](dense_block_output)
-                # Add compressed denseblock output to list 
-                aggregated_compressed_outputs.append(compressed_dense_block_output)
-                # Calculate input_features for next iteration 
-                input_features = torch.cat([entry_out] + aggregated_compressed_outputs, dim=1)
-            else: 
-                final_features = torch.cat([aggregated_compressed_outputs, dense_block_output], dim=1) 
+            # Compress denseblock output
+            compressed_dense_block_output = self.compressors[i](dense_block_output)
+            # Add compressed denseblock output to list 
+            aggregated_compressed_outputs.append(compressed_dense_block_output)
+            # Calculate input_features for next iteration 
+            input_features = torch.cat([entry_out] + aggregated_compressed_outputs, dim=1)
             
-        
-        upscaled = self.upsampling(final_features)
+        upscaled = self.upsampling(input_features)
         return upscaled 
 
 if __name__ == "__main__": 
