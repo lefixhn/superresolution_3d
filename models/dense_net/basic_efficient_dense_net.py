@@ -102,13 +102,12 @@ class DenseBlock(nn.Module):
         ])
     def forward(self, x): 
         input_features=x
-        output=self.dense_units[0](input_features)
         concatenated_outputs=[]
-        for i in range(1, self.num_units): 
+        for i in range(self.num_units): 
             dense_unit_input = torch.cat([input_features] + concatenated_outputs, dim=1)
-            output = checkpoint(self.dense_units[i](dense_unit_input), use_reentrant=False)
+            output = checkpoint(self.dense_units[i], dense_unit_input,use_reentrant=False)
             concatenated_outputs.append(output)
-        return torch.cat([concatenated_outputs], dim=1)
+        return torch.cat(concatenated_outputs, dim=1)
 
 
 
