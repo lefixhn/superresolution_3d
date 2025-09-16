@@ -58,6 +58,7 @@ def train(
 
     start_epoch = 1
     if train_from_last_checkpoint:
+        print("CHECKPOINTS_PATH:", checkpoints_path, "| FILES:", os.listdir(checkpoints_path))
         last_checkpoint_path = _find_latest_checkpoint_path(checkpoints_path)   # <- neuer Name
         if last_checkpoint_path is not None:
             checkpoint = torch.load(last_checkpoint_path, map_location=device)
@@ -110,7 +111,7 @@ def train(
         validation_loss = _evaluate(model, validation_dataloader, loss_criterion, device)
         # STORE CHECKPOINT (immer aktuelles Epoch-File + last.pt)
         _save_checkpoint(checkpoints_path, epoch, model, optimizer, best_val_loss=0.0, is_best=False)
-
+        print("SAVED CHECKPOINT:", os.path.join(checkpoints_path, f"epoch_{epoch:04d}.pt"))
         # DOCUMENT EPOCH IN CSV FILE
         _append_history_row(train_history_path, epoch, train_loss=average_loss, val_loss=validation_loss)
         print(f'AVERAGE LOSS OF EPOCH {epoch} : {average_loss}')
@@ -135,19 +136,23 @@ def train(
 
 
 
-
-
 def _get_epoch_index(checkpoint_path: str) -> Optional[int]:
     filename = os.path.basename(checkpoint_path)
     m = re.search(r"(\d+)", filename)
     return int(m.group(1)) if m else None
 
 def _find_latest_checkpoint_path(checkpoints_path: str) -> Optional[str]:
-    files = [f for f in os.listdir(checkpoints_path) if re.match(r"^epoch_(\d+)\.pt$", f)]
+    if not os.path.isdir(checkpoints_path):
+        return None
+    files = []
+    for f in os.listdir(checkpoints_path):
+        m = re.match(r"^epoch_(\d+)\.pt$", f)
+        if m:
+            files.append((int(m.group(1)), f))
     if not files:
         return None
-    files.sort(key=lambda f: int(re.search(r"(\d+)", f).group(1)))
-    return os.path.join(checkpoints_path, files[-1])
+    files.sort(key=lambda t: t[0])
+    return os.path.join(checkpoints_path, files[-1][1])
 
 def _append_history_row(csv_path: str, epoch: int, train_loss: float, val_loss: Optional[float]):
     header_needed = not os.path.exists(csv_path)
