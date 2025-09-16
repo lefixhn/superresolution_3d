@@ -71,6 +71,7 @@ def train(
         
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
+    scaler = model.to(device).train()
     for epoch in range(start_epoch, start_epoch + epochs ):
         training_visualizer = tqdm(dataloader, leave=True)
         average_loss = 0.0
@@ -78,16 +79,17 @@ def train(
         for lr_image, hr_image in dataloader: 
             # Inside this loop entire batches are handled, not just images
             # Moves data to GPU if available 
-            lr_image = lr_image.to(device)
-            hr_image = hr_image.to(device)
-            # Make prediction 
-            sr_image = model(lr_image)
-            # Calculate loss 
-            loss = loss_criterion(sr_image, hr_image)
+            lr_image = lr_image.to(device, non_blocking=True)
+            hr_image = hr_image.to(device, non_blocking=True)
+            
+            with torch.cuda.amp.autocast(dtyoe=torch.float16)
+                sr_image = model(lr_image)                   # Make prediction 
+                loss = loss_criterion(sr_image, hr_image)    # Calculate loss 
             # Delete old gradient 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            optimizer.zero_grad(set_to_none=True)
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
             average_loss += loss.item()
             
