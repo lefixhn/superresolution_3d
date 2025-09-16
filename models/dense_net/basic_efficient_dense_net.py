@@ -205,7 +205,7 @@ class BasicEfficientDenseNet(nn.Module):
             input_features = torch.cat([input_features, dense_block_output], dim=1)
             # Compress if this is not the last layer
             if i < len(self.compressors): 
-                concatenated_for_compressor = torch.cat([entry_out] + dense_blocks_outputs_concatenated)
+                concatenated_for_compressor = torch.cat([entry_out] + dense_blocks_outputs_concatenated, dim=1)
                 input_features = self.compressors[i](concatenated_for_compressor)
         
         upscaled = self.upsampling(torch.cat([entry_out ,dense_blocks_outputs_concatenated], dim=1))
