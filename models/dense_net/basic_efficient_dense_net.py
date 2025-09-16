@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn 
+from torch.utils.checkpoint import checkpoint
 # PixelShuffle3D was AI generated, because there is no implementation of it 
 # in pytorch 
 class PixelShuffle3D(nn.Module):
@@ -102,11 +103,12 @@ class DenseBlock(nn.Module):
     def forward(self, x): 
         input_features=x
         output=self.dense_units[0](input_features)
-        concatenated_outputs=output
+        concatenated_outputs=[]
         for i in range(1, self.num_units): 
-            output = self.dense_units[i](torch.cat([input_features, concatenated_outputs], dim=1))
-            concatenated_outputs = torch.cat([concatenated_outputs, output], dim=1)
-        return concatenated_outputs
+            dense_unit_input = torch.cat([input_features] + concatenated_outputs, dim=1)
+            output = checkpoint(self.dense_units[i](dense_unit_input), use_reentrant=False)
+            concatenated_outputs.append(output)
+        return torch.cat([concatenated_outputs], dim=1)
 
 
 
@@ -211,11 +213,11 @@ if __name__ == "__main__":
     print("Checking weather model works")
     # Check weather this works
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = BasicEfficientDenseNet()
+    model = BasicEfficientDenseNet(num_dense_blocks=4, num_units_per_dense_block=4)
     model.to(device)
     
     x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
-    x.to(device)
+    x = x.to(device)
     y = model(x)
     print("in :", x.shape)  # torch.Size([2, 1, 64, 64, 64])
     print("out:", y.shape)  # Erwartet: [2, 1, 128, 128, 128]
