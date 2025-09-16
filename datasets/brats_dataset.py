@@ -97,6 +97,7 @@ class LazyLoadingDataset(Dataset):
             hr_tensor = self._convert_to_4d_tensor(np.asarray(hr_memory_map, dtype=np.float32))
             return (lr_tensor, hr_tensor)
         
+        
         lr_shape = data_tuple[0].shape[1:]
         min_shape_dim = min(lr_shape)
         safe_side_length = int(min([min_shape_dim, self.cube_side_length]))
