@@ -146,8 +146,6 @@ class BasicEfficientDenseNet(nn.Module):
             kernel_size=3, 
             padding=1
         )
-        
-
 
         self.dense_blocks = nn.ModuleList([
            
@@ -196,19 +194,26 @@ class BasicEfficientDenseNet(nn.Module):
 
     def forward(self, x): 
         entry_out = torch.cat([x, self.entry(x)], dim=1)
+        agg=entry_out
         input_features = entry_out
         dense_blocks_outputs_concatenated = []
         for i in range(self.num_dense_blocks):
-            
+            if __name__ == "__main__": 
+                print(f"BEFORE DENSE BLOCK {i}") # Debugging purpose 
             dense_block_output = self.dense_blocks[i](input_features)
-            dense_blocks_outputs_concatenated.append(dense_block_output)
-            input_features = torch.cat([input_features, dense_block_output], dim=1)
+            assert dense_block_output.shape[1] == self.num_units_per_dense_block * self.growth_rate, f"Expected {self.num_units_per_dense_block * self.growth_rate} but got {dense_block_output.shape[1]}"
+            
             # Compress if this is not the last layer
             if i < len(self.compressors): 
-                concatenated_for_compressor = torch.cat([entry_out] + dense_blocks_outputs_concatenated, dim=1)
-                input_features = self.compressors[i](concatenated_for_compressor)
+
+                concatenated_for_compressor = torch.cat([agg, dense_block_output], dim=1)
+                agg = self.compressors[i](concatenated_for_compressor)
+                input_features = agg
+            else: 
+               final_features = torch.cat([agg, dense_block_output], dim=1) 
+            
         
-        upscaled = self.upsampling(torch.cat([entry_out ,dense_blocks_outputs_concatenated], dim=1))
+        upscaled = self.upsampling(final_features)
         return upscaled 
 
 if __name__ == "__main__": 
