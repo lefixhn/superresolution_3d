@@ -70,11 +70,13 @@ def train(
                 start_epoch = start_epoch + 1 # We start one epoch further than the last 
         else: 
             print("KEIN CHECKPOINT GEFUNDEN!")
-        
+    
+    print("DEBUG type(device):", type(device), "value:", device)
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
     model = model.to(device).train()
     print("DEBUG type(device):", type(device), "value:", device)
+
     use_amp = (device.type=="cuda")
     scaler = torch_amp.GradScaler(enabled=use_amp)
 
