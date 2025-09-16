@@ -105,7 +105,7 @@ class DenseBlock(nn.Module):
         concatenated_outputs=[]
         for i in range(self.num_units): 
             dense_unit_input = torch.cat([input_features] + concatenated_outputs, dim=1)
-            output = checkpoint(self.dense_units[i], dense_unit_input,use_reentrant=False)
+            output = self.dense_units[i](dense_unit_input)
             concatenated_outputs.append(output)
         return torch.cat(concatenated_outputs, dim=1)
 
