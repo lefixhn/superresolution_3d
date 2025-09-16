@@ -74,7 +74,7 @@ def train(
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
     model = model.to(device).train()
-    
+    print("DEBUG type(device):", type(device), "value:", device)
     use_amp = (device.type=="cuda")
     scaler = torch_amp.GradScaler(enabled=use_amp)
 
