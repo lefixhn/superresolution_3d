@@ -210,7 +210,10 @@ class BasicEfficientDenseNet(nn.Module):
 if __name__ == "__main__": 
     print("Checking weather model works")
     # Check weather this works
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = BasicEfficientDenseNet()
+    model.to(device)
+    
     x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
     y = model(x)
     print("in :", x.shape)  # torch.Size([2, 1, 64, 64, 64])
