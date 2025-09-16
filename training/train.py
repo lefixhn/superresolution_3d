@@ -109,6 +109,9 @@ def train(
         average_loss = average_loss / len(dataloader)
         model.eval()
         validation_loss = _evaluate(model, validation_dataloader, loss_criterion, device)
+        # STORE CHECKPOINT 
+        _save_checkpoint(os.path.join(checkpoint_path, epoch, model, )
+        # DOCUMENT EPOCH IN CSV FILE 
         _append_history_row(train_history_path, epoch, train_loss=average_loss, val_loss=validation_loss)
         print(f'AVERAGE LOSS OF EPOCH {epoch} : {average_loss}')
         
