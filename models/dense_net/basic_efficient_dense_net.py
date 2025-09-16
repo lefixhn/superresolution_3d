@@ -1,6 +1,10 @@
 import torch
 import torch.nn as nn 
 from torch.utils.checkpoint import checkpoint
+
+import os
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
 # PixelShuffle3D was AI generated, because there is no implementation of it 
 # in pytorch 
 class PixelShuffle3D(nn.Module):
