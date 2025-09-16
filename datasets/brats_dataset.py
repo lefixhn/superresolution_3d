@@ -3,8 +3,8 @@ from torch.utils.data import Dataset
 import torch 
 import os 
 
-DEFAULT_LR_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_v0/lr'
-DEFAULT_HR_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_v0/hr'
+DEFAULT_LR_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_t1/lr'
+DEFAULT_HR_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_t1/hr'
 
 class PreloadedBratsDataset(Dataset): 
     def __init__(self,cube_side_length=None ,start_item_index=0, item_count=1251 ,lr_path=DEFAULT_LR_PATH, hr_path=DEFAULT_HR_PATH):
