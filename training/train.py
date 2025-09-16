@@ -75,11 +75,11 @@ def train(
     model = model.to(device).train()
     scaler = torch.cuda.amp.GradScaler()
     
-    for epoch_index ,epoch in range(start_epoch, start_epoch + epochs ):
-        training_visualizer = tqdm(dataloader, leave=True)
+    for epoch_index ,epoch in tqdm(range(start_epoch, start_epoch + epochs ), desc=f"Trainingprogress"):
+        
         average_loss = 0.0
         # Iterate trough minibatches
-        for batch_index ,(lr_image, hr_image) in enumerate(dataloader): 
+        for batch_index ,(lr_image, hr_image) in tqdm(enumerate(dataloader), desc=f"Epoch {epoch_index} of {epochs}"): 
             # Inside this loop entire batches are handled, not just images
             # Moves data to GPU if available 
             lr_image = lr_image.to(device, non_blocking=True)
@@ -91,8 +91,7 @@ def train(
             # Delete old gradient 
             optimizer.zero_grad(set_to_none=True)
             scaler.scale(loss).backward()
-            if (not accumulate_batch_loss) or (i+1) % batch_size == 0: 
-       
+            if (not accumulate_batch_loss) or (batch_index+1) % batch_size == 0: 
                 scaler.step(optimizer)
                 scaler.update()
             average_loss += loss.item()
