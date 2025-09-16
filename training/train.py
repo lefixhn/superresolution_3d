@@ -56,19 +56,18 @@ def train(
     # Build training history path 
     train_history_path = os.path.join(model_path, 'training_history.csv')
 
-    start_epoch = 1 
-    # LOAD CHECKPOINT
-    if train_from_last_checkpoint: 
-        last_checkpoint_path= _find_latest_ckeckpoint_dir(checkpoints_path)
+    start_epoch = 1
+    if train_from_last_checkpoint:
+        last_checkpoint_path = _find_latest_checkpoint_path(checkpoints_path)   # <- neuer Name
         if last_checkpoint_path is not None:
             checkpoint = torch.load(last_checkpoint_path, map_location=device)
             model.load_state_dict(checkpoint['model_state_dict'])
-            if 'optimizer_state_dict' in checkpoint: 
+            if 'optimizer_state_dict' in checkpoint:
                 optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
             epoch_index = _get_epoch_index(last_checkpoint_path)
-            if epoch_index is not None: 
-                start_epoch = start_epoch + 1 # We start one epoch further than the last 
-        else: 
+            if epoch_index is not None:
+                start_epoch = epoch_index + 1    # <- statt: start_epoch + 1
+        else:
             print("KEIN CHECKPOINT GEFUNDEN!")
     
     print("DEBUG type(device):", type(device), "value:", device)
@@ -109,9 +108,10 @@ def train(
         average_loss = average_loss / len(dataloader)
         model.eval()
         validation_loss = _evaluate(model, validation_dataloader, loss_criterion, device)
-        # STORE CHECKPOINT 
-        _save_checkpoint(os.path.join(checkpoint_path, epoch, model, )
-        # DOCUMENT EPOCH IN CSV FILE 
+        # STORE CHECKPOINT (immer aktuelles Epoch-File + last.pt)
+        _save_checkpoint(checkpoints_path, epoch, model, optimizer, best_val_loss=0.0, is_best=False)
+
+        # DOCUMENT EPOCH IN CSV FILE
         _append_history_row(train_history_path, epoch, train_loss=average_loss, val_loss=validation_loss)
         print(f'AVERAGE LOSS OF EPOCH {epoch} : {average_loss}')
         
@@ -137,26 +137,17 @@ def train(
 
 
 
-def _get_epoch_index(checkpoint_path: str) -> Optional[int]: 
-    '''
-    /Models/Mymodel2025/checkpoints/epoch219.pt -> 219
-    '''
+def _get_epoch_index(checkpoint_path: str) -> Optional[int]:
     filename = os.path.basename(checkpoint_path)
-    matching = re.search(r"\d+", filename)
+    m = re.search(r"(\d+)", filename)
+    return int(m.group(1)) if m else None
 
-    if matching: 
-        return matching.group(0)
-    else: 
+def _find_latest_checkpoint_path(checkpoints_path: str) -> Optional[str]:
+    files = [f for f in os.listdir(checkpoints_path) if re.match(r"^epoch_(\d+)\.pt$", f)]
+    if not files:
         return None
-
-def _find_latest_ckeckpoint_dir(checkpoints_path: str) -> Optional[str]: 
-    checkpoints = os.listdir(checkpoints_path)
-    if len(checkpoints) == 0: 
-        return None
-    else: 
-        # Find highest checkpoint 
-        checkpoints.sort(key=lambda checkpoint: int(re.findall(r"\d+", checkpoint)))
-        return os.path.join(checkpoints_path, checkpoints[-1])
+    files.sort(key=lambda f: int(re.search(r"(\d+)", f).group(1)))
+    return os.path.join(checkpoints_path, files[-1])
 
 def _append_history_row(csv_path: str, epoch: int, train_loss: float, val_loss: Optional[float]):
     header_needed = not os.path.exists(csv_path)
