@@ -17,6 +17,7 @@ def train(
     learning_rate=1e-4, 
     epochs=10, 
     batch_size=4, 
+    accumulate_batch_loss=True, # Better for storage efficiency
     optimizer=None, 
     dataloader_num_workers=2,
     loss_criterion = nn.L1Loss(), 
@@ -36,7 +37,7 @@ def train(
     if validation_dataset is not None: 
         validation_dataloader = DataLoader(dataset=validation_dataset, batch_size=1, shuffle=False, num_workers=dataloader_num_workers, persistent_workers=True)
     # Prepare DATALOADER, MODEL and OPTIMIZER
-    dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=dataloader_num_workers, persistent_workers=True)
+    dataloader = DataLoader(dataset=dataset, batch_size=1 if accumulate_batch_loss else batch_size, shuffle=True, num_workers=dataloader_num_workers, persistent_workers=True)
     # TODO: Wie kann ich die Modellparameter bei train_from_last_checkpoint=True laden
     model = model.to(device)
     if optimizer is None: 
@@ -71,26 +72,29 @@ def train(
         
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
-    scaler = model.to(device).train()
-    for epoch in range(start_epoch, start_epoch + epochs ):
+    model = model.to(device).train()
+    scaler = torch.cuda.amp.GradScaler()
+    
+    for epoch_index ,epoch in range(start_epoch, start_epoch + epochs ):
         training_visualizer = tqdm(dataloader, leave=True)
         average_loss = 0.0
         # Iterate trough minibatches
-        for lr_image, hr_image in dataloader: 
+        for batch_index ,(lr_image, hr_image) in enumerate(dataloader): 
             # Inside this loop entire batches are handled, not just images
             # Moves data to GPU if available 
             lr_image = lr_image.to(device, non_blocking=True)
             hr_image = hr_image.to(device, non_blocking=True)
             
-            with torch.cuda.amp.autocast(dtyoe=torch.float16)
+            with torch.cuda.amp.autocast(dtype=torch.float16):
                 sr_image = model(lr_image)                   # Make prediction 
                 loss = loss_criterion(sr_image, hr_image)    # Calculate loss 
             # Delete old gradient 
             optimizer.zero_grad(set_to_none=True)
             scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-
+            if (not accumulate_batch_loss) or (i+1) % batch_size == 0: 
+       
+                scaler.step(optimizer)
+                scaler.update()
             average_loss += loss.item()
             
             # AFTER MINIBATCH
