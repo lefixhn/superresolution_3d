@@ -196,14 +196,17 @@ class BasicEfficientDenseNet(nn.Module):
 
     def forward(self, x): 
         entry_out = torch.cat([x, self.entry(x)], dim=1)
-
-        dense_block_output = self.dense_blocks[0](entry_out)
-        dense_blocks_outputs_concatenated = dense_block_output
-        for i in range(1, self.num_dense_blocks):
-            compressor_input = torch.cat([entry_out, dense_blocks_outputs_concatenated], dim=1)
-            dense_block_input = self.compressors[i-1](compressor_input)
-            dense_block_output = self.dense_blocks[i](dense_block_input)
-            dense_blocks_outputs_concatenated = torch.cat([dense_blocks_outputs_concatenated, dense_block_output], dim=1)
+        input_features = entry_out
+        dense_blocks_outputs_concatenated = []
+        for i in range(self.num_dense_blocks):
+            
+            dense_block_output = self.dense_blocks[i](input_features)
+            dense_blocks_outputs_concatenated.append(dense_block_output)
+            input_features = torch.cat([input_features, dense_block_output], dim=1)
+            # Compress if this is not the last layer
+            if i < len(self.compressors): 
+                concatenated_for_compressor = torch.cat([entry_out] + dense_blocks_outputs_concatenated)
+                input_features = self.compressors[i](concatenated_for_compressor)
         
         upscaled = self.upsampling(torch.cat([entry_out ,dense_blocks_outputs_concatenated], dim=1))
         return upscaled 
@@ -212,7 +215,7 @@ if __name__ == "__main__":
     print("Checking weather model works")
     # Check weather this works
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = BasicEfficientDenseNet(num_dense_blocks=4, num_units_per_dense_block=4)
+    model = BasicEfficientDenseNet(num_dense_blocks=8, num_units_per_dense_block=8)
     model.to(device)
     
     x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
