@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader
 import torch.nn as nn 
 import torch
 import torch.optim as optim
+from torch import amp as torch_amp
 import os
 import re
 import csv
@@ -74,8 +75,8 @@ def train(
     # Iterate through epochs 
     model = model.to(device).train()
     
-    use_amp = device.type=="cuda"
-    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+    use_amp = (device.type=="cuda")
+    scaler = torch_amp.GradScaler(enabled=use_amp)
 
     for epoch in range(start_epoch, start_epoch + epochs ):
         model.train()
@@ -88,7 +89,7 @@ def train(
             lr_image = lr_image.to(device, non_blocking=True)
             hr_image = hr_image.to(device, non_blocking=True)
             
-            with torch.autocast(device_type=device.type, dtype=torch.float16 if use_amp else torch.bfloat16):
+            with torch_amp.autocast(device_type=device.type, dtype=torch.float16 if use_amp else torch.bfloat16):
                 sr_image = model(lr_image)    # Make prediction 
                 loss = loss_criterion(sr_image, hr_image) / (batch_size if accumulate_batch_loss else 1)    # Calculate loss 
             
@@ -98,7 +99,7 @@ def train(
                 scaler.step(optimizer)
                 scaler.update()
                 optimizer.zero_grad(set_to_none=True)
-                average_loss += loss.item() * batch_size
+            average_loss += loss.item() * batch_size
             
             # AFTER MINIBATCH
         # AFTER EPOCH 
