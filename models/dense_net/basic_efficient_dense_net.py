@@ -137,7 +137,7 @@ class BasicEfficientDenseNet(nn.Module):
         self.pre_activation = pre_activation
         # Calculated variables 
         self.dense_block_out_channels = growth_rate * num_units_per_dense_block
-        self.dense_block_in_channels = 2 * growth_rate
+        self.compressor_out_channels = 2 * growth_rate
 
         # One channel will be filled with the original image
         entry_out_chanels = 2 * growth_rate
@@ -161,14 +161,14 @@ class BasicEfficientDenseNet(nn.Module):
             
             for i in range(num_dense_blocks)
         ])
-
+        # A compressor will compress the output of a denseblock 
         self.compressors = []
         for i in range(1, num_dense_blocks): 
             self.compressors.append(nn.Sequential(
                 self.build_activation_function(), 
                 nn.Conv3d(
-                    in_channels=self.dense_block_out_channels*i + entry_out_chanels, 
-                    out_channels=self.dense_block_in_channels, 
+                    in_channels=self.dense_block_out_channels, 
+                    out_channels=self.compressor_out_channels, 
                     kernel_size=1, 
                     padding=0
                 )
@@ -194,23 +194,24 @@ class BasicEfficientDenseNet(nn.Module):
 
     def forward(self, x): 
         entry_out = torch.cat([x, self.entry(x)], dim=1)
-        agg=entry_out
+        aggregated_compressed_outputs = []
         input_features = entry_out
-        dense_blocks_outputs_concatenated = []
+        
         for i in range(self.num_dense_blocks):
             if __name__ == "__main__": 
                 print(f"BEFORE DENSE BLOCK {i}") # Debugging purpose 
+            # Calculate denseblock output
             dense_block_output = self.dense_blocks[i](input_features)
-            assert dense_block_output.shape[1] == self.num_units_per_dense_block * self.growth_rate, f"Expected {self.num_units_per_dense_block * self.growth_rate} but got {dense_block_output.shape[1]}"
             
-            # Compress if this is not the last layer
             if i < len(self.compressors): 
+                # Compress denseblock output
 
-                concatenated_for_compressor = torch.cat([agg, dense_block_output], dim=1)
-                agg = self.compressors[i](concatenated_for_compressor)
-                input_features = agg
+                # Add compressed denseblock output to list 
+                aggregated_compressed_outputs.append(dense_block_output)
+                # Calcu
+                input_features = torch.cat([entry_out] + aggregated_compressed_outputs, dim=1)
             else: 
-               final_features = torch.cat([agg, dense_block_output], dim=1) 
+                final_features = torch.cat([agg, dense_block_output], dim=1) 
             
         
         upscaled = self.upsampling(final_features)
