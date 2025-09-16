@@ -204,7 +204,7 @@ class BasicEfficientDenseNet(nn.Module):
             dense_block_output = self.dense_blocks[i](dense_block_input)
             dense_blocks_outputs_concatenated = torch.cat([dense_blocks_outputs_concatenated, dense_block_output], dim=1)
         
-        upscaled = self.upsampling(torch.cat([entry_out ,dense_blocks_outputs_concatenated]))
+        upscaled = self.upsampling(torch.cat([entry_out ,dense_blocks_outputs_concatenated], dim=1))
         return upscaled 
 
 if __name__ == "__main__": 
