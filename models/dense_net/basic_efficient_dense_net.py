@@ -215,7 +215,7 @@ if __name__ == "__main__":
     print("Checking weather model works")
     # Check weather this works
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = BasicEfficientDenseNet(num_dense_blocks=4, num_units_per_dense_block=4)
+    model = BasicEfficientDenseNet(num_dense_blocks=8, num_units_per_dense_block=8)
     model.to(device)
     
     x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
