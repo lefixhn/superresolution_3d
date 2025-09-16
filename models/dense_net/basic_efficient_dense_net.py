@@ -110,8 +110,6 @@ class DenseBlock(nn.Module):
         return torch.cat(concatenated_outputs, dim=1)
 
 
-
-
 class BasicEfficientDenseNet(nn.Module): 
     def __init__(
         self, 
@@ -150,7 +148,7 @@ class BasicEfficientDenseNet(nn.Module):
         self.dense_blocks = nn.ModuleList([
            
             DenseBlock(
-                in_channels = 2 * growth_rate, 
+                in_channels = entry_out_chanels + self.compressor_out_channels * i, 
                 num_units=num_units_per_dense_block, 
                 growth_rate=growth_rate, 
                 bottleneck_channels=bottleneck_channels, 
@@ -220,7 +218,7 @@ if __name__ == "__main__":
     model = BasicEfficientDenseNet(num_dense_blocks=4, num_units_per_dense_block=4)
     model.to(device)
     
-    x = torch.randn(2, 1, 256, 256, 128)  # [B,C,D,H,W], D/H/W % 4 == 0
+    x = torch.randn(2, 1, 64, 64, 64)  # [B,C,D,H,W], D/H/W % 4 == 0
     x = x.to(device)
     y = model(x)
     print("in :", x.shape)  # torch.Size([2, 1, 512, 512, 256])
