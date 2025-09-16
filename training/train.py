@@ -75,11 +75,12 @@ def train(
     model = model.to(device).train()
     scaler = torch.cuda.amp.GradScaler()
     
-    for epoch_index ,epoch in tqdm(range(start_epoch, start_epoch + epochs ), desc=f"Trainingprogress"):
-        
+    for epoch in range(start_epoch, start_epoch + epochs ):
+        model.train()
+        optimizer.zero_grad(set_to_none=True)
         average_loss = 0.0
         # Iterate trough minibatches
-        for batch_index ,(lr_image, hr_image) in tqdm(enumerate(dataloader), desc=f"Epoch {epoch_index} of {epochs}"): 
+        for batch_index ,(lr_image, hr_image) in tqdm(enumerate(dataloader), total=len(dataloader),desc=f"Epoch {epoch} of {epochs}"): 
             # Inside this loop entire batches are handled, not just images
             # Moves data to GPU if available 
             lr_image = lr_image.to(device, non_blocking=True)
@@ -87,19 +88,23 @@ def train(
             
             with torch.cuda.amp.autocast(dtype=torch.float16):
                 sr_image = model(lr_image)                   # Make prediction 
-                loss = loss_criterion(sr_image, hr_image)    # Calculate loss 
-            # Delete old gradient 
-            optimizer.zero_grad(set_to_none=True)
+    
+                loss = loss_criterion(sr_image, hr_image) / (batch_size if accumulate_batch_loss else 1)    # Calculate loss 
+           
+            
             scaler.scale(loss).backward()
+
             if (not accumulate_batch_loss) or (batch_index+1) % batch_size == 0: 
                 scaler.step(optimizer)
                 scaler.update()
-            average_loss += loss.item()
+                optimizer.zero_grad(set_to_none=True)
+                average_loss += loss.item()
             
             # AFTER MINIBATCH
         # AFTER EPOCH 
         # TODO: Wie kann ich hier falls vorhanden validieren und werte speichern
         average_loss = average_loss / len(dataloader)
+        model.eval()
         validation_loss = _evaluate(model, validation_dataloader, loss_criterion, device)
         _append_history_row(train_history_path, epoch, train_loss=average_loss, val_loss=validation_loss)
         print(f'AVERAGE LOSS OF EPOCH {epoch} : {average_loss}')

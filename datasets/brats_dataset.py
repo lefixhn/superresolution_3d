@@ -66,7 +66,7 @@ class LazyLoadingDataset(Dataset):
         hr_path=DEFAULT_HR_PATH, 
         datatype=torch.float32
     ):
-        super()__init__()
+        super().__init__()
         self.cube_side_length=cube_side_length
         self.datatype = datatype
         # Init file paths
@@ -80,7 +80,7 @@ class LazyLoadingDataset(Dataset):
         tensor = torch.from_numpy(image, dtype=self.datatype)
         if tensor.ndim == 3: 
             return tensor.unsqueeze(0)
-        else if tensor.ndim == 4:
+        elif tensor.ndim == 4:
             return tensor
         else: 
             raise Exception(f"The given .npy file has {image.ndim} dimensions")
