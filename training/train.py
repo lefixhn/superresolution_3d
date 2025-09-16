@@ -73,8 +73,10 @@ def train(
     print(f'STARTING TO TRAIN {model_store_name} ON {device}')
     # Iterate through epochs 
     model = model.to(device).train()
-    scaler = torch.cuda.amp.GradScaler()
     
+    use_amp = device.type=="cuda"
+    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+
     for epoch in range(start_epoch, start_epoch + epochs ):
         model.train()
         optimizer.zero_grad(set_to_none=True)
@@ -86,19 +88,17 @@ def train(
             lr_image = lr_image.to(device, non_blocking=True)
             hr_image = hr_image.to(device, non_blocking=True)
             
-            with torch.cuda.amp.autocast(dtype=torch.float16):
-                sr_image = model(lr_image)                   # Make prediction 
-    
+            with torch.autocast(device_type=device.type, dtype=torch.float16 if use_amp else torch.bfloat16):
+                sr_image = model(lr_image)    # Make prediction 
                 loss = loss_criterion(sr_image, hr_image) / (batch_size if accumulate_batch_loss else 1)    # Calculate loss 
-           
             
             scaler.scale(loss).backward()
 
-            if (not accumulate_batch_loss) or (batch_index+1) % batch_size == 0: 
+            if (not accumulate_batch_loss) or (batch_index+1) % batch_size == 0 or (batch_index + 1 == len(dataloader)): 
                 scaler.step(optimizer)
                 scaler.update()
                 optimizer.zero_grad(set_to_none=True)
-                average_loss += loss.item()
+                average_loss += loss.item() * batch_size
             
             # AFTER MINIBATCH
         # AFTER EPOCH 
