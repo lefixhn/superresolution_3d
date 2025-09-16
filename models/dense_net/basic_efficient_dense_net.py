@@ -205,13 +205,13 @@ class BasicEfficientDenseNet(nn.Module):
             
             if i < len(self.compressors): 
                 # Compress denseblock output
-
+                compressed_dense_block_output = self.compressors[i](dense_block_output)
                 # Add compressed denseblock output to list 
-                aggregated_compressed_outputs.append(dense_block_output)
-                # Calcu
+                aggregated_compressed_outputs.append(compressed_dense_block_output)
+                # Calculate input_features for next iteration 
                 input_features = torch.cat([entry_out] + aggregated_compressed_outputs, dim=1)
             else: 
-                final_features = torch.cat([agg, dense_block_output], dim=1) 
+                final_features = torch.cat([aggregated_compressed_outputs, dense_block_output], dim=1) 
             
         
         upscaled = self.upsampling(final_features)
