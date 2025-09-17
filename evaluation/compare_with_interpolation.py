@@ -30,7 +30,8 @@ def interpolate_tensor(tensor, upscale_factor: int = 2, order : int =3):
 def compare_models(
     lr_hr_tuples, 
     models: Dict[str, callable], 
-    metrics: Dict[str, callable]
+    metrics: Dict[str, callable], 
+    autoprint: bool=False 
 ):
     '''
     Accepts 5d torch tensors as input images 
@@ -38,7 +39,7 @@ def compare_models(
     # Generate dict for results
     models_results = {model_name : {metric_name : 0.0 for metric_name in metrics.keys()} for model_name in models.keys()}
 
-    # Sum up the metric results over the models     
+    # Sum up the metric results for each model over the images
     for model_name, model in models.items(): 
         # TODO: Bring model and images to GPU if it is a Module
         # Bring it to eval mode if it is a module
@@ -50,4 +51,9 @@ def compare_models(
             for metric_name, metric in metrics.items():
                 models_results[model_name][metric_name] += metric(sr_image, hr_image)
     
-               
+    num_images = len(lr_hr_tuples)
+    for model_name in models.keys(): 
+        for metric_name in metrics.keys(): 
+            models_results[model_name][metric_name] = models_results[model_name][metric_name] / num_images
+    # TODO: implement autoprint
+    return models_results          
