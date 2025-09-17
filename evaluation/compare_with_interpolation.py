@@ -3,7 +3,7 @@ from torch.nn import Module
 import torch 
 import numpy as np
 import scipy.ndimage as nd
-
+import comparing_metrics as cm
 
 
 def convert_tensor_to_numpy(tensor) -> np.array: 
@@ -29,16 +29,25 @@ def interpolate_tensor(tensor, upscale_factor: int = 2, order : int =3):
 
 def compare_models(
     lr_hr_tuples, 
-    models: , 
-    require_compare_mae=True, 
-    require_compare_mse=True, 
-    require_compare_psnr=True, 
-    require_compare_ssim=True, 
-    require_compare_lpips=True, 
-    
+    models: Dict[str, callable], 
+    metrics: Dict[str, callable]
 ):
     '''
     Accepts 5d torch tensors as input images 
     '''
-    
+    # Generate dict for results
+    models_results = {model_name : {metric_name : 0.0 for metric_name in metrics.keys()} for model_name in models.keys()}
 
+    # Sum up the metric results over the models     
+    for model_name, model in models.items(): 
+        # TODO: Bring model and images to GPU if it is a Module
+        # Bring it to eval mode if it is a module
+        for (lr_image, hr_image) in lr_hr_tuples: 
+            assert lr_image.dim() == 5 and hr_image.dim() == 5, "Tensors mus be 5d (B, C, D, H, W)"
+                
+            sr_image = model(lr_image)
+
+            for metric_name, metric in metrics.items():
+                models_results[model_name][metric_name] += metric(sr_image, hr_image)
+    
+               
