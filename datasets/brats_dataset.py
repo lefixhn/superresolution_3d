@@ -70,7 +70,7 @@ class LazyLoadingBratsDataset(Dataset):
         super().__init__()
         self.cube_side_length=cube_side_length
         self.datatype = datatype
-        # Init file paths
+        # Only load the paths 
         self.lr_files = [os.path.join(lr_path, f"{i:04d}.npy") for i in range(start_item_index, start_item_index+item_count)]
         self.hr_files = [os.path.join(hr_path, f"{i:04d}.npy") for i in range(start_item_index, start_item_index+item_count)]
         
