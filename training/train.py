@@ -85,7 +85,7 @@ def train(
         optimizer.zero_grad(set_to_none=True)
         average_loss = 0.0
         # Iterate trough minibatches
-        for batch_index ,(lr_image, hr_image) in tqdm(enumerate(dataloader), total=len(dataloader),desc=f"Epoch {epoch} of {epochs}"): 
+        for batch_index ,(lr_image, hr_image) in tqdm(enumerate(dataloader), total=len(dataloader),desc=f"Epoch {epoch} of {epochs+start_epoch}"): 
             # Inside this loop entire batches are handled, not just images
             # Moves data to GPU if available 
             lr_image = lr_image.to(device, non_blocking=True)

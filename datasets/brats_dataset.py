@@ -73,15 +73,14 @@ class LazyLoadingBratsDataset(Dataset):
         # Only load the paths 
         self.lr_files = [os.path.join(lr_path, f"{i:04d}.npy") for i in range(start_item_index, start_item_index+item_count)]
         self.hr_files = [os.path.join(hr_path, f"{i:04d}.npy") for i in range(start_item_index, start_item_index+item_count)]
-        
+        print("FINISHED INITIALIZING LazyLoadingBratsDataset")
+
     def __len__(self):
         return len(self.hr_files)
     
     def _convert_to_4d_tensor(self, image: np.ndarray):
         
-        float32_image = image.astype(np.float32, copy=False)
-
-        tensor = torch.from_numpy(float32_image)
+        tensor = torch.as_tensor(image, dtype=torch.float32)
         if tensor.ndim == 3: 
             return tensor.unsqueeze(0)
         elif tensor.ndim == 4:
