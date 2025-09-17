@@ -107,7 +107,7 @@ class LazyLoadingBratsDataset(Dataset):
             # Calculate the hr_coordinates
             x, y, z, safe_side_length = 2*x, 2*y, 2*z, 2*safe_side_length
             # Fetch required information from the hr memory map 
-            hr_iamge = hr_memory_map[x:x+safe_side_length, y:y+safe_side_length, z:z+safe_side_length]
+            hr_image = hr_memory_map[x:x+safe_side_length, y:y+safe_side_length, z:z+safe_side_length]
             # Convert to tensor
             lr_tensor = self._convert_to_4d_tensor(lr_image)
             hr_tensor = self._convert_to_4d_tensor(hr_image)
