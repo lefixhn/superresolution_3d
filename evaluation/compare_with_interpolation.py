@@ -4,7 +4,7 @@ import torch
 import numpy as np
 import scipy.ndimage as nd
 import comparing_metrics as cm
-
+from typing import Dict, List, Tuple
 
 def convert_tensor_to_numpy(tensor) -> np.array: 
     ''' Only accepts 5d (B, C, D, H, W) tensors'''
@@ -26,13 +26,13 @@ def interpolate_tensor(tensor, upscale_factor: int = 2, order : int =3):
     interpolated_tensor = torch.cat(interpolated_tensor_images, dim=0)
     return interpolated_tensor
 
-
-def compare_models(
+# Compares performance of models on given data
+def compare_models_performance(
     lr_hr_tuples, 
     models: Dict[str, callable], 
     metrics: Dict[str, callable], 
     autoprint: bool=False 
-):
+) -> Dict[str, Dict[str, float]]:
     '''
     Accepts 5d torch tensors as input images 
     '''
@@ -55,5 +55,53 @@ def compare_models(
     for model_name in models.keys(): 
         for metric_name in metrics.keys(): 
             models_results[model_name][metric_name] = models_results[model_name][metric_name] / num_images
-    # TODO: implement autoprint
+    
+    # Print the results 
+    if autoprint: 
+        for model_name in models.keys(): 
+            accumulated_metrics_results = ""
+            for metric_name in metrics.keys(): 
+                metric_value = models_results[model_name][metric_name]
+                accumulated_metrics_results += f"-- {metric_name} : {metric_value:.4f}"
+            print(f"    {model_name} {accumulated_metrics_results}")
+
+
     return models_results          
+
+
+def compare_models_on_degradation_models(
+    models: Dict[str, callable], 
+    hr_images: List[torch.Tensor], 
+    degradation_models: Dict[str, callable], 
+    metrics: Dict[str, callable], 
+): 
+    '''
+    Comparing multiple models with multiple metrics on multiple degradation models.
+    
+    '''
+    results = {}
+    for degradation_model_name, degradation_model in degradation_models.items(): 
+        lr_hr_tuples = []
+        for hr_image in hr_images: 
+            if hr_image.dim() == 4: 
+                hr_image = hr_image.unsqueeze(0)
+            lr_image = degradation_model(hr_image)
+            lr_hr_tuple = (lr_image, hr_image)
+            lr_hr_tuples.append(lr_hr_tuple)
+        results[degradation_model_name] = compare_models_performance(
+            lr_hr_tuples, 
+            models=models,  
+            metrics=metrics, 
+            autoprint=False 
+        )
+    
+    return results
+
+
+# TODO: Implement following methods 
+
+def build_default_degradations() -> List[callable]: 
+    return None
+
+def compare_model_with_interpolations_on_degradations() -> Dict[str, Dict[str, Dict[str, float]]]:
+    return None
