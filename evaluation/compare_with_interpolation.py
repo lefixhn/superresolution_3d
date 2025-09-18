@@ -42,10 +42,15 @@ def compare_models_performance(
 
     # Sum up the metric results for each model over the images
     for model_name, model in tqdm(models.items(), desc="Going trough models"): 
-        target_device = 'cuda' if (torch.cuda.is_available() and isinstance(model, Module))
+        target_device = 'cuda' if (torch.cuda.is_available() and isinstance(model, Module)) else 'cpu'
+        if isinstance(model, Module): 
+            model = model.to(target_device).eval()
+
         # TODO: Bring model and images to GPU if it is a Module
         # Bring it to eval mode if it is a module
         for (lr_image, hr_image) in lr_hr_tuples: 
+            lr_image = lr_image.to(target_device)
+            hr_image = hr_image.to(target_device)
             assert lr_image.dim() == 5 and hr_image.dim() == 5, "Tensors mus be 5d (B, C, D, H, W)"
             
 
