@@ -33,7 +33,7 @@ def interpolate_tensor(tensor, upscale_factor: int = 2, order : int =3):
 
 
 def print_metrics_of_models(results: Dict[str, Dict[str, float]]): 
-    for model_name, model_results in results: 
+    for model_name, model_results in results.items(): 
         print(f"### {model_name}")
         metric_results_accumulated = ""
         for metric_name, metric_value in model_results.items(): 
@@ -94,7 +94,7 @@ def build_degradations(blur_sigmas: List[float]=[0.0, 12.0/255.0, 25.0/255.0], n
         for noise_sigma in noise_sigmas: 
             degradation_name = f"GeneralDegradation - noise_sigma:{noise_sigma} | blur_sigma:{blur_sigma}"
             # general_image_degradation_model(image,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0)
-            degradations[degradation_name]= lambda image: ideg.general_image_degradation_model(image=image, downscale_function=None ,downscale_factor=downscale_factor, noise_sigma=noise_sigma, blur_sigma=blur_sigma)
+            degradations[degradation_name]= lambda image, _noise_sigma=noise_sigma, _blur_sigma=blur_sigma: ideg.general_image_degradation_model(image=image, downscale_function=None ,downscale_factor=downscale_factor, noise_sigma=_noise_sigma, blur_sigma=_blur_sigma)
     return degradations
 
 def compare_models_performance_on_degradations(
