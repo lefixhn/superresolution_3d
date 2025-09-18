@@ -5,6 +5,7 @@ import numpy as np
 import scipy.ndimage as nd
 import comparing_metrics as cm
 from typing import Dict, List, Tuple
+from tqdm import tqdm
 
 def convert_tensor_to_numpy(tensor) -> np.array: 
     ''' Only accepts 5d (B, C, D, H, W) tensors'''
@@ -28,7 +29,7 @@ def interpolate_tensor(tensor, upscale_factor: int = 2, order : int =3):
 
 # Compares performance of models on given data
 def compare_models_performance(
-    lr_hr_tuples, 
+    lr_hr_tuples: List[tuple], 
     models: Dict[str, callable], 
     metrics: Dict[str, callable], 
     autoprint: bool=False 
@@ -40,12 +41,14 @@ def compare_models_performance(
     models_results = {model_name : {metric_name : 0.0 for metric_name in metrics.keys()} for model_name in models.keys()}
 
     # Sum up the metric results for each model over the images
-    for model_name, model in models.items(): 
+    for model_name, model in tqdm(models.items(), desc="Going trough models"): 
+        target_device = 'cuda' if (torch.cuda.is_available() and isinstance(model, Module))
         # TODO: Bring model and images to GPU if it is a Module
         # Bring it to eval mode if it is a module
         for (lr_image, hr_image) in lr_hr_tuples: 
             assert lr_image.dim() == 5 and hr_image.dim() == 5, "Tensors mus be 5d (B, C, D, H, W)"
-                
+            
+
             sr_image = model(lr_image)
 
             for metric_name, metric in metrics.items():
