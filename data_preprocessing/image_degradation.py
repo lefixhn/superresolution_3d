@@ -48,17 +48,28 @@ def add_gaus_noise(image, noise_sigma):
     noised_image = np.clip(noised_image, 0, 1)
     return noised_image
 
-def general_image_degradation_model(image: np.array ,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0):
+# Works in 3d on np arrays and tensors 
+def general_image_degradation_model_on_3d_nparray(image: np.array,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0):
+    assert image.ndim == 3, "Image must be in 3D"
     degradation_image = image
     # Apply gaussian blur 
     if blur_sigma != 0: 
         degradation_image = ndimage.gaussian_filter(degradation_image, sigma=blur_sigma, truncate=3.0)
     # Scale down 
     degradation_image = crop_image_for_downscale(degradation_image, downscale_factor)
-    degradation_image = downscale_function(degradation_image, downscale_factor)
+    if downscale_function is not None: 
+        degradation_image = downscale_function(degradation_image, downscale_factor)
+    else: 
+        degradation_image = cubic_downscale(degradation_image, downscale_factor)
     degradation_image = add_gaus_noise(degradation_image, noise_sigma=noise_sigma)
 
     return degradation_image
+
+def general_image_degradation_model(image,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0): 
+    if isinstance(image, torch.Tensor):
+    
+    else: 
+        return general_image_degradation_model_on_3d_nparray(image,)
 
 # Simple random settings for the general image degradation model 
 def default_degradation(image, downscale_factor):
@@ -68,7 +79,7 @@ def default_degradation(image, downscale_factor):
     downscale_functions = (nearest_neighbor_downscale, linear_downscale, cubic_downscale) 
     # Select random downscale function 
     downscale_function = downscale_functions[np.random.randint(0, 3)]
-    return general_image_degradation_model(image, noise_sigma, downscale_function, downscale_factor, blur_sigma) 
+    return general_image_degradation_model_on_3d_nparray(image, noise_sigma, downscale_function, downscale_factor, blur_sigma) 
 
 
 def advanced_image_degradation_model(image, downscale_factor, sfulle_operations=False):

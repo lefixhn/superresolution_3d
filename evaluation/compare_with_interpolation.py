@@ -6,6 +6,7 @@ import scipy.ndimage as nd
 #import comparing_metrics as cm
 from typing import Dict, List, Tuple
 from tqdm import tqdm
+import sys
 sys.path.append('/content/superresolution_3d/data_preprocessing')
 from image_degradation import general_image_degradation_model
 
@@ -86,12 +87,19 @@ def compare_models_performance(
         print_metrics_of_models(models_results)
     return models_results          
 
+def build_degradations(blur_sigmas: List[float]=[0.0, 12.0/255.0, 25.0/255.0], noise_sigmas: List[float]=[0.0, 1.2, 2.4], downscale_factor=2) -> Dict[str, callable]: 
+    degradations = {}
+    for blur_sigma in blur_sigmas: 
+        for noise_sigma in noise_sigmas: 
+            degradation_name = f"GeneralDegradation - noise_sigma:{noise_sigma} | blur_sigma:{blur_sigma}"
+            degradations[degradation_name]= lambda image: general_image_degradation_model(image=image, downscale_factor=downscale_factor, noise_sigma=noise_sigma, blur_sigma=blur_sigma, downscale_function)
+    return degradations
 
 def compare_models_performance_on_degradations(
     models: Dict[str, callable], 
     hr_images: List[torch.Tensor], 
+    metrics: Dict[str, callable],
     degradation_models: Dict[str, callable]=build_degradations(), 
-    metrics: Dict[str, callable], 
     autoprint=False
 ): 
     '''
@@ -122,12 +130,6 @@ def compare_models_performance_on_degradations(
 
 # TODO: Implement following methods 
 
-def build_degradations(blur_sigmas: List[float]=[0.0, 12.0/255.0, 25.0/255.0], noise_sigmas: List[float]=[0.0, 1.2, 2.4], downscale_factor=2) -> Dict[str, callable]: 
-    degradations = {}
-    for blur_sigma in blur_sigmas: 
-        for noise_sigma in noise_sigmas: 
-            degradation_name = f"GeneralDegradation - noise_sigma:{noise_sigma} | blur_sigma:{blur_sigma}"
-            degradations[degradation_name]= lambda image: general_image_degradation_model(image=image, downscale_factor=downscale_factor)
 
 def compare_model_with_interpolations_on_degradations() -> Dict[str, Dict[str, Dict[str, float]]]:
     return None
