@@ -92,7 +92,8 @@ def build_degradations(blur_sigmas: List[float]=[0.0, 12.0/255.0, 25.0/255.0], n
     for blur_sigma in blur_sigmas: 
         for noise_sigma in noise_sigmas: 
             degradation_name = f"GeneralDegradation - noise_sigma:{noise_sigma} | blur_sigma:{blur_sigma}"
-            degradations[degradation_name]= lambda image: general_image_degradation_model(image=image, downscale_factor=downscale_factor, noise_sigma=noise_sigma, blur_sigma=blur_sigma, downscale_function)
+            # general_image_degradation_model(image,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0)
+            degradations[degradation_name]= lambda image: general_image_degradation_model(image=image, downscale_function=None ,downscale_factor=downscale_factor, noise_sigma=noise_sigma, blur_sigma=blur_sigma)
     return degradations
 
 def compare_models_performance_on_degradations(
