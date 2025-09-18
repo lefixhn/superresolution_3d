@@ -6,6 +6,8 @@ import scipy.ndimage as nd
 #import comparing_metrics as cm
 from typing import Dict, List, Tuple
 from tqdm import tqdm
+sys.path.append('/content/superresolution_3d/data_preprocessing')
+from image_degradation import general_image_degradation_model
 
 def convert_tensor_to_numpy(tensor) -> np.array: 
     ''' Only accepts 5d (B, C, D, H, W) tensors'''
@@ -26,6 +28,21 @@ def interpolate_tensor(tensor, upscale_factor: int = 2, order : int =3):
         interpolated_tensor_images.append(interpolated_tensor_image)
     interpolated_tensor = torch.cat(interpolated_tensor_images, dim=0)
     return interpolated_tensor
+
+
+def print_metrics_of_models(results: Dict[str, Dict[str, float]]): 
+    for model_name, model_results in results: 
+        print(f"### {model_name}")
+        metric_results_accumulated = ""
+        for metric_name, metric_value in model_results: 
+            metric_results_accumulated += f" {metric_name} : {metric_value} | "
+        print(f"###{metric_results_accumulated}")
+
+def print_results_of_degradations(results: Dict[str, Dict[str, Dict[str, float]]]): 
+    for degradation_name, degradation_results in results: 
+        print(f"DEGRADATION: {degradation_name}")
+        print_metrics_of_models(degradation_results)
+
 
 # Compares performance of models on given data
 @torch.inference_mode()
@@ -67,13 +84,7 @@ def compare_models_performance(
     
     # Print the results 
     if autoprint: 
-        for model_name in models.keys(): 
-            accumulated_metrics_results = ""
-            for metric_name in metrics.keys(): 
-                metric_value = models_results[model_name][metric_name]
-                accumulated_metrics_results += f"-- {metric_name} : {metric_value:.4f}"
-            print(f"    {model_name} {accumulated_metrics_results}")
-
+        print_metrics_of_models(models_results)
 
     return models_results          
 
@@ -81,7 +92,7 @@ def compare_models_performance(
 def compare_models_on_degradation_models(
     models: Dict[str, callable], 
     hr_images: List[torch.Tensor], 
-    degradation_models: Dict[str, callable], 
+    degradation_models: Dict[str, callable]=build_degradations(), 
     metrics: Dict[str, callable], 
 ): 
     '''
@@ -109,8 +120,12 @@ def compare_models_on_degradation_models(
 
 # TODO: Implement following methods 
 
-def build_default_degradations() -> List[callable]: 
-    return None
+def build_degradations(blur_sigmas: List[float]=[0.0, 12.0/255.0, 25.0/255.0], noise_sigmas: List[float]=[0.0, 1.2, 2.4], downscale_factor=2) -> Dict[str, callable]: 
+    degradations = {}
+    for blur_sigma in blur_sigmas: 
+        for noise_sigma in noise_sigmas: 
+            degradation_name = f"GeneralDegradation - noise_sigma:{noise_sigma} | blur_sigma:{blur_sigma}"
+            degradations[degradation_name]= lambda image: general_image_degradation_model(image=image, downscale_factor=downscale_factor)
 
 def compare_model_with_interpolations_on_degradations() -> Dict[str, Dict[str, Dict[str, float]]]:
     return None
