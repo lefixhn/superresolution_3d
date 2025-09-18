@@ -3,6 +3,7 @@ from functools import partial
 import numpy as np 
 import nibabel as nib
 from scipy import ndimage
+import torch 
 
 np.random.seed(42)
 
@@ -63,7 +64,7 @@ def general_image_degradation_model_on_3d_nparray(image: np.array,noise_sigma, d
         degradation_image = cubic_downscale(degradation_image, downscale_factor)
     degradation_image = add_gaus_noise(degradation_image, noise_sigma=noise_sigma)
 
-    return degradation_image
+    return degradation_image.astype(np.float32, copy=False)
 
 
 def general_image_degradation_model(image,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0): 
@@ -78,7 +79,7 @@ def general_image_degradation_model(image,noise_sigma, downscale_function ,downs
             degradated_images.append(
                 torch.as_tensor(
                     general_image_degradation_model_on_3d_nparray(single_image.detach().cpu().numpy() ,noise_sigma, downscale_function, downscale_factor, blur_sigma)
-                )).unsqueeze(0).unsqueeze(0)
+                ).unsqueeze(0).unsqueeze(0))
         degradated_images = torch.cat(degradated_images, dim=0)
         return degradated_images
     else: 

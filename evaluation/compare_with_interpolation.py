@@ -8,8 +8,9 @@ from typing import Dict, List, Tuple
 from tqdm import tqdm
 import sys
 sys.path.append('/content/superresolution_3d/data_preprocessing')
-from image_degradation import general_image_degradation_model
-
+import importlib
+import image_degradation  as ideg
+importlib.reload(ideg)
 def convert_tensor_to_numpy(tensor) -> np.array: 
     ''' Only accepts 5d (B, C, D, H, W) tensors'''
     assert len(tensor.shape) == 5   # Ensure we have 3D Data
@@ -35,12 +36,12 @@ def print_metrics_of_models(results: Dict[str, Dict[str, float]]):
     for model_name, model_results in results: 
         print(f"### {model_name}")
         metric_results_accumulated = ""
-        for metric_name, metric_value in model_results: 
+        for metric_name, metric_value in model_results.items(): 
             metric_results_accumulated += f" {metric_name} : {metric_value} | "
         print(f"###{metric_results_accumulated}")
 
 def print_results_of_degradations(results: Dict[str, Dict[str, Dict[str, float]]]): 
-    for degradation_name, degradation_results in results: 
+    for degradation_name, degradation_results in results.items(): 
         print(f"DEGRADATION: {degradation_name}")
         print_metrics_of_models(degradation_results)
 
@@ -93,7 +94,7 @@ def build_degradations(blur_sigmas: List[float]=[0.0, 12.0/255.0, 25.0/255.0], n
         for noise_sigma in noise_sigmas: 
             degradation_name = f"GeneralDegradation - noise_sigma:{noise_sigma} | blur_sigma:{blur_sigma}"
             # general_image_degradation_model(image,noise_sigma, downscale_function ,downscale_factor=2 ,blur_sigma = 0)
-            degradations[degradation_name]= lambda image: general_image_degradation_model(image=image, downscale_function=None ,downscale_factor=downscale_factor, noise_sigma=noise_sigma, blur_sigma=blur_sigma)
+            degradations[degradation_name]= lambda image: ideg.general_image_degradation_model(image=image, downscale_function=None ,downscale_factor=downscale_factor, noise_sigma=noise_sigma, blur_sigma=blur_sigma)
     return degradations
 
 def compare_models_performance_on_degradations(
@@ -110,12 +111,14 @@ def compare_models_performance_on_degradations(
     results = {}
     for degradation_model_name, degradation_model in degradation_models.items(): 
         lr_hr_tuples = []
+        # Generate lr_hr_tuples
         for hr_image in hr_images: 
             if hr_image.dim() == 4: 
                 hr_image = hr_image.unsqueeze(0)
             lr_image = degradation_model(hr_image)
             lr_hr_tuple = (lr_image, hr_image)
             lr_hr_tuples.append(lr_hr_tuple)
+        # Calcualte results with lr_hr_tuples
         results[degradation_model_name] = compare_models_performance(
             lr_hr_tuples, 
             models=models,  
