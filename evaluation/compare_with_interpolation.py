@@ -81,19 +81,18 @@ def compare_models_performance(
     for model_name in models.keys(): 
         for metric_name in metrics.keys(): 
             models_results[model_name][metric_name] = models_results[model_name][metric_name] / num_images
-    
     # Print the results 
     if autoprint: 
         print_metrics_of_models(models_results)
-
     return models_results          
 
 
-def compare_models_on_degradation_models(
+def compare_models_performance_on_degradations(
     models: Dict[str, callable], 
     hr_images: List[torch.Tensor], 
     degradation_models: Dict[str, callable]=build_degradations(), 
     metrics: Dict[str, callable], 
+    autoprint=False
 ): 
     '''
     Comparing multiple models with multiple metrics on multiple degradation models.
@@ -114,7 +113,10 @@ def compare_models_on_degradation_models(
             metrics=metrics, 
             autoprint=False 
         )
-    
+
+    if autoprint: 
+        print_results_of_degradations(results)
+
     return results
 
 
