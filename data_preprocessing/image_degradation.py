@@ -70,14 +70,14 @@ def general_image_degradation_model(image,noise_sigma, downscale_function ,downs
     if isinstance(image, torch.Tensor):
         if image.dim() == 4: 
             image = image.unsqueeze(0)
-        assert image.dim() == 5, "Tensor must have shape (1, D, H, W) or (B, 1, D, H, W)"
+        assert image.dim() == 5 and image.shape[image.dim() - 4] == 1, f"Tensor must have shape (1, D, H, W) or (B, 1, D, H, W) but has shape {image.shape}"
         degradated_images = []
         for batch_index in range(image.shape[0]): 
             single_image = image[batch_index, :, :, :, :]
             single_image = single_image.squeeze(0)
             degradated_images.append(
                 torch.as_tensor(
-                    general_image_degradation_model_on_3d_nparray(single_image.detach().numpy() ,noise_sigma, downscale_function, downscale_factor, blur_sigma)
+                    general_image_degradation_model_on_3d_nparray(single_image.detach().cpu().numpy() ,noise_sigma, downscale_function, downscale_factor, blur_sigma)
                 )).unsqueeze(0).unsqueeze(0)
         degradated_images = torch.cat(degradated_images, dim=0)
         return degradated_images
