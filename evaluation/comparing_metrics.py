@@ -90,12 +90,20 @@ def compare_ssim(sr, hr, data_range=None, ks=11, sigma=1.5, K1=0.01, K2=0.03, ep
         den = (mu_x2 + mu_y2 + C1) * (sigma_x2 + sigma_y2 + C2) + eps
         ssim_map = num / den
         return float(ssim_map.mean().item())
-
+        
+@torch.inference_mode()
 def compare_lpips(sr_image, hr_image, lpips_2d_metric=None):
+    target_device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # Build the lpips metric
     if lpips_2d_metric is None: 
-        lpips_2d_metric=LPIPS(network='vgg').eval().to('cuda' if torch.cuda.is_available() else 'cpu')
+        lpips_2d_metric=LPIPS(network='vgg').eval().to(target_device)
+
     # Convert to 5D Tensors
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
+    # Store deivces of both 
+    former_sr_device, former_hr_device = sr_image.device, hr_image.device
+    # Bring both images to target device
+    sr_image, hr_image = sr_image.to(target_device), hr_image.to(target_device)
     # Not nessecary for the piqa lipips implementation 
     # Noramlize both images from [0, 1] range to [-1, 1] range 
     #sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
@@ -104,7 +112,6 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None):
     lpips_mean = 0
     # Look at D H W from the B C D H W of the tensor 
     for batch_index in range(tensor_shape[0]): 
-
         # Iterate through orientations coronar, axial and sagital
         for shape_dim_index in range(2, 5): 
             lpips_sum_over_slices = 0
@@ -124,6 +131,10 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None):
             lpips_mean += lpips_sum_over_slices / dimension_length
     # Divide by the amount of orientations and the number of batches
     lpips_mean /= 3 * tensor_shape[0]
+    # Bring tensors back 
+    sr_image = sr_image.to(former_sr_device)
+    hr_image = hr_image.to(former_hr_device)
+
     return lpips_mean
 
 # Check weather it works properly
