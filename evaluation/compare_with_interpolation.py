@@ -28,6 +28,7 @@ def interpolate_tensor(tensor, upscale_factor: int = 2, order : int =3):
     return interpolated_tensor
 
 # Compares performance of models on given data
+@torch.inference_mode()
 def compare_models_performance(
     lr_hr_tuples: List[tuple], 
     models: Dict[str, callable], 
