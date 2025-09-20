@@ -2,9 +2,6 @@ from torch.utils.data import Dataset
 import numpy as np 
 import torch 
 import os 
-
-
-
 '''
     PROBLEM WITH USAGE OF 3D Data   
 
@@ -25,9 +22,6 @@ import os
             7
     
 '''
-
-
-
 
 class LazyLoadingBratsDataset2d(Dataset): 
     def __init__(
