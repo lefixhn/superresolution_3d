@@ -15,7 +15,7 @@ class DenseUnit(nn.Module):
         self.with_batch_norm = with_batch_norm
         self.pre_activation = pre_activation
 
-        self.bottleneck_batch_norm = nn.BatchNorm3d(in_channels)
+        self.bottleneck_batch_norm = nn.BatchNorm2d(in_channels)
         self.bottleneck_activation = nn.LeakyReLU(0.1) if build_activation_function is None else build_activation_function()
         self.bottleneck_convolution = nn.Conv2d(
             in_channels = in_channels,
@@ -24,7 +24,7 @@ class DenseUnit(nn.Module):
             padding = 0
         )
 
-        self.extraction_batch_norm = nn.BatchNorm3d(bottleneck_channels)
+        self.extraction_batch_norm = nn.BatchNorm2d(bottleneck_channels)
         self.extraction_activation = nn.LeakyReLU(0.1) if build_activation_function is None else build_activation_function()
         self.extraction_convolution = nn.Conv2d(
             in_channels = bottleneck_channels, 
@@ -84,7 +84,7 @@ class DenseBlock(nn.Module):
         return torch.cat(concatenated_outputs, dim=1)
 
 
-class BasicEfficientDenseNet(nn.Module): 
+class BasicEfficientDenseNet2d(nn.Module): 
     def __init__(
         self, 
         upscale_factor=2, 
@@ -184,4 +184,11 @@ class BasicEfficientDenseNet(nn.Module):
             
         upscaled = self.upsampling(input_features)
         return upscaled 
+
+if __name__ == "__main__": 
+    model = BasicEfficientDenseNet2d()
+    lr_image = torch.randn(4, 1, 128, 128)
+    hr_image = model(lr_image)
+    assert hr_image.shape == (4, 1, 256, 256), f"Wrong output shape {hr_image.shape}"
+    
  
