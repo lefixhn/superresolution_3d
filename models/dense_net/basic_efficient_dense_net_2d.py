@@ -189,6 +189,9 @@ if __name__ == "__main__":
     model = BasicEfficientDenseNet2d()
     lr_image = torch.randn(4, 1, 128, 128)
     hr_image = model(lr_image)
-    assert hr_image.shape == (4, 1, 256, 256), f"Wrong output shape {hr_image.shape}"
+    if hr_image.shape == (4, 1, 256, 256):
+        print("BasicEfficientDenseNet2d completed sucessfully")
+    else: 
+        raise ValueError(f"Wrong output shape {hr_image.shape}")
     
  
