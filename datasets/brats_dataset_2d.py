@@ -10,6 +10,7 @@ import os
 
     -> Preprocess for 2d??? 
     -> Make sure to select one of both randomly
+    -> Alternative: Calculate average of both corresponding slices 
 
     LR      HR
     0   *2  0
@@ -51,10 +52,13 @@ class LazyLoadingBratsDataset2d(Dataset):
         orientation_index = np.random.randint(3)    # 0-2
         lr_slice_index = np.random.randint(lr_volume.shape[orientation_index])
         # Random from 0-1 ensures we select the corresponding layer randomly 
-        hr_slice_index = 2 * lr_slice_index + np.random.randint(2)
+        hr_slice_index = 2 * lr_slice_index #+ np.random.randint(2)
 
         lr_sclice_selection = tuple(lr_slice_index if i == orientation_index else slice(None) for i in range(3))
-        hr_sclice_selection = tuple(hr_slice_index if i == orientation_index else slice(None) for i in range(3))
+        # Calculate average of both possibly matching slices 
+        hr_sclice_selection_a = tuple(hr_slice_index if i == orientation_index else slice(None) for i in range(3))
+        hr_sclice_selection_b = tuple(hr_slice_index+1 if i == orientation_index else slice(None) for i in range(3))
+        hr_sclice_selection =  (hr_volume[hr_sclice_selection_a] + hr_volume[hr_sclice_selection_b]) / 2
 
         return lr_volume[lr_sclice_selection], hr_volume[hr_sclice_selection]
 
