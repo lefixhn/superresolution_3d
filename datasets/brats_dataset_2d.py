@@ -59,6 +59,7 @@ class LazyLoadingBratsDataset2d(Dataset):
         return lr_volume[lr_sclice_selection], hr_volume[hr_sclice_selection]
 
     def _convert_to_3d_tensor(self, image: np.ndarray):
+        image = np.array(image, copy=True)
         ''' Takes an 2d image and converts to (C, W, H)  '''
         tensor = torch.as_tensor(image, dtype=torch.float32)
         if tensor.ndim == 2: 

@@ -79,7 +79,7 @@ class LazyLoadingBratsDataset(Dataset):
         return len(self.hr_files)
     
     def _convert_to_4d_tensor(self, image: np.ndarray):
-        
+        image = np.array(image, copy=True)
         tensor = torch.as_tensor(image, dtype=torch.float32)
         if tensor.ndim == 3: 
             return tensor.unsqueeze(0)
