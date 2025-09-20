@@ -22,6 +22,8 @@ import os
             7
     
 '''
+DEFAULT_LR_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_t1/lr'
+DEFAULT_HR_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_t1/hr'
 
 class LazyLoadingBratsDataset2d(Dataset): 
     def __init__(

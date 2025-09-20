@@ -83,7 +83,8 @@ def train(
     for epoch in range(start_epoch, start_epoch + epochs ):
         model.train()
         optimizer.zero_grad(set_to_none=True)
-        average_loss = 0.0
+        loss_sum = 0.0
+        samples_seen = 0
         # Iterate trough minibatches
         for batch_index ,(lr_image, hr_image) in tqdm(enumerate(dataloader), total=len(dataloader),desc=f"Epoch {epoch} of {epochs+start_epoch}"): 
             # Inside this loop entire batches are handled, not just images
@@ -91,22 +92,25 @@ def train(
             lr_image = lr_image.to(device, non_blocking=True)
             hr_image = hr_image.to(device, non_blocking=True)
             
-            with torch_amp.autocast(device_type=device.type, dtype=torch.float16 if use_amp else torch.bfloat16):
+            with torch_amp.autocast(device_type="cuda", dtype=torch.float16 if use_amp else torch.bfloat16, enabled=use_amp):
                 sr_image = model(lr_image)    # Make prediction 
-                loss = loss_criterion(sr_image, hr_image) / (batch_size if accumulate_batch_loss else 1)    # Calculate loss 
-            
-            scaler.scale(loss).backward()
+                raw_loss = loss_criterion(sr_image, hr_image)  
+                loss_to_backward = raw_loss / (batch_size if accumulate_batch_loss else 1)
+            scaler.scale(loss_to_backward).backward()
 
             if (not accumulate_batch_loss) or (batch_index+1) % batch_size == 0 or (batch_index + 1 == len(dataloader)): 
                 scaler.step(optimizer)
                 scaler.update()
                 optimizer.zero_grad(set_to_none=True)
-            average_loss += loss.item() * batch_size
+            
+            current_batch_size = lr_image.shape[0]
+            loss_sum += raw_loss.item() * current_batch_size
+            samples_seen += current_batch_size
             
             # AFTER MINIBATCH
         # AFTER EPOCH 
         # TODO: Wie kann ich hier falls vorhanden validieren und werte speichern
-        average_loss = average_loss / len(dataloader)
+        average_loss = loss_sum / max(1, samples_seen)
         model.eval()
         validation_loss = _evaluate(model, validation_dataloader, loss_criterion, device)
         # STORE CHECKPOINT (immer aktuelles Epoch-File + last.pt)

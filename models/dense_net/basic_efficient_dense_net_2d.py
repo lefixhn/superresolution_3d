@@ -173,7 +173,8 @@ class BasicEfficientDenseNet2d(nn.Module):
             if __name__ == "__main__": 
                 print(f"BEFORE DENSE BLOCK {i}") # Debugging purpose 
             # Calculate denseblock output
-            dense_block_output =  checkpoint(self.dense_blocks[i],input_features, use_reentrant=False)
+            #dense_block_output =  checkpoint(self.dense_blocks[i],input_features, use_reentrant=False)
+            dense_block_output =  self.dense_blocks[i](input_features)
             
             # Compress denseblock output
             compressed_dense_block_output = self.compressors[i](dense_block_output)
