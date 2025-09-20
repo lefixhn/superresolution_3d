@@ -57,8 +57,8 @@ class LazyLoadingBratsDataset2d(Dataset):
         # Random from 0-1 ensures we select the corresponding layer randomly 
         hr_slice_index = 2 * lr_slice_index + np.random.randint(2)
 
-        lr_sclice_selection = tuple(slice(lr_slice_index if i == orientation_index else None) for i in range(3))
-        hr_sclice_selection = tuple(slice(hr_slice_index if i == orientation_index else None) for i in range(3))
+        lr_sclice_selection = tuple(lr_slice_index if i == orientation_index else slice(None) for i in range(3))
+        hr_sclice_selection = tuple(hr_slice_index if i == orientation_index else slice(None) for i in range(3))
 
         return lr_volume[lr_sclice_selection], hr_volume[hr_sclice_selection]
 
@@ -101,8 +101,8 @@ class LazyLoadingBratsDataset2d(Dataset):
             hr_volume = hr_memory_map[x:x+safe_side_length, y:y+safe_side_length, z:z+safe_side_length]
             # Convert to tensor
             lr_image, hr_image = self._get_slices_from_volumes(lr_volume, hr_volume)
-            lr_tensor = self._convert_to_4d_tensor(lr_image)
-            hr_tensor = self._convert_to_4d_tensor(hr_image)
+            lr_tensor = self._convert_to_3d_tensor(lr_image)
+            hr_tensor = self._convert_to_3d_tensor(hr_image)
             return (lr_tensor, hr_tensor)
 
 
