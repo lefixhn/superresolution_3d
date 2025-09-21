@@ -92,8 +92,9 @@ def train(
             lr_image = lr_image.to(device, non_blocking=True)
             hr_image = hr_image.to(device, non_blocking=True)
             
-            amp_data_type = torch.bfloat16 if (use_amp and torch.cuda.is_bf16_supported()) else torch.float16
-            with torch_amp.autocast(device_type="cuda", dtype=amp_data_type, enabled=use_amp):
+            #amp_data_type = torch.bfloat16 if (use_amp and torch.cuda.is_bf16_supported()) else torch.float16
+            #with torch_amp.autocast(device_type="cuda", dtype=amp_data_type, enabled=use_amp):
+            with torch_amp.autocast(device_type=device.type, dtype=torch.float16 if use_amp else torch.bfloat16):
                 sr_image = model(lr_image)    # Make prediction 
                 raw_loss = loss_criterion(sr_image, hr_image)  
                 loss_to_backward = raw_loss / (batch_size if accumulate_batch_loss else 1)
