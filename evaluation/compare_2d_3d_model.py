@@ -12,6 +12,11 @@ import importlib
 sys.path.append('/content/superresolution_3d/data_preprocessing')
 import image_degradation  as ideg
 importlib.reload(ideg)
+import scipy.ndimage as nd
+
+def _downscale_by2_tricubic(vol: np.ndarray) -> np.ndarray:
+    # 3D-Downscale um Faktor 2 (-> 0.5), tricubic (order=3)
+    return nd.zoom(vol, zoom=0.5, order=3)
 
 def load_np_volumes(
     start_index:int=1101, 
@@ -46,6 +51,7 @@ def _build_degradated_np_volume_tuples(
                     image=hr_volume, 
                     noise_sigma=noise_sigma, 
                     blur_sigma=blur_sigma, 
+                    downscale_function=_downscale_by2_tricubic
                 )
                 lr_hr_tuples.append((lr_volume, hr_volume))
             # Add tuples to results dict
