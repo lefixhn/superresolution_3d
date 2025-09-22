@@ -12,6 +12,7 @@ import importlib
 sys.path.append('/content/superresolution_3d/data_preprocessing')
 import image_degradation  as ideg
 importlib.reload(ideg)
+from tqdm import tqdm
 
 
 def load_np_volumes(
@@ -102,7 +103,7 @@ def compare_2d_3d_models(
     models_3d : Dict[str, callable],   # Name -> 3D-Modell (expects (B,1,D,H,W) -> (B,1,D,H,W))
     hr_np_volumes : List[np.ndarray], 
     with_ssim=True,                    # optional, wird versucht (skimage), sonst übersprungen
-    with_lpips=True                # optional, wird versucht (lpips), sonst übersprungen
+    with_lpips=True                    # optional, wird versucht (lpips), sonst übersprungen
 ) -> Dict[str, Dict[str, Dict[str, float]]]:  # Degradation -> Model -> Metric -> float
     '''
         Compares 2d and 3d models on different degradations with MSE, MAE, PSNR (+ optional SSIM, LPIPS).
@@ -127,7 +128,7 @@ def compare_2d_3d_models(
             return 99.0
         # Dynamischer Datenbereich aus HR ableiten (robust, falls nicht [0,1])
         hr = b
-        data_range = (hr.max() - hr.min()).item()
+        data_range = (hr.max() - hr.min()).item()  # Hinweis: item() synchronisiert auf CUDA
         if data_range <= 0.0:
             data_range = 1.0
         return 20.0 * math.log10(data_range) - 10.0 * math.log10(mse)
@@ -172,16 +173,26 @@ def compare_2d_3d_models(
             if have_lpips: metric_sums['lpips'] = 0.0
             n_items = 0
 
+            # Device des Modells bestimmen (CPU oder CUDA)
+            mdev = next(model.parameters()).device
+            model.eval()
+
             with torch.no_grad():
                 for (lr_np, hr_np) in tqdm(
                     lr_hr_list,
                     desc=f"[3D] {model_name} | {degradation_key}",
                     leave=False
-                ):                
+                ):
                     # (B,C,D,H,W)
                     lr_t, hr_t = _convert_np_volume_tuple_to_tensor(lr_np, hr_np)  # deine Methode
-                    # Vorwärtslauf 3D
-                    sr_t = model(lr_t)
+                    lr_t = lr_t.to(mdev, non_blocking=True)
+                    hr_t = hr_t.to(mdev, non_blocking=True)
+
+                    # schnelleres Inferenz-Compute auf CUDA
+                    use_amp = (mdev.type == 'cuda')
+                    with torch.cuda.amp.autocast(enabled=use_amp):
+                        sr_t = model(lr_t)
+
                     # Metriken über komplettes Volumen
                     metric_sums['mse']  += _mse(sr_t, hr_t)
                     metric_sums['mae']  += _mae(sr_t, hr_t)
@@ -196,7 +207,8 @@ def compare_2d_3d_models(
                         ssim_acc = 0.0
                         for d in range(D):
                             try:
-                                ssim_val = ssim_module(hr_np_v[d], sr_np[d], data_range=(hr_np_v[d].max() - hr_np_v[d].min()) or 1.0)
+                                data_range = (hr_np_v[d].max() - hr_np_v[d].min()) or 1.0
+                                ssim_val = ssim_module(hr_np_v[d], sr_np[d], data_range=data_range)
                             except Exception:
                                 ssim_val = 0.0
                             ssim_acc += float(ssim_val)
@@ -234,17 +246,25 @@ def compare_2d_3d_models(
             if have_lpips: metric_sums['lpips'] = 0.0
             n_slices_total = 0
 
+            # Device des Modells bestimmen
+            mdev = next(model.parameters()).device
+            model.eval()
+
             with torch.no_grad():
                 for (lr_np, hr_np) in tqdm(
                     lr_hr_list,
                     desc=f"[2D] {model_name} | {degradation_key}",
                     leave=False
-                ):                
+                ):
                     # In 2D-Slices zerlegen (alle Orientierungen, deine Mittelungslogik für HR)
                     slice_pairs = _convert_np_volume_tuple_to_tensor_list_for_2d(lr_np, hr_np, step_length=1)  # deine Methode
                     for (lr_slice_t, hr_slice_t) in slice_pairs:
-                        # Vorwärtslauf 2D
-                        sr_slice_t = model(lr_slice_t)
+                        lr_slice_t = lr_slice_t.to(mdev, non_blocking=True)
+                        hr_slice_t = hr_slice_t.to(mdev, non_blocking=True)
+
+                        use_amp = (mdev.type == 'cuda')
+                        with torch.cuda.amp.autocast(enabled=use_amp):
+                            sr_slice_t = model(lr_slice_t)
 
                         # Metriken slice-weise
                         metric_sums['mse']  += _mse(sr_slice_t, hr_slice_t)
@@ -255,7 +275,8 @@ def compare_2d_3d_models(
                             try:
                                 hr_np2 = _to_cpu_numpy(hr_slice_t)[0,0]  # (H,W)
                                 sr_np2 = _to_cpu_numpy(sr_slice_t)[0,0]
-                                ssim_val = ssim_module(hr_np2, sr_np2, data_range=(hr_np2.max() - hr_np2.min()) or 1.0)
+                                data_range = (hr_np2.max() - hr_np2.min()) or 1.0
+                                ssim_val = ssim_module(hr_np2, sr_np2, data_range=data_range)
                             except Exception:
                                 ssim_val = 0.0
                             metric_sums['ssim'] += float(ssim_val)
