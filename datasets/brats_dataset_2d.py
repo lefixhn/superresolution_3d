@@ -58,9 +58,9 @@ class LazyLoadingBratsDataset2d(Dataset):
         # Calculate average of both possibly matching slices 
         hr_sclice_selection_a = tuple(hr_slice_index if i == orientation_index else slice(None) for i in range(3))
         hr_sclice_selection_b = tuple(hr_slice_index+1 if i == orientation_index else slice(None) for i in range(3))
-        hr_sclice_selection =  (hr_volume[hr_sclice_selection_a] + hr_volume[hr_sclice_selection_b]) / 2
+        hr_slice =  (hr_volume[hr_sclice_selection_a] + hr_volume[hr_sclice_selection_b]) / 2
 
-        return lr_volume[lr_sclice_selection], hr_volume[hr_sclice_selection]
+        return lr_volume[lr_sclice_selection], hr_slice
 
     def _convert_to_3d_tensor(self, image: np.ndarray):
         image = np.array(image, copy=True)
