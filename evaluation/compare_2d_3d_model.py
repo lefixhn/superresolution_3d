@@ -98,7 +98,7 @@ def compare_2d_3d_models(
     models_3d : Dict[str, callable],   # Name -> 3D-Modell (expects (B,1,D,H,W) -> (B,1,D,H,W))
     hr_np_volumes : List[np.ndarray], 
     with_ssim=True,                    # optional, wird versucht (skimage), sonst übersprungen
-    with_lpipsTrue=True                # optional, wird versucht (lpips), sonst übersprungen
+    with_lpips=True                # optional, wird versucht (lpips), sonst übersprungen
 ) -> Dict[str, Dict[str, Dict[str, float]]]:  # Degradation -> Model -> Metric -> float
     '''
         Compares 2d and 3d models on different degradations with MSE, MAE, PSNR (+ optional SSIM, LPIPS).
@@ -142,7 +142,7 @@ def compare_2d_3d_models(
         except Exception:
             have_ssim = False  # skimage nicht vorhanden → wir lassen SSIM weg
 
-    if with_lpipsTrue:
+    if with_lpips:
         try:
             import lpips  # pip package "lpips"
             lpips_model = lpips.LPIPS(net='alex')
