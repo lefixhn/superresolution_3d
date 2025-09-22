@@ -26,8 +26,6 @@ def load_np_volumes(
         entry = entries[entry_index]
         volumes.append(np.load(entry.path))
     return volumes 
-    
-
 
 def _build_degradated_np_volume_tuples(
     hr_volumes:List[np.ndarray], 
@@ -41,7 +39,11 @@ def _build_degradated_np_volume_tuples(
     for noise_sigma in noise_sigmas: 
         for blur_sigma in blur_sigmas: 
             lr_hr_tuples = []
-            for hr_volume in hr_volumes: 
+            for hr_volume in tqdm(
+                hr_volumes,
+                desc=f"Degrading bs={blur_sigma:.2f} ns={noise_sigma:.5f}",
+                leave=False
+            ):             
                 # Degradate image with settings 
                 lr_volume = ideg.general_image_degradation_model_on_3d_nparray(
                     image=hr_volume, 
@@ -171,7 +173,11 @@ def compare_2d_3d_models(
             n_items = 0
 
             with torch.no_grad():
-                for (lr_np, hr_np) in lr_hr_list:
+                for (lr_np, hr_np) in tqdm(
+                    lr_hr_list,
+                    desc=f"[3D] {model_name} | {degradation_key}",
+                    leave=False
+                ):                
                     # (B,C,D,H,W)
                     lr_t, hr_t = _convert_np_volume_tuple_to_tensor(lr_np, hr_np)  # deine Methode
                     # Vorwärtslauf 3D
@@ -229,7 +235,11 @@ def compare_2d_3d_models(
             n_slices_total = 0
 
             with torch.no_grad():
-                for (lr_np, hr_np) in lr_hr_list:
+                for (lr_np, hr_np) in tqdm(
+                    lr_hr_list,
+                    desc=f"[2D] {model_name} | {degradation_key}",
+                    leave=False
+                ):                
                     # In 2D-Slices zerlegen (alle Orientierungen, deine Mittelungslogik für HR)
                     slice_pairs = _convert_np_volume_tuple_to_tensor_list_for_2d(lr_np, hr_np, step_length=1)  # deine Methode
                     for (lr_slice_t, hr_slice_t) in slice_pairs:
