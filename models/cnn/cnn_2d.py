@@ -29,7 +29,7 @@ class CNN3D(nn.Module):
 
         self.upscale = nn.Sequential(
             nn.LeakyReLU(0.1),
-            nn.Conv2d(in_channels=self.num_channels, out_channels=upscale_factor**3, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels=self.num_channels, out_channels=upscale_factor**2, kernel_size=3, padding=1),
             nn.PixelShuffle(upscale_factor=self.upscale_factor)
         )
 
@@ -52,4 +52,4 @@ if __name__ == "__main__":
     
     y = model(x)
     assert y.shape == (1, 1, 2*side_length, 2*side_length)
-    print(f"CNN3D Finished sl:{side_length} nc: {num_channels}")
+    print(f"CNN2D Finished sl:{side_length} nc: {num_channels}")
