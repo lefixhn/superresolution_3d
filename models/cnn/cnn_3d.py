@@ -37,19 +37,24 @@ class CNN3D(nn.Module):
         self.num_channels = num_channels
         self.upscale_factor = upscale_factor
 
-        self.entry = nn.Conv3d(in_channels=1, out_channels=self.num_channels, kernel_size=3, padding=1)
-
-        self.main_convs = nn.Sequential(
-
-            nn.Sequential(
-                nn.LeakyReLU(0.1)
-                nn.Conv3d(in_channels=self.num_channels, out_channels=self.num_channels, kernel_size=3, padding=1)
-            )
-            for i in range(self.num_layers-2)
+        self.entry = nn.Sequential(
+            nn.Conv3d(in_channels=1, out_channels=self.num_channels, kernel_size=3, padding=1), 
+            nn.LeakyReLU(0.1)
         )
 
+        self.main_convs = nn.ModuleList([
+
+            nn.Sequential(
+                
+                nn.Conv3d(in_channels=self.num_channels, out_channels=self.num_channels, kernel_size=3, padding=1), 
+                nn.LeakyReLU(0.1),
+            )
+            for i in range(self.num_layers-2)
+        ])
+
         self.upscale = nn.Sequential(
-            nn.Conv3d(in_channels=self.num_channels, out_channels=upscale_factor**3)
+            nn.LeakyReLU(0.1),
+            nn.Conv3d(in_channels=self.num_channels, out_channels=upscale_factor**3, kernel_size=3, padding=1),
             PixelShuffle3D(upscale_factor=self.upscale_factor)
         )
 
@@ -59,3 +64,11 @@ class CNN3D(nn.Module):
         x = self.main_convs(x)
         x = self.upscale(x)
         return x
+
+# Check weather it can handle a brats image
+if __name__ == "__main__": 
+    side_length = 128
+    model = CNN3D(num_channels=512)
+    x = torch.randn(1, 1, side_length, side_length, side_length)
+    y = model(x)
+    assert y.shape == (1, 1, 2*side_length, 2*side_length, 2*side_length)
