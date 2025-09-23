@@ -61,14 +61,20 @@ class CNN3D(nn.Module):
     
     def forward(self, x): 
         x = self.entry(x)
-        x = self.main_convs(x)
+        for conv in self.main_convs: 
+            x = conv(x)
         x = self.upscale(x)
         return x
 
 # Check weather it can handle a brats image
 if __name__ == "__main__": 
-    side_length = 128
-    model = CNN3D(num_channels=512)
-    x = torch.randn(1, 1, side_length, side_length, side_length)
+    side_length = 64
+    num_channels=512
+    model = CNN3D(num_channels=num_channels)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = model.to(device).train()
+    x = torch.randn(1, 1, side_length, side_length, side_length).to(device)
+    
     y = model(x)
     assert y.shape == (1, 1, 2*side_length, 2*side_length, 2*side_length)
+    print(f"CNN3D Finished sl:{side_length} nc: {num_channels}")
