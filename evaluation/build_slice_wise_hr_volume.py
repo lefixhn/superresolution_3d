@@ -58,8 +58,8 @@ def build_sclie_wise_hr_volume(
         
         hr_volume_4d = torch.from_numpy(hr_volume_3d_np).unsqueeze(0)
         hr_volumes_5d.append(hr_volume_4d.unsqueeze(0))
-    hr_volumes
-
+    hr_volumes_tensor_5d = torch.cat(hr_volumes_5d, dim=0)
+    return hr_volumes_tensor_5d
 
 
 
