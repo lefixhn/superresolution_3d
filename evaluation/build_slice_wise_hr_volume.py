@@ -36,6 +36,7 @@ def build_sclie_wise_hr_volume(
         slice_selection_tuple = tuple(sclie_index if i == interpolation_dim_index else slice(None)  for i in range(3))
         return (1,) + slice_selection_tuple
 
+    hr_volumes_5d = []
     for batch_index in range(B): 
         lr_volume_4d = lr_volume[batch_index, :, :, :, :]
         
@@ -55,7 +56,10 @@ def build_sclie_wise_hr_volume(
         zoom_factors = [float(upscale_factor) if i == interpolation_dim_index else 1.0 for i in range(0)]
         hr_volume_3d_np = nd.zoom(hr_volume_3d_np, zoom=zoom, oder=interpolation_order)
         
-        hr_volume_4d = torch.from_numpy()
+        hr_volume_4d = torch.from_numpy(hr_volume_3d_np).unsqueeze(0)
+        hr_volumes_5d.append(hr_volume_4d.unsqueeze(0))
+    hr_volumes
+
 
 
 
