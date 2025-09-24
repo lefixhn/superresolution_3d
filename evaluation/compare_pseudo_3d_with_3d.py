@@ -75,8 +75,15 @@ def compare_pseudo_3d_with_3d(
     results[name_model_3d]["mae"] = mean_mse_3d
     results[name_model_3d]["psnr"] = mean_mse_3d
 
+    if autoprint: 
+        _print_compare_results(results)
+
     return results
 
 
 def _print_compare_results(results: Dict[str, Dict[str, float]]): 
-    
+    for model_name, metric_results in results.items(): 
+        model_text = str(model_name)
+        for metric_name, average_metric_value in metric_results.items(): 
+            model_text += f" | Average {metric_name}: {average_metric_value}"
+
