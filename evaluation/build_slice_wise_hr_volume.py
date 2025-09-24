@@ -58,14 +58,14 @@ def build_sclie_wise_hr_volume(
         zoom_factors = [float(upscale_factor) if i == interpolation_dim_index else 1.0 for i in range(3)]
         hr_volume_3d_np = nd.zoom(hr_volume_3d_np, zoom=zoom_factors, oder=interpolation_order)
         
-        hr_volume_4d = torch.from_numpy(hr_volume_3d_np).to().unsqueeze(0)
+        hr_volume_4d = torch.from_numpy(hr_volume_3d_np).to(lr_volume.dtype).to(device).unsqueeze(0)
         hr_volumes_5d.append(hr_volume_4d.unsqueeze(0))
     hr_volumes_tensor_5d = torch.cat(hr_volumes_5d, dim=0)
     return hr_volumes_tensor_5d
 
 if __name__ == "__main__": 
-    import os
-    os.path.append("/content/superresolution_3d/models/dense_net/")
+    import sys
+    sys.path.append("/content/superresolution_3d/models/dense_net")
     from basic_efficient_dense_net_2d import BasicEfficientDenseNet2d
     model = BasicEfficientDenseNet2d()
     x = torch.randn(2, 1, 64, 32, 32)
