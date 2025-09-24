@@ -49,8 +49,11 @@ def build_sclie_wise_hr_volume(
             hr_slices_4d.append(hr_slice_3d.unsqueeze(1+interpolation_dim_index))
         
         hr_volume_4d = torch.cat(hr_slices_4d, dim=1+interpolation_dim_index)
-        # Remove Channel dimension, bri
+        # Remove Channel dimension, bring to cpu and convert to numpy
         hr_volume_3d_np = hr_volume_4d.squeeze(0).detach().cpu().numpy()
+        zoom_factors = [float(upscale_factor) if i == interpolation_dim_index else 1.0 for i in range(0)]
+        hr_volume_3d_np = nd.zoom(hr_volume_3d_np)
+
 
 
 
