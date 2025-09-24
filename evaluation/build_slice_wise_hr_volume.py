@@ -25,15 +25,16 @@ def build_sclie_wise_hr_volume(
     B = lr_volume.shape[0]
     num_slices = lr_volume.shape[2+interpolation_axe_index]
 
-    def _build_slice_selection_tuple(sclie_index ,interpolation_axe_index=interpolation_axe_index): 
-        slice_selection_tuple = (sclie_index if i-1 == interpolation_axe_index else slice(None)  for i in range(4))
-        return slice_selection_tuple
+    def _build_slice_selection_tuple(sclie_index ,interpolation_axe_index=0): 
+        slice_selection_tuple = tuple(sclie_index if i == interpolation_axe_index else slice(None)  for i in range(3))
+        return (1,) + slice_selection_tuple
 
     for batch_index in range(B): 
         lr_volume_4d = lr_volume[batch_index, :, :, :, :]
         
         for slice_index in range(num_slices):
-
-            lr_slice_3d = _build_slice_selection_tuple()
+            # Shape: (C, H, W)
+            lr_slice_3d = _build_slice_selection_tuple(slice_index, interpolation_axe_index)
+            
 
     
