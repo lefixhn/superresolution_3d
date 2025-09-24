@@ -13,5 +13,10 @@ def build_sclie_wise_hr_volume(
     device = "cuda" if torch.cuda.is_available() else "cpu", 
 ): 
     if lr_volume.ndims() == 4: 
-        lr_volume = lr_volume
+        lr_volume = lr_volume.unsqueeze(0)
+    elif lr_volume.ndims() == 3: 
+        lr_volume = lr_volume.unsqueeze(0).unsqueeze(0)
+    elif not lr_volume.ndims() == 5: 
+        raise TypeError("Input must have shape (B, C, D, H, W), ")
+
     
