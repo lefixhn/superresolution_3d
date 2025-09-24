@@ -54,7 +54,8 @@ def build_sclie_wise_hr_volume(
         hr_volume_3d_np = hr_volume_4d.squeeze(0).detach().cpu().numpy()
         zoom_factors = [float(upscale_factor) if i == interpolation_dim_index else 1.0 for i in range(0)]
         hr_volume_3d_np = nd.zoom(hr_volume_3d_np, zoom=zoom, oder=interpolation_order)
-
+        
+        hr_volume_4d = torch.from_numpy()
 
 
 
