@@ -315,3 +315,6 @@ def print_results_nested(results: Dict[str, Dict[str, Dict[str, float]]]) -> Non
             metrics_str = ", ".join([f"{k}={metrics_dict[k]:.6f}" for k in ordered_keys if k in metrics_dict])
             print(f"  - {model_name}: {metrics_str}")
 
+    
+
+
