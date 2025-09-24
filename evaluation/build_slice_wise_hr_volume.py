@@ -14,11 +14,11 @@ def build_sclie_wise_hr_volume(
     upscale_factor=2, 
     device = "cuda" if torch.cuda.is_available() else "cpu", 
 ): 
-    if lr_volume.ndim() == 4: 
+    if lr_volume.ndim == 4: 
         lr_volume = lr_volume.unsqueeze(0)
-    elif lr_volume.ndim() == 3: 
+    elif lr_volume.ndim == 3: 
         lr_volume = lr_volume.unsqueeze(0).unsqueeze(0)
-    elif lr_volume.ndim() != 5: 
+    elif lr_volume.ndim != 5: 
         raise TypeError("Input must have shape (B, C, D, H, W), (C, D, H, W) or (D, H, W)")
 
     assert lr_volume.shape[1] == 1, "Image must be greyscale"
