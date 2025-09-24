@@ -9,7 +9,7 @@ def build_sclie_wise_hr_volume(
     lr_volume: torch.Tensor, 
     model: callable, 
     interpolation_order=1, 
-    interpolation_axe_index=0     # Can be 0, 1 or 2
+    interpolation_dim="D"     # Can be "D", "H", "W"
     upscale_factor=2, 
     device = "cuda" if torch.cuda.is_available() else "cpu", 
 ): 
@@ -21,15 +21,18 @@ def build_sclie_wise_hr_volume(
         raise TypeError("Input must have shape (B, C, D, H, W), (C, D, H, W) or (D, H, W)")
 
     assert lr_volume.shape[1] == 1, "Image must be greyscale"
+    
+    interpolation_dim_index = {"D" : 0, "H" : 1, "W" : 2}[interpolation_dim]
+
 
     lr_volume = lr_volume.to(device)
     model = model.to(device)
 
     B = lr_volume.shape[0]
-    num_slices = lr_volume.shape[2+interpolation_axe_index]
+    num_slices = lr_volume.shape[2+interpolation_dim_index]
 
-    def _build_slice_selection_tuple(sclie_index ,interpolation_axe_index=0): 
-        slice_selection_tuple = tuple(sclie_index if i == interpolation_axe_index else slice(None)  for i in range(3))
+    def _build_slice_selection_tuple(sclie_index ,interpolation_dim_index=0): 
+        slice_selection_tuple = tuple(sclie_index if i == interpolation_dim_index else slice(None)  for i in range(3))
         return (1,) + slice_selection_tuple
 
     for batch_index in range(B): 
@@ -38,13 +41,13 @@ def build_sclie_wise_hr_volume(
         hr_slices_4d = []
         for slice_index in range(num_slices):
             # Shape: (C, H, W)
-            lr_slice_3d = _build_slice_selection_tuple(slice_index, interpolation_axe_index)
+            lr_slice_3d = _build_slice_selection_tuple(slice_index, interpolation_dim_index)
             
             hr_slice_3d = model(lr_slice_3d)
             # Store and add dimension to enable concatenation later
-            hr_slices_4d.append(hr_slice_3d.unsqueeze(1+interpolation_axe_index))
+            hr_slices_4d.append(hr_slice_3d.unsqueeze(1+interpolation_dim_index))
         
-        hr_volume_4d = torch.cat(hr_slices_4d, dim=1+interpolation_axe_index)
+        hr_volume_4d = torch.cat(hr_slices_4d, dim=1+interpolation_dim_index)
         hr_volume_3d_np = torch.to_nump
 
 
