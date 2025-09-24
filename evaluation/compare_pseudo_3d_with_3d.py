@@ -67,4 +67,16 @@ def compare_pseudo_3d_with_3d(
     name_model_3d = type(model_3d).__name__
 
 
-    results[]
+    results[name_model_2d]["mse"] = mean_mse_2d
+    results[name_model_2d]["mae"] = mean_mse_2d
+    results[name_model_2d]["psnr"] = mean_mse_2d
+
+    results[name_model_3d]["mse"] = mean_mse_3d
+    results[name_model_3d]["mae"] = mean_mse_3d
+    results[name_model_3d]["psnr"] = mean_mse_3d
+
+    return results
+
+
+def _print_compare_results(results: Dict[str, Dict[str, float]]): 
+    
