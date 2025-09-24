@@ -4,12 +4,13 @@
     The remaining axe is upscaled though interpolation
 '''
 import torch 
+from scipy import ndimage as nd
 
 def build_sclie_wise_hr_volume(
     lr_volume: torch.Tensor, 
     model: callable, 
     interpolation_order=1, 
-    interpolation_dim="D"     # Can be "D", "H", "W"
+    interpolation_dim="D",     # Can be "D", "H", "W"
     upscale_factor=2, 
     device = "cuda" if torch.cuda.is_available() else "cpu", 
 ): 
@@ -48,7 +49,11 @@ def build_sclie_wise_hr_volume(
             hr_slices_4d.append(hr_slice_3d.unsqueeze(1+interpolation_dim_index))
         
         hr_volume_4d = torch.cat(hr_slices_4d, dim=1+interpolation_dim_index)
-        hr_volume_3d_np = torch.to_nump
+        # Remove Channel dimension, bri
+        hr_volume_3d_np = hr_volume_4d.squeeze(0).detach().cpu().numpy()
+
+
+
 
 
     
