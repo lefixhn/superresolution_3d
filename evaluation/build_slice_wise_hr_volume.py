@@ -35,10 +35,17 @@ def build_sclie_wise_hr_volume(
     for batch_index in range(B): 
         lr_volume_4d = lr_volume[batch_index, :, :, :, :]
         
+        hr_slices_4d = []
         for slice_index in range(num_slices):
             # Shape: (C, H, W)
             lr_slice_3d = _build_slice_selection_tuple(slice_index, interpolation_axe_index)
             
             hr_slice_3d = model(lr_slice_3d)
+            # Store and add dimension to enable concatenation later
+            hr_slices_4d.append(hr_slice_3d.unsqueeze(1+interpolation_axe_index))
+        
+        hr_volume_4d = torch.cat(hr_slices_4d, dim=1+interpolation_axe_index)
+        hr_volume_3d_np = torch.to_nump
+
 
     
