@@ -68,12 +68,12 @@ if __name__ == "__main__":
     model = BasicEfficientDenseNet2d()
     x = torch.randn(2, 1, 64, 32, 32)
     y = build_sclie_wise_hr_volume(
-        lr_volume: torch.Tensor, 
-        model: callable, 
+        lr_volume=x, 
+        model=model, 
         interpolation_order=1, 
         interpolation_dim="D",
     )
-
+    assert y
 
 
 
