@@ -22,6 +22,9 @@ def build_sclie_wise_hr_volume(
 
     assert lr_volume.shape[1] == 1, "Image must be greyscale"
 
+    lr_volume = lr_volume.to(device)
+    model = model.to(device)
+
     B = lr_volume.shape[0]
     num_slices = lr_volume.shape[2+interpolation_axe_index]
 
@@ -36,5 +39,6 @@ def build_sclie_wise_hr_volume(
             # Shape: (C, H, W)
             lr_slice_3d = _build_slice_selection_tuple(slice_index, interpolation_axe_index)
             
+            hr_slice_3d = model(lr_slice_3d)
 
     
