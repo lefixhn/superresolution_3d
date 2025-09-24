@@ -61,6 +61,19 @@ def build_sclie_wise_hr_volume(
     hr_volumes_tensor_5d = torch.cat(hr_volumes_5d, dim=0)
     return hr_volumes_tensor_5d
 
+if __name__ == "__main__": 
+    import os
+    os.path.append("/content/superresolution_3d/models/dense_net/")
+    from basic_efficient_dense_net_2d import BasicEfficientDenseNet2d
+    model = BasicEfficientDenseNet2d()
+    x = torch.randn(2, 1, 64, 32, 32)
+    y = build_sclie_wise_hr_volume(
+        lr_volume: torch.Tensor, 
+        model: callable, 
+        interpolation_order=1, 
+        interpolation_dim="D",
+    )
+
 
 
 
