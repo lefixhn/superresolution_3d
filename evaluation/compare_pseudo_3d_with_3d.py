@@ -5,4 +5,11 @@
 
 
 ''' 
+import torch
 
+
+def compare_pseudo_3d_with_3d(
+    model_2d: torch.nn.Module, 
+    model_3d: torch.nn.Module, 
+    lr_hr_5d_tensor_tuples,
+):
