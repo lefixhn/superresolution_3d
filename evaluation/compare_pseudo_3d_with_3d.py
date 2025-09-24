@@ -16,6 +16,7 @@ def compare_pseudo_3d_with_3d(
     model_2d: torch.nn.Module, 
     model_3d: torch.nn.Module, 
     lr_hr_5d_tensor_tuples,
+    autoprint=True, 
     device="cuda" if torch.cuda.is_available() else "cpu", 
 ) -> Dict[str, Dict[str, float]]:
     
@@ -52,3 +53,18 @@ def compare_pseudo_3d_with_3d(
         mean_mse_3d += cm.compare_mae(sr_image_3d_model ,hr_volume_tensor_5d)
         mean_mse_3d += cm.compare_psnr(sr_image_3d_model ,hr_volume_tensor_5d)
 
+    num_tuples = len(lr_hr_5d_tensor_tuples)
+    
+    mean_mse_2d /= num_tuples
+    mean_mae_2d /= num_tuples
+    mean_psnr_2d /= num_tuples
+
+    mean_mse_3d = /= num_tuples
+    mean_mae_3d = /= num_tuples
+    mean_psnr_3d = /= num_tuples
+
+    name_model_2d = type(model_2d).__name__
+    name_model_3d = type(model_3d).__name__
+
+
+    results[]
