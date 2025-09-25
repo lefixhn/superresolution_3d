@@ -89,7 +89,7 @@ def compare_pseudo_3d_with_3d(
 def compare_pseudo_3d_dense_with_3d(
     checkpoint_path_2d, 
     checkpoint_path_3d, 
-
+    num_images=150, 
 ): 
     results = {}
 
@@ -101,7 +101,7 @@ def compare_pseudo_3d_dense_with_3d(
 
     degradation_models = build_degradation_models()
     # Load np volumes and convert to 5d tensor 
-    hr_volumes_np = load_np_volumes()
+    hr_volumes_np = load_np_volumes(item_count=num_images)
     hr_volume_tensors_5d = [torch.from_numpy(hr_volume_np).unsqueeze(0).unsqueeze(0) for hr_volume_np in hr_volumes_np]
 
     for index, degradation_model_name, degradation_model in degradation_models.items(): 
