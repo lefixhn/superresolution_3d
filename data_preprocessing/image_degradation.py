@@ -81,7 +81,7 @@ def general_image_degradation_model(image,noise_sigma, downscale_function ,downs
             #        general_image_degradation_model_on_3d_nparray(single_image.detach().cpu().numpy() ,noise_sigma, downscale_function, downscale_factor, blur_sigma)
             #    ).unsqueeze(0).unsqueeze(0))
             degradated_image_np = general_image_degradation_model_on_3d_nparray(single_image.detach().cpu().numpy() ,noise_sigma, downscale_function, downscale_factor, blur_sigma)
-            degradated_image_tensor = torch-from_numpy(degradated_image_np)
+            degradated_image_tensor = torch.from_numpy(degradated_image_np)
             degradated_image_tensor = degradated_image_tensor.to(dtype=image.dtype, device=image.device)
             degradated_images.append(degradated_image_tensor.unsqueeze(0).unsqueeze(0).contiguous())
 
