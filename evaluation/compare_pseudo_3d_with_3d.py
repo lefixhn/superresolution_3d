@@ -10,10 +10,10 @@ sys.path.append('/content/superresolution_3d/data_preprocessing')
 sys.path.append('/content/superresolution_3d/evaluation')
 
 import torch
+import numpy as np 
 from tqdm import tqdm
 import comparing_metrics as cm 
 from typing import Dict, List, Callable
-
 import build_slice_wise_hr_volume as swhrv
 import image_degradation  as ideg
 import importlib
@@ -97,14 +97,14 @@ def compare_pseudo_3d_dense_with_3d(
     num_images=150, 
 ): 
     results = {}
-
+    sys.path.append("/content/superresolution_3d/models/dense_net")
     from basic_efficient_dense_net import BasicEfficientDenseNet
     from basic_efficient_dense_net_2d import BasicEfficientDenseNet2d
 
     model_2d = BasicEfficientDenseNet2d(num_dense_blocks=8, num_units_per_dense_block=8)
     model_3d = BasicEfficientDenseNet(num_dense_blocks=8, num_units_per_dense_block=8)
-    model_2d.load_state_dict(torch.load(checkpoint_path_2d), map_location="cpu")
-    model_3d.load_state_dict(torch.load(checkpoint_path_3d), map_location="cpu")
+    model_2d.load(torch.load(checkpoint_path_2d), map_location="cpu")
+    model_3d.load(torch.load(checkpoint_path_3d), map_location="cpu")
 
     degradation_models = build_degradation_models()
     # Load np volumes and convert to 5d tensor 
