@@ -6,7 +6,7 @@
 import torch 
 from scipy import ndimage as nd
 @torch.no_grad()
-def build_sclie_wise_hr_volume(
+def build_slice_wise_hr_volume(
     lr_volume: torch.Tensor, 
     model: callable, 
     interpolation_order=1, 

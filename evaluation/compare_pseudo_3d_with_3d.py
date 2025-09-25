@@ -9,7 +9,7 @@ import torch
 from tqdm import tqdm
 import comparing_metrics as cm 
 from typing import Dict, List, Callable
-from build_slcie_wise_hr_volume import build_slcie_wise_hr_volume
+from build_slice_wise_hr_volume import build_slice_wise_hr_volume
 import sys
 sys.path.append('/content/superresolution_3d/data_preprocessing')
 import importlib
