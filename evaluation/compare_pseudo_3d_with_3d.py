@@ -10,6 +10,7 @@ sys.path.append('/content/superresolution_3d/data_preprocessing')
 sys.path.append('/content/superresolution_3d/evaluation')
 
 import torch
+torch.backends.cudnn.enabled = True
 import numpy as np 
 from tqdm import tqdm
 import comparing_metrics as cm 
@@ -40,9 +41,13 @@ def compare_pseudo_3d_with_3d(
     mean_psnr_3d = 0.0
     
 
-    model_3d = model_3d.to(device)
+    model_3d = model_3d.to(device).float().eval()
+    model_2d = model_2d.to(device).float().eval()
 
     for lr_volume_tensor_5d, hr_volume_tensor_5d in tqdm(lr_hr_5d_tensor_tuples, "Iterating trhough lr-hr-tuples"):
+        lr_volume_tensor_5d = lr_volume_tensor_5d.to(device).float().contiguous()
+        hr_volume_tensor_5d = hr_volume_tensor_5d.to(device).float().contiguous()
+
         # Build SR Images
         sr_image_2d_model = swhrv.build_slice_wise_hr_volume(
             lr_volume=lr_volume_tensor_5d, 
@@ -50,7 +55,6 @@ def compare_pseudo_3d_with_3d(
             interpolation_dim="D",
             device=device, 
         )
-
         sr_image_3d_model = model_3d(lr_volume_tensor_5d)
 
         # Apply metrics 
@@ -118,7 +122,7 @@ def compare_pseudo_3d_dense_with_3d(
 
     for index, (degradation_model_name, degradation_model) in enumerate(degradation_models.items()): 
         lr_volume_tensors_5d = [degradation_model(hr_volume_tensor_5d) for hr_volume_tensor_5d in hr_volume_tensors_5d]
-        lr_hr_volume_tensor_tuples = [(lr_volume_tensors_5d[i].to(device).float().contiguous(), hr_volume_tensors_5d[i].to(device).float().contiguous()) for i in range(len(lr_volume_tensors_5d))]
+        lr_hr_volume_tensor_tuples = [(lr_volume_tensors_5d[i].float().contiguous(), hr_volume_tensors_5d[i].float().contiguous()) for i in range(len(lr_volume_tensors_5d))]
 
         print(f"##### DEG {degradation_model_name} #####")
         result=compare_pseudo_3d_with_3d(
