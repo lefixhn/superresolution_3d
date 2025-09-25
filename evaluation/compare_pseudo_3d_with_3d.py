@@ -9,7 +9,7 @@ import torch
 from tqdm import tqdm
 import comparing_metrics as cm 
 from typing import Dict, List, Callable
-from build_sclie_wise_hr_volume import build_sclie_wise_hr_volume
+from build_slcie_wise_hr_volume import build_slcie_wise_hr_volume
 import sys
 sys.path.append('/content/superresolution_3d/data_preprocessing')
 import importlib
@@ -63,9 +63,9 @@ def compare_pseudo_3d_with_3d(
     mean_mae_2d /= num_tuples
     mean_psnr_2d /= num_tuples
 
-    mean_mse_3d = /= num_tuples
-    mean_mae_3d = /= num_tuples
-    mean_psnr_3d = /= num_tuples
+    mean_mse_3d  /= num_tuples
+    mean_mae_3d  /= num_tuples
+    mean_psnr_3d  /= num_tuples
 
     name_model_2d = type(model_2d).__name__
     name_model_3d = type(model_3d).__name__
@@ -108,9 +108,9 @@ def compare_pseudo_3d_dense_with_3d(
 
     for index, degradation_model_name, degradation_model in degradation_models.items(): 
         lr_volume_tensors_5d = [degradation_model(hr_volume_tensor_5d) for hr_volume_tensor_5d in hr_volume_tensors_5d]
-        lr_hr_volume_tensor_tuples = (lr_volume_tensors_5d[i], hr_volume_tensors_5d[i] for i in range(len(lr_volume_tensors_5d)))
+        lr_hr_volume_tensor_tuples = [(lr_volume_tensors_5d[i], hr_volume_tensors_5d[i]) for i in range(len(lr_volume_tensors_5d))]
 
-        print(f"##### DEG {degradation_model_name} "#####")
+        print(f"##### DEG {degradation_model_name} #####")
         result=compare_pseudo_3d_with_3d(
             model_2d=model_2d, 
             model_3d=model_3d, 
