@@ -91,6 +91,8 @@ def compare_pseudo_3d_dense_with_3d(
     checkpoint_path_3d, 
 
 ): 
+    results = {}
+
     from basic_efficient_dense_net import BasicEfficientDenseNet
     from basic_efficient_dense_net_2d import BasicEfficientDenseNet2d
 
@@ -106,7 +108,12 @@ def compare_pseudo_3d_dense_with_3d(
         lr_volume_tensors_5d = [degradation_model(hr_volume_tensor_5d) for hr_volume_tensor_5d in hr_volume_tensors_5d]
         lr_hr_volume_tensor_tuples = (lr_volume_tensors_5d[i], hr_volume_tensors_5d[i] for i in range(len(lr_volume_tensors_5d)))
 
-        
+        compare_pseudo_3d_with_3d(
+            model_2d=model_2d, 
+            model_3d=model_3d, 
+            lr_hr_5d_tensor_tuples=lr_hr_volume_tensor_tuples, 
+        )
+
 
 
 
