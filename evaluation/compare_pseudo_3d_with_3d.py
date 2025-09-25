@@ -55,16 +55,17 @@ def compare_pseudo_3d_with_3d(
             interpolation_dim="D",
             device=device, 
         )
+        sr_image_2d_model = sr_image_2d_model.to(device).foat().contiguous()
         sr_image_3d_model = model_3d(lr_volume_tensor_5d)
 
         # Apply metrics 
         mean_mse_2d += cm.compare_mse(sr_image_2d_model ,hr_volume_tensor_5d)
-        mean_mse_2d += cm.compare_mae(sr_image_2d_model ,hr_volume_tensor_5d)
-        mean_mse_2d += cm.compare_psnr(sr_image_2d_model ,hr_volume_tensor_5d)
+        mean_mae_2d += cm.compare_mae(sr_image_2d_model ,hr_volume_tensor_5d)
+        mean_psnr_2d += cm.compare_psnr(sr_image_2d_model ,hr_volume_tensor_5d)
 
         mean_mse_3d += cm.compare_mse(sr_image_3d_model ,hr_volume_tensor_5d)
-        mean_mse_3d += cm.compare_mae(sr_image_3d_model ,hr_volume_tensor_5d)
-        mean_mse_3d += cm.compare_psnr(sr_image_3d_model ,hr_volume_tensor_5d)
+        mean_mae_3d += cm.compare_mae(sr_image_3d_model ,hr_volume_tensor_5d)
+        mean_psnr_3d += cm.compare_psnr(sr_image_3d_model ,hr_volume_tensor_5d)
 
     num_tuples = len(lr_hr_5d_tensor_tuples)
     
