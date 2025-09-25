@@ -69,25 +69,21 @@ def compare_pseudo_3d_with_3d(
 
     num_tuples = len(lr_hr_5d_tensor_tuples)
     
-    mean_mse_2d /= num_tuples
-    mean_mae_2d /= num_tuples
-    mean_psnr_2d /= num_tuples
-
-    mean_mse_3d  /= num_tuples
-    mean_mae_3d  /= num_tuples
-    mean_psnr_3d  /= num_tuples
+    
 
     name_model_2d = type(model_2d).__name__
     name_model_3d = type(model_3d).__name__
+    results[name_model_2d]={}
+    results[name_model_3d]={}
 
 
-    results[name_model_2d]["mse"] = mean_mse_2d
-    results[name_model_2d]["mae"] = mean_mse_2d
-    results[name_model_2d]["psnr"] = mean_mse_2d
+    results[name_model_2d]["mse"] = mean_mse_2d / num_tuples
+    results[name_model_2d]["mae"] = mean_mae_2d / num_tuples
+    results[name_model_2d]["psnr"] = mean_psnr_2d / num_tuples
 
-    results[name_model_3d]["mse"] = mean_mse_3d
-    results[name_model_3d]["mae"] = mean_mse_3d
-    results[name_model_3d]["psnr"] = mean_mse_3d
+    results[name_model_3d]["mse"] = mean_mse_3d / num_tuples
+    results[name_model_3d]["mae"] = mean_mae_3d / num_tuples
+    results[name_model_3d]["psnr"] = mean_psnr_3d / num_tuples
 
     if autoprint: 
         _print_compare_results(results)
