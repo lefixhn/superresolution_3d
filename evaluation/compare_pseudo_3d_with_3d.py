@@ -8,7 +8,7 @@
 import torch
 from tqdm import tqdm
 import comparing_metrics as cm 
-from typing import Dict, List
+from typing import Dict, List, Callable
 from build_sclie_wise_hr_volume import build_sclie_wise_hr_volume
 import sys
 sys.path.append('/content/superresolution_3d/data_preprocessing')
@@ -84,6 +84,21 @@ def compare_pseudo_3d_with_3d(
 
     return results
 
+
+
+def compare_pseudo_3d_dense_with_3d(
+    checkpoint_path_2d, 
+    checkpoint_path_3d, 
+    
+): 
+    from basic_efficient_dense_net import BasicEfficientDenseNet
+    from basic_efficient_dense_net_2d import BasicEfficientDenseNet2d
+
+    model_2d = BasicEfficientDenseNet2d(num_dense_blocks=8, num_units_per_dense_block=8)
+    model_3d = BasicEfficientDenseNet(num_dense_blocks=8, num_units_per_dense_block=8)
+
+
+
 ### Helper methods
 
 def _print_compare_results(results: Dict[str, Dict[str, float]]): 
@@ -92,21 +107,23 @@ def _print_compare_results(results: Dict[str, Dict[str, float]]):
         for metric_name, average_metric_value in metric_results.items(): 
             model_text += f" | Average {metric_name}: {average_metric_value}"
 
-def build_degradation_models(blur_sigmas: List[float]=[12.0/255.0, 12.0/255.0, 25.0/255.0], noise_sigmas: List[float]=[0.1, 1.2, 2.4], downscale_factor=2) -> Dict[str, callable]: 
+def build_degradation_models(blur_sigmas: List[float]=[12.0/255.0, 12.0/255.0, 25.0/255.0], noise_sigmas: List[float]=[0.1, 1.2, 2.4], downscale_factor=2) -> Dict[str, Callable]: 
     ''' blur_sigmas and noise_sigmas must have the same length 
         builds as many degradations as the length of the list
         blur_sigmas and noise_sigmas at the same index will be combined to a 
         degradation model
     '''
-    assert len(blur_sigmas) == len(noise_sigmas), "blur_sigmas and noise_sigmas will have the same length"
+    assert len(blur_sigmas) == len(noise_sigmas), "blur_sigmas and noise_sigmas must have the same length"
     degradation_models = {}
 
     for index in range(len(blur_sigmas)):
         blur_sigma, noise_sigma = blur_sigmas[index],  noise_sigmas[index]
         degradation_name = f"DEG[bs:{blur_sigma} | ns:{noise_sigma}]"
-        degradation_models[degradation_name]= 
+        degradation_models[degradation_name]= (
             lambda image, _noise_sigma=noise_sigma, _blur_sigma=blur_sigma: ideg.general_image_degradation_model(
                 image=image, downscale_function=None ,downscale_factor=2, noise_sigma=_noise_sigma, blur_sigma=_blur_sigma
                 )
+        )
 
     return degradation_models
+
