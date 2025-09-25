@@ -98,6 +98,8 @@ def compare_pseudo_3d_dense_with_3d(
 
     model_2d = BasicEfficientDenseNet2d(num_dense_blocks=8, num_units_per_dense_block=8)
     model_3d = BasicEfficientDenseNet(num_dense_blocks=8, num_units_per_dense_block=8)
+    model_2d.load_state_dict(torch.load(checkpoint_path_2d))
+    model_3d.load_state_dict(torch.load(checkpoint_path_3d))
 
     degradation_models = build_degradation_models()
     # Load np volumes and convert to 5d tensor 
@@ -120,10 +122,7 @@ def compare_pseudo_3d_dense_with_3d(
     return results
 
 
-
-
-
-### Helper methods
+##### Helper methods #####
 
 def _print_compare_results(results: Dict[str, Dict[str, float]]): 
     for model_name, metric_results in results.items(): 
