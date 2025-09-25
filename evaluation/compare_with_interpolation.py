@@ -88,7 +88,7 @@ def compare_models_performance(
         print_metrics_of_models(models_results)
     return models_results          
 
-def build_degradations(blur_sigmas: List[float]=[0.0, 12.0/255.0, 25.0/255.0], noise_sigmas: List[float]=[0.0, 1.2, 2.4], downscale_factor=2) -> Dict[str, callable]: 
+def build_degradations(noise_sigmas: List[float]=[0.0, 12.0/255.0, 25.0/255.0], blur_sigmas: List[float]=[0.0, 1.2, 2.4], downscale_factor=2) -> Dict[str, callable]: 
     degradations = {}
     for blur_sigma in blur_sigmas: 
         for noise_sigma in noise_sigmas: 
