@@ -165,6 +165,7 @@ def load_np_volumes(
     item_count:int=10, 
     base_url: str = "/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_t1/hr"
     ) -> List[np.ndarray]: 
+    import os
     volumes = []
     entries = sorted([e for e in os.scandir(base_url) if e.name.endswith(".npy")], key=lambda e: e.name)
 
