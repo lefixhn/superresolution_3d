@@ -89,13 +89,23 @@ def compare_pseudo_3d_with_3d(
 def compare_pseudo_3d_dense_with_3d(
     checkpoint_path_2d, 
     checkpoint_path_3d, 
-    
+
 ): 
     from basic_efficient_dense_net import BasicEfficientDenseNet
     from basic_efficient_dense_net_2d import BasicEfficientDenseNet2d
 
     model_2d = BasicEfficientDenseNet2d(num_dense_blocks=8, num_units_per_dense_block=8)
     model_3d = BasicEfficientDenseNet(num_dense_blocks=8, num_units_per_dense_block=8)
+
+    degradation_models = build_degradation_models()
+    # Load np volumes and convert to 5d tensor 
+    hr_volumes_np = load_np_volumes()
+    hr_volumes_tensor_5d = [torch.from_numpy(hr_volume_np).unsqueeze(0).unsqueeze(0) for hr_volume_np in hr_volumes_np]
+
+    for degradation_model_name, degradation_model in degradation_models.items(): 
+        lr_volumes_tensor_5d = 
+    
+
 
 
 
@@ -127,3 +137,15 @@ def build_degradation_models(blur_sigmas: List[float]=[12.0/255.0, 12.0/255.0, 2
 
     return degradation_models
 
+def load_np_volumes(
+    start_index:int=1101, 
+    item_count:int=10, 
+    base_url: str = "/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_t1/hr"
+    ) -> List[np.ndarray]: 
+    volumes = []
+    entries = sorted([e for e in os.scandir(base_url) if e.name.endswith(".npy")], key=lambda e: e.name)
+
+    for entry_index in range(start_index, min(len(entries), start_index+item_count)):
+        entry = entries[entry_index]
+        volumes.append(np.load(entry.path))
+    return volumes
