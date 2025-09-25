@@ -41,7 +41,7 @@ def compare_pseudo_3d_with_3d(
         # Build SR Images
         sr_image_2d_model = build_sclie_wise_hr_volume(
             lr_volume=lr_volume_tensor_5d, 
-            model: model_2d, 
+            model=model_2d, 
             interpolation_dim="D",
             device=device, 
         )
