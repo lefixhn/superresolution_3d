@@ -55,7 +55,7 @@ def compare_pseudo_3d_with_3d(
             interpolation_dim="D",
             device=device, 
         )
-        sr_image_2d_model = sr_image_2d_model.to(device).foat().contiguous()
+        sr_image_2d_model = sr_image_2d_model.to(device).float().contiguous()
         sr_image_3d_model = model_3d(lr_volume_tensor_5d)
 
         # Apply metrics 
