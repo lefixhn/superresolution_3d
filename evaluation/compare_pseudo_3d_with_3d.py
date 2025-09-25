@@ -10,6 +10,10 @@ from tqdm import tqdm
 import comparing_metrics as cm 
 from typing import Dict, List
 from build_sclie_wise_hr_volume import build_sclie_wise_hr_volume
+import sys
+sys.path.append('/content/superresolution_3d/data_preprocessing')
+import importlib
+import image_degradation  as ideg
 
 @torch.no_grad()
 def compare_pseudo_3d_with_3d(
@@ -96,5 +100,13 @@ def build_degradation_models(blur_sigmas: List[float]=[12.0/255.0, 12.0/255.0, 2
     '''
     assert len(blur_sigmas) == len(noise_sigmas), "blur_sigmas and noise_sigmas will have the same length"
     degradation_models = {}
-    
-    return degradations
+
+    for index in range(len(blur_sigmas)):
+        blur_sigma, noise_sigma = blur_sigmas[index],  noise_sigmas[index]
+        degradation_name = f"DEG[bs:{blur_sigma} | ns:{noise_sigma}]"
+        degradation_models[degradation_name]= 
+            lambda image, _noise_sigma=noise_sigma, _blur_sigma=blur_sigma: ideg.general_image_degradation_model(
+                image=image, downscale_function=None ,downscale_factor=2, noise_sigma=_noise_sigma, blur_sigma=_blur_sigma
+                )
+
+    return degradation_models
