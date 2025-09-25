@@ -5,15 +5,20 @@
 
 
 ''' 
+import sys
+sys.path.append('/content/superresolution_3d/data_preprocessing')
+sys.path.append('/content/superresolution_3d/evaluation')
+
 import torch
 from tqdm import tqdm
 import comparing_metrics as cm 
 from typing import Dict, List, Callable
-from build_slice_wise_hr_volume import build_slice_wise_hr_volume
-import sys
-sys.path.append('/content/superresolution_3d/data_preprocessing')
-import importlib
+
+import build_slice_wise_hr_volume as swhrv
 import image_degradation  as ideg
+import importlib
+importlib.reload(swhrv)
+
 
 @torch.no_grad()
 def compare_pseudo_3d_with_3d(
@@ -39,7 +44,7 @@ def compare_pseudo_3d_with_3d(
 
     for lr_volume_tensor_5d, hr_volume_tensor_5d in tqdm(lr_hr_5d_tensor_tuples, "Iterating trhough lr-hr-tuples"):
         # Build SR Images
-        sr_image_2d_model = build_sclie_wise_hr_volume(
+        sr_image_2d_model = swhrv.build_slice_wise_hr_volume(
             lr_volume=lr_volume_tensor_5d, 
             model=model_2d, 
             interpolation_dim="D",
