@@ -141,7 +141,7 @@ def _print_compare_results(results: Dict[str, Dict[str, float]]):
         for metric_name, average_metric_value in metric_results.items(): 
             model_text += f" | Average {metric_name}: {average_metric_value}"
 
-def build_degradation_models(blur_sigmas: List[float]=[12.0/255.0, 12.0/255.0, 25.0/255.0], noise_sigmas: List[float]=[0.1, 1.2, 2.4], downscale_factor=2) -> Dict[str, Callable]: 
+def build_degradation_models(noise_sigmas: List[float]=[1.0/255.0, 12.0/255.0, 25.0/255.0], blur_sigmas: List[float]=[0.1, 1.2, 2.4], downscale_factor=2) -> Dict[str, Callable]: 
     ''' blur_sigmas and noise_sigmas must have the same length 
         builds as many degradations as the length of the list
         blur_sigmas and noise_sigmas at the same index will be combined to a 
