@@ -113,7 +113,7 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
     ''' 
         Slice wise comparison of lpips on 3d images
     '''
-    assert ["D", "H", "W"].containing(compare_axis), "compare_axis must be D, H or W"
+    assert compare_axis in ("D", "H", "W"), "compare_axis must be D, H or W"
     target_device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Build the lpips metric
     if lpips_2d_metric is None: 
@@ -126,22 +126,28 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
     # Noramlize both images from [0, 1] range to [-1, 1] range 
     #sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
     sr_image, hr_image = sr_image.clamp(0, 1), hr_image.clamp(0, 1)
-    tensor_shape = hr_image.shape
+
+    shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}
+    
     lpips_mean = 0.0
+
+    tensor_shape = hr_image.shape
     dimension_length = tensor_shape[shape_dim_index]
     batch_size = tensor_shape[0]
     # Look at D H W from the B C D H W of the tensor 
     for batch_index in range(batch_size): 
-        # Iterate through orientations coronar, axial and sagital
-        shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}
-        
+        # Iterate through orientations coronar, axial and sagital  
         
         for slice_index in range(dimension_length): 
             # Create a tuple containing the correct coordinates / slices
             # We put the slice index to the correct position inside the tuple
             # therefore we have to check the_shape_dim index, wich tells us
             # weather we are in a coronar, axial or sagital sclice
-            slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
+            #slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
+            slice_coordinates = [slice(None)] * 5
+            slice_coordinates[0] = batch_index
+            slice_coordinates[1] = 0 # Grey channel
+            slice_coordinates[shape_dim_index] = 
             sr_slice = sr_image[slice_coordinates]
             hr_slice = hr_image[slice_coordinates]
             # Add batch and channel dimension 
