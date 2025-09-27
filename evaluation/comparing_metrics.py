@@ -147,13 +147,13 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D", sl
             # weather we are in a coronar, axial or sagital sclice
             #slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
             slice_coordinates = [slice(None)] * 5
-            slice_coordinates[0] = slice(slcie_index, min(dimension_length, ))
+            slice_coordinates[0] = slice(slcie_index, min(dimension_length, dimension_length+slice_batch_size))
             slice_coordinates[1] = 0 # Grey channel
             slice_coordinates[shape_dim_index] = slice_index
             sr_slice = sr_image[slice_coordinates]
             hr_slice = hr_image[slice_coordinates]
             # Add batch and channel dimension 
-            sr_slice = sr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
+            sr_slice = sr_slice.unsqueeze(0)..repeat(1, 3, 1, 1)
             hr_slice = hr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
             lpips_mean += lpips_2d_metric(sr_slice, hr_slice)
 
