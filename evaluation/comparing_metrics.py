@@ -1,7 +1,7 @@
 import torch 
 import torch.nn.functional as F  
 import numpy as np 
-from piqa import LPIPS
+
 
 
 def _convert_to_5d_tensor(image): 
@@ -108,6 +108,7 @@ def compare_ssim(sr, hr, data_range=None, ks=11, sigma=1.5, K1=0.01, K2=0.03, ep
         ssim_map = num / den
         return float(ssim_map.mean().item())
 
+from piqa import LPIPS
 @torch.inference_mode()
 def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
     ''' 
@@ -124,8 +125,9 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
     sr_image, hr_image = sr_image.to(target_device), hr_image.to(target_device)
     # Not nessecary for the piqa lipips implementation 
     # Noramlize both images from [0, 1] range to [-1, 1] range 
-    #sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
-    sr_image, hr_image = sr_image.clamp(0, 1), hr_image.clamp(0, 1)
+    sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
+    hr_image, hr_image = sr_image.clamp(-1, 1) , hr_image.clamp(-1, 1)
+    #sr_image, hr_image = sr_image.clamp(0, 1), hr_image.clamp(0, 1)
 
     shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}
     
@@ -147,7 +149,7 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
             slice_coordinates = [slice(None)] * 5
             slice_coordinates[0] = batch_index
             slice_coordinates[1] = 0 # Grey channel
-            slice_coordinates[shape_dim_index] = 
+            slice_coordinates[shape_dim_index] = slice_index
             sr_slice = sr_image[slice_coordinates]
             hr_slice = hr_image[slice_coordinates]
             # Add batch and channel dimension 
