@@ -110,6 +110,10 @@ def compare_ssim(sr, hr, data_range=None, ks=11, sigma=1.5, K1=0.01, K2=0.03, ep
 
 @torch.inference_mode()
 def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
+    ''' 
+        Slice wise comparison of lpips on 3d images
+    '''
+    assert ["D", "H", "W"].containing(compare_axis), "compare_axis must be D, H or W"
     target_device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Build the lpips metric
     if lpips_2d_metric is None: 
@@ -123,14 +127,15 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
     #sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
     sr_image, hr_image = sr_image.clamp(0, 1), hr_image.clamp(0, 1)
     tensor_shape = hr_image.shape
-    lpips_mean = 0
+    lpips_mean = 0.0
+    dimension_length = tensor_shape[shape_dim_index]
+    
     # Look at D H W from the B C D H W of the tensor 
-    for batch_index in range(tensor_shape[0]): 
+    for batch_index in range(): 
         # Iterate through orientations coronar, axial and sagital
         shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}
         
-        lpips_sum_over_slices = 0
-        dimension_length = tensor_shape[shape_dim_index]
+        
         for slice_index in range(dimension_length): 
             # Create a tuple containing the correct coordinates / slices
             # We put the slice index to the correct position inside the tuple
@@ -142,9 +147,10 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
             # Add batch and channel dimension 
             sr_slice = sr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
             hr_slice = hr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
-            lpips_sum_over_slices += lpips_2d_metric(sr_slice, hr_slice)
-        
-    return lpips_mean
+            lpips_mean += lpips_2d_metric(sr_slice, hr_slice)
+
+    lpips_mean /= 
+    return 
 
 # Check weather it works properly
 if __name__ == "__main__": 
