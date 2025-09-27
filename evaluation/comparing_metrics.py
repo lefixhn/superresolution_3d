@@ -152,11 +152,11 @@ def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
             elif shape_dim_index == 3:
                 # compare_axis == "H": aktuell (D, S, W) -> (S, D, W)
                 sr_slice = sr_slice.permute(1, 0, 2).contiguous()
-    hr_slice = hr_slice.permute(1, 0, 2).contiguous()
-elif shape_dim_index == 4:
-    # compare_axis == "W": aktuell (D, H, S) -> (S, D, H)
-    sr_slice = sr_slice.permute(2, 0, 1).contiguous()
-    hr_slice = hr_slice.permute(2, 0, 1).contiguous()
+                hr_slice = hr_slice.permute(1, 0, 2).contiguous()
+            elif shape_dim_index == 4:
+                # compare_axis == "W": aktuell (D, H, S) -> (S, D, H)
+                sr_slice = sr_slice.permute(2, 0, 1).contiguous()
+                hr_slice = hr_slice.permute(2, 0, 1).contiguous()
 
             sr_slice = sr_image[tuple(slice_coordinates)]
             hr_slice = hr_image[tuple(slice_coordinates)]
