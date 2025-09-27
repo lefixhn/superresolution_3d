@@ -26,6 +26,7 @@ def compare_pseudo_3d_with_3d(
     model_2d: torch.nn.Module, 
     model_3d: torch.nn.Module, 
     lr_hr_5d_tensor_tuples,
+    interpolation_order=3, 
     autoprint=True, 
     device="cuda" if torch.cuda.is_available() else "cpu", 
 ) -> Dict[str, Dict[str, float]]:
@@ -52,6 +53,7 @@ def compare_pseudo_3d_with_3d(
         sr_image_2d_model = swhrv.build_slice_wise_hr_volume(
             lr_volume=lr_volume_tensor_5d, 
             model=model_2d, 
+            interpolation_order=interpolation_order, 
             interpolation_dim="D",
             device=device, 
         )
@@ -96,6 +98,7 @@ def compare_pseudo_3d_dense_with_3d(
     checkpoint_path_2d, 
     checkpoint_path_3d, 
     num_images=150, 
+    interpolation_order=3, 
 ): 
     results = {}
     sys.path.append("/content/superresolution_3d/models/dense_net")
@@ -126,6 +129,7 @@ def compare_pseudo_3d_dense_with_3d(
             model_2d=model_2d, 
             model_3d=model_3d, 
             lr_hr_5d_tensor_tuples=lr_hr_volume_tensor_tuples, 
+            interpolation_order=interpolation_order, 
         )
 
         results[degradation_model_name] = result
