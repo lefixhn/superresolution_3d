@@ -110,15 +110,16 @@ def compare_ssim(sr, hr, data_range=None, ks=11, sigma=1.5, K1=0.01, K2=0.03, ep
 
 from piqa import LPIPS
 @torch.inference_mode()
-def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D", slice_batch_size=8):
+def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
     ''' 
         Slice wise comparison of lpips on 3d images
     '''
     assert compare_axis in ("D", "H", "W"), "compare_axis must be D, H or W"
     target_device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Build the lpips metric
-    if lpips_2d_metric is None: 
-        lpips_2d_metric=LPIPS(network='vgg').eval().to(target_device)
+    
+    lpips_2d_metric=LPIPS(network='vgg').eval().to(target_device)
+
     # Convert to 5D Tensors
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
     # Bring both images to target device
@@ -128,11 +129,12 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D", sl
     sr_image, hr_image = sr_image.clamp(0, 1), hr_image.clamp(0, 1)
     sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
     
-    shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}[compare_axis]
+    
     
     lpips_mean = 0.0
 
     tensor_shape = hr_image.shape
+    shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}[compare_axis]
     dimension_length = tensor_shape[shape_dim_index]
     batch_size = tensor_shape[0]
     # Look at D H W from the B C D H W of the tensor 
@@ -149,7 +151,7 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D", sl
             hr_slice = hr_image[slice_coordinates]
             # Add add channel dimension and triple it
             sr_slice = sr_slice.unsqueeze(1).repeat(1, 3, 1, 1)
-            hr_slice = hr_slice.unsqueeze(1).expand(1, 3, 1, 1)
+            hr_slice = hr_slice.unsqueeze(1).repeat(1, 3, 1, 1)
             lpips_mean += lpips_2d_metric(sr_slice, hr_slice)
 
     lpips_mean /= batch_size*dimension_length
