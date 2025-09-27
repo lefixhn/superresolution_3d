@@ -110,7 +110,7 @@ def compare_ssim(sr, hr, data_range=None, ks=11, sigma=1.5, K1=0.01, K2=0.03, ep
 
 from piqa import LPIPS
 @torch.inference_mode()
-def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
+def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D", slice_batch_size=8):
     ''' 
         Slice wise comparison of lpips on 3d images
     '''
@@ -140,14 +140,14 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
     for batch_index in range(batch_size): 
         # Iterate through orientations coronar, axial and sagital  
         
-        for slice_index in range(dimension_length): 
+        for slice_index in range(0, dimension_length, slice_batch_size): 
             # Create a tuple containing the correct coordinates / slices
             # We put the slice index to the correct position inside the tuple
             # therefore we have to check the_shape_dim index, wich tells us
             # weather we are in a coronar, axial or sagital sclice
             #slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
             slice_coordinates = [slice(None)] * 5
-            slice_coordinates[0] = batch_index
+            slice_coordinates[0] = slice(slcie_index, min(dimension_length, ))
             slice_coordinates[1] = 0 # Grey channel
             slice_coordinates[shape_dim_index] = slice_index
             sr_slice = sr_image[slice_coordinates]
