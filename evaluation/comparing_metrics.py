@@ -55,6 +55,8 @@ def compare_mutual_information(sr_image, hr_image, bins=100):
     return nmi_value
 
 
+
+
 # TODO: Check parametersettings and compare with other implementation
 import torch
 import torch.nn.functional as F
@@ -107,7 +109,7 @@ def compare_ssim(sr, hr, data_range=None, ks=11, sigma=1.5, K1=0.01, K2=0.03, ep
         return float(ssim_map.mean().item())
 
 @torch.inference_mode()
-def compare_lpips(sr_image, hr_image, lpips_2d_metric=None):
+def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
     target_device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Build the lpips metric
     if lpips_2d_metric is None: 
@@ -125,26 +127,23 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None):
     # Look at D H W from the B C D H W of the tensor 
     for batch_index in range(tensor_shape[0]): 
         # Iterate through orientations coronar, axial and sagital
-        for shape_dim_index in range(2, 5): 
-            lpips_sum_over_slices = 0
-            dimension_length = tensor_shape[shape_dim_index]
-            for slice_index in range(dimension_length): 
-                # Create a tuple containing the correct coordinates / slices
-                # We put the slice index to the correct position inside the tuple
-                # therefore we have to check the_shape_dim index, wich tells us
-                # weather we are in a coronar, axial or sagital sclice
-                slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
-                sr_slice = sr_image[slice_coordinates]
-                hr_slice = hr_image[slice_coordinates]
-                # Add batch and channel dimension 
-                sr_slice = sr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
-                hr_slice = hr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
-                lpips_sum_over_slices += lpips_2d_metric(sr_slice, hr_slice)
-            lpips_mean += lpips_sum_over_slices / dimension_length
-    # Divide by the amount of orientations and the number of batches
-    lpips_mean /= 3 * tensor_shape[0]
-    
-
+        shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}
+        
+        lpips_sum_over_slices = 0
+        dimension_length = tensor_shape[shape_dim_index]
+        for slice_index in range(dimension_length): 
+            # Create a tuple containing the correct coordinates / slices
+            # We put the slice index to the correct position inside the tuple
+            # therefore we have to check the_shape_dim index, wich tells us
+            # weather we are in a coronar, axial or sagital sclice
+            slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
+            sr_slice = sr_image[slice_coordinates]
+            hr_slice = hr_image[slice_coordinates]
+            # Add batch and channel dimension 
+            sr_slice = sr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
+            hr_slice = hr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
+            lpips_sum_over_slices += lpips_2d_metric(sr_slice, hr_slice)
+        
     return lpips_mean
 
 # Check weather it works properly
