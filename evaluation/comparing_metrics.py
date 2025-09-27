@@ -3,6 +3,7 @@ import torch.nn.functional as F
 import numpy as np 
 from piqa import LPIPS
 
+
 def _convert_to_5d_tensor(image): 
     '''
     Accepts nparray, or 3D 4D or 5d Tensor 
@@ -39,6 +40,18 @@ def compare_psnr(sr_image, hr_image):
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
     max_element = torch.max(hr_image).item()
     return 20 * np.log10(max_element) - 10 * np.log10(compare_mse(sr_image, hr_image ))
+
+
+def compare_mutual_information(sr_iamge, hr_image, bins=100): 
+    from skimage.metrics import normalized_mutual_information as nmi
+    sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
+    for batch_index in range(sr_iamge.shape[0]):
+        # Convert to numpy
+        sr_image_np, hr_image_np =  sr_image[batch_index, :, :, :, :].cpu().numpy() , hr_image[batch_index, :, :, :, :].cpu().numpy()
+        nmi_value += nmi(sr_image_np, hr_image_np, bins = bins)
+    nmi_value /= sr_iamge.shape[0]
+    return nmi_value
+
 
 # TODO: Check parametersettings and compare with other implementation
 import torch
