@@ -126,10 +126,8 @@ def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
     sr_image, hr_image = sr_image.to(target_device), hr_image.to(target_device)
     # Not nessecary for the piqa lipips implementation 
     # Noramlize both images from [0, 1] range to [-1, 1] range 
-    sr_image, hr_image = sr_image.clamp(0, 1), hr_image.clamp(0, 1)
-    sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
-    
-    
+    sr_image, hr_image = sr_image.clamp(0, 1).float(), hr_image.clamp(0, 1).float()
+    #sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
     
     lpips_mean = 0.0
 
@@ -146,9 +144,9 @@ def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
             slice_coordinates = [slice(None)] * 5
             slice_coordinates[0] = batch_index
             slice_coordinates[1] = 0 # Grey channel
-            slice_coordinates[shape_dim_index] = slice(slice_index, min(dimension_length, dimension_length+slice_batch_size))
-            sr_slice = sr_image[slice_coordinates]
-            hr_slice = hr_image[slice_coordinates]
+            slice_coordinates[shape_dim_index] = slice(slice_index, min(dimension_length, slice_index+slice_batch_size))
+            sr_slice = sr_image[tuple(slice_coordinates)]
+            hr_slice = hr_image[tuple(slice_coordinates)]
             # Add add channel dimension and triple it
             sr_slice = sr_slice.unsqueeze(1).repeat(1, 3, 1, 1)
             hr_slice = hr_slice.unsqueeze(1).repeat(1, 3, 1, 1)
