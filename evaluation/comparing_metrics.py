@@ -140,12 +140,16 @@ def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
         # Iterate through orientations coronar, axial and sagital  
         
         for slice_index in range(0, dimension_length, slice_batch_size): 
+            # Build the coordinates to take the sclies out of the tensor
             #slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
             slice_coordinates = [slice(None)] * 5
             slice_coordinates[0] = batch_index
             slice_coordinates[1] = 0 # Grey channel
             slice_coordinates[shape_dim_index] = slice(slice_index, min(dimension_length, slice_index+slice_batch_size))
-            
+            # Build the slices
+            sr_slice = sr_image[tuple(slice_coordinates)]
+            hr_slice = hr_image[tuple(slice_coordinates)]
+            # Permute, to ensure the first dimension of the tensor is the 
             if shape_dim_index == 2:
                 # compare_axis == "D": bereits (S, H, W) -> nichts tun
                 pass
@@ -158,8 +162,7 @@ def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
                 sr_slice = sr_slice.permute(2, 0, 1).contiguous()
                 hr_slice = hr_slice.permute(2, 0, 1).contiguous()
 
-            sr_slice = sr_image[tuple(slice_coordinates)]
-            hr_slice = hr_image[tuple(slice_coordinates)]
+            
             # Add add channel dimension and triple it
             sr_slice = sr_slice.unsqueeze(1).repeat(1, 3, 1, 1)
             hr_slice = hr_slice.unsqueeze(1).repeat(1, 3, 1, 1)
