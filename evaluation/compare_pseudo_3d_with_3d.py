@@ -72,6 +72,13 @@ def compare_pseudo_3d_with_3d(
         sr_image_2d_model = sr_image_2d_model.to(device).float().contiguous()
         sr_image_3d_model = model_3d(lr_volume_tensor_5d)
 
+        #Safety mechanisms
+        sr_image_2d_model = sr_image_2d_model.clamp(0,1).float()
+        sr_image_3d_model = sr_image_3d_model.clamp(0,1).float()
+        if sr_image_3d_model.ndim == 4:
+            sr_image_3d_model = sr_image_3d_model.unsqueeze(0)
+
+
         # Apply metrics 
         mean_mse_2d += cm.compare_mse(sr_image_2d_model ,hr_volume_tensor_5d)
         mean_mae_2d += cm.compare_mae(sr_image_2d_model ,hr_volume_tensor_5d)
