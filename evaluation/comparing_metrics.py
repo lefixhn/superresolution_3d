@@ -118,7 +118,7 @@ def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
     target_device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # Build the lpips metric
     
-    lpips_2d_metric=LPIPS(network='vgg').eval().to(target_device)
+    lpips_2d_metric=LPIPS(network='vgg', reduction="sum").eval().to(target_device)
 
     # Convert to 5D Tensors
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image) 
