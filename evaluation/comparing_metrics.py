@@ -125,11 +125,10 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D", sl
     sr_image, hr_image = sr_image.to(target_device), hr_image.to(target_device)
     # Not nessecary for the piqa lipips implementation 
     # Noramlize both images from [0, 1] range to [-1, 1] range 
+    sr_image, hr_image = sr_image.clamp(0, 1), hr_image.clamp(0, 1)
     sr_image, hr_image = 2 * sr_image - 1, 2 * hr_image - 1
-    hr_image, hr_image = sr_image.clamp(-1, 1) , hr_image.clamp(-1, 1)
-    #sr_image, hr_image = sr_image.clamp(0, 1), hr_image.clamp(0, 1)
-
-    shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}
+    
+    shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}[compare_axis]
     
     lpips_mean = 0.0
 
@@ -141,20 +140,16 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D", sl
         # Iterate through orientations coronar, axial and sagital  
         
         for slice_index in range(0, dimension_length, slice_batch_size): 
-            # Create a tuple containing the correct coordinates / slices
-            # We put the slice index to the correct position inside the tuple
-            # therefore we have to check the_shape_dim index, wich tells us
-            # weather we are in a coronar, axial or sagital sclice
             #slice_coordinates = (batch_index, 0) + tuple(slice_index if i == shape_dim_index-2 else slice(None) for i in range(3))
             slice_coordinates = [slice(None)] * 5
-            slice_coordinates[0] = slice(slcie_index, min(dimension_length, dimension_length+slice_batch_size))
+            slice_coordinates[0] = slice(slice_index, min(dimension_length, dimension_length+slice_batch_size))
             slice_coordinates[1] = 0 # Grey channel
             slice_coordinates[shape_dim_index] = slice_index
             sr_slice = sr_image[slice_coordinates]
             hr_slice = hr_image[slice_coordinates]
-            # Add batch and channel dimension 
-            sr_slice = sr_slice.unsqueeze(0)..repeat(1, 3, 1, 1)
-            hr_slice = hr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
+            # Add add channel dimension and triple it
+            sr_slice = sr_slice.unsqueeze(1).expand(-1, 3, -1, -1)
+            hr_slice = hr_slice.unsqueeze(1).expand(-1, 3, -1, -1)
             lpips_mean += lpips_2d_metric(sr_slice, hr_slice)
 
     lpips_mean /= batch_size*dimension_length
