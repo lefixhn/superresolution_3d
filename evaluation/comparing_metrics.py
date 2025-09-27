@@ -149,7 +149,7 @@ def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
             # Build the slices
             sr_slice = sr_image[tuple(slice_coordinates)]
             hr_slice = hr_image[tuple(slice_coordinates)]
-            # Permute, to ensure the first dimension of the tensor is the 
+            # Permute, to ensure the first dimension of the tensor is the slice_batch_size
             if shape_dim_index == 2:
                 # compare_axis == "D": bereits (S, H, W) -> nichts tun
                 pass
@@ -161,8 +161,7 @@ def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
                 # compare_axis == "W": aktuell (D, H, S) -> (S, D, H)
                 sr_slice = sr_slice.permute(2, 0, 1).contiguous()
                 hr_slice = hr_slice.permute(2, 0, 1).contiguous()
-
-            
+ 
             # Add add channel dimension and triple it
             sr_slice = sr_slice.unsqueeze(1).repeat(1, 3, 1, 1)
             hr_slice = hr_slice.unsqueeze(1).repeat(1, 3, 1, 1)
