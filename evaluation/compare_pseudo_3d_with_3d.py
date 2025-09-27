@@ -78,16 +78,16 @@ def compare_pseudo_3d_with_3d(
         mean_psnr_2d += cm.compare_psnr(sr_image_2d_model ,hr_volume_tensor_5d)
         mean_nmi_2d += cm.compare_normalized_mutual_information(sr_image_2d_model ,hr_volume_tensor_5d)
         mean_lpips_d_2d += cm.compare_lpips(sr_image_2d_model ,hr_volume_tensor_5d, compare_axis="D")
-        mean_lpips_h_2d cm.compare_lpips(sr_image_2d_model ,hr_volume_tensor_5d, compare_axis="H")
-        mean_lpips_w_2d cm.compare_lpips(sr_image_2d_model ,hr_volume_tensor_5d, compare_axis="W")
+        mean_lpips_h_2d += cm.compare_lpips(sr_image_2d_model ,hr_volume_tensor_5d, compare_axis="H")
+        mean_lpips_w_2d += cm.compare_lpips(sr_image_2d_model ,hr_volume_tensor_5d, compare_axis="W")
 
         mean_mse_3d += cm.compare_mse(sr_image_3d_model ,hr_volume_tensor_5d)
         mean_mae_3d += cm.compare_mae(sr_image_3d_model ,hr_volume_tensor_5d)
         mean_psnr_3d += cm.compare_psnr(sr_image_3d_model ,hr_volume_tensor_5d)
         mean_nmi_3d += cm.compare_normalized_mutual_information(sr_image_3d_model ,hr_volume_tensor_5d)
         mean_lpips_d_3d += cm.compare_lpips(sr_image_3d_model ,hr_volume_tensor_5d, compare_axis="D")
-        mean_lpips_h_3d cm.compare_lpips(sr_image_3d_model ,hr_volume_tensor_5d, compare_axis="H")
-        mean_lpips_w_3d cm.compare_lpips(sr_image_3d_model ,hr_volume_tensor_5d, compare_axis="W")
+        mean_lpips_h_3d += cm.compare_lpips(sr_image_3d_model ,hr_volume_tensor_5d, compare_axis="H")
+        mean_lpips_w_3d += cm.compare_lpips(sr_image_3d_model ,hr_volume_tensor_5d, compare_axis="W")
 
     num_tuples = len(lr_hr_5d_tensor_tuples)
     
@@ -106,7 +106,6 @@ def compare_pseudo_3d_with_3d(
     results[name_model_2d]["lpips d"] = mean_lpips_d_2d / num_tuples
     results[name_model_2d]["lpips h"] = mean_lpips_h_2d / num_tuples
     results[name_model_2d]["lpips w"] = mean_lpips_w_2d / num_tuples
-    
 
     results[name_model_3d]["mse"] = mean_mse_3d / num_tuples
     results[name_model_3d]["mae"] = mean_mae_3d / num_tuples
@@ -174,6 +173,7 @@ def _print_compare_results(results: Dict[str, Dict[str, float]]):
         model_text = str(model_name)
         for metric_name, average_metric_value in metric_results.items(): 
             model_text += f" | Average {metric_name}: {average_metric_value}"
+        print(model_text)
 
 def build_degradation_models(noise_sigmas: List[float]=[1.0/255.0, 12.0/255.0, 25.0/255.0], blur_sigmas: List[float]=[0.1, 1.2, 2.4], downscale_factor=2) -> Dict[str, Callable]: 
     ''' blur_sigmas and noise_sigmas must have the same length 
