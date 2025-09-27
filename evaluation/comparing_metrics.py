@@ -129,9 +129,9 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
     tensor_shape = hr_image.shape
     lpips_mean = 0.0
     dimension_length = tensor_shape[shape_dim_index]
-    
+    batch_size = tensor_shape[0]
     # Look at D H W from the B C D H W of the tensor 
-    for batch_index in range(): 
+    for batch_index in range(batch_size): 
         # Iterate through orientations coronar, axial and sagital
         shape_dim_index = {"D" : 2,  "H" : 3, "W" : 4}
         
@@ -149,8 +149,8 @@ def compare_lpips(sr_image, hr_image, lpips_2d_metric=None, compare_axis="D"):
             hr_slice = hr_slice.unsqueeze(0).unsqueeze(0).repeat(1, 3, 1, 1)
             lpips_mean += lpips_2d_metric(sr_slice, hr_slice)
 
-    lpips_mean /= 
-    return 
+    lpips_mean /= batch_size*dimension_length
+    return lpips_mean
 
 # Check weather it works properly
 if __name__ == "__main__": 
