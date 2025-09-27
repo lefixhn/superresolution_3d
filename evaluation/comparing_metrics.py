@@ -47,8 +47,9 @@ def compare_mutual_information(sr_image, hr_image, bins=100):
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
     nmi_value=0.0
     for batch_index in range(sr_iamge.shape[0]):
-        # Convert to numpy
-        sr_image_np, hr_image_np =  sr_image[batch_index, :, :, :, :].detach().cpu().numpy() , hr_image[batch_index, :, :, :, :].detach().cpu().numpy()
+        # Convert to 3d numpy array
+        sr_image_np, hr_image_np =  sr_image[batch_index, 0, :, :, :].detach().cpu().numpy() , hr_image[batch_index, 0, :, :, :].detach().cpu().numpy()
+        sr_image_np, hr_image_np = np.clip(sr_image_np, 0, 1) , np.clip(hr_image_np, 0, 1) 
         nmi_value += nmi(sr_image_np, hr_image_np, bins = bins)
     nmi_value /= sr_iamge.shape[0]
     return nmi_value
