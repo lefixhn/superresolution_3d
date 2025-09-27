@@ -42,24 +42,22 @@ def compare_psnr(sr_image, hr_image):
     return 20 * np.log10(max_element) - 10 * np.log10(compare_mse(sr_image, hr_image ))
 
 
-def compare_mutual_information(sr_image, hr_image, bins=100): 
+def compare_normalized_mutual_information(sr_image, hr_image, bins=100): 
     from skimage.metrics import normalized_mutual_information as nmi
     sr_image, hr_image = _convert_to_5d_tensor(sr_image), _convert_to_5d_tensor(hr_image)
     nmi_value=0.0
-    for batch_index in range(sr_iamge.shape[0]):
+    for batch_index in range(sr_image.shape[0]):
         # Convert to 3d numpy array
         sr_image_np, hr_image_np =  sr_image[batch_index, 0, :, :, :].detach().cpu().numpy() , hr_image[batch_index, 0, :, :, :].detach().cpu().numpy()
         sr_image_np, hr_image_np = np.clip(sr_image_np, 0, 1) , np.clip(hr_image_np, 0, 1) 
         nmi_value += nmi(sr_image_np, hr_image_np, bins = bins)
-    nmi_value /= sr_iamge.shape[0]
+    nmi_value /= sr_image.shape[0]
     return nmi_value
 
 
 
 
 # TODO: Check parametersettings and compare with other implementation
-import torch
-import torch.nn.functional as F
 
 # Helper method for compare_ssim
 def _gauss3d(ks=11, sigma=1.5, device=None, dtype=torch.float32):
