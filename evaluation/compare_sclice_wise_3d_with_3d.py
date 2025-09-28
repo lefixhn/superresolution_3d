@@ -22,7 +22,7 @@ importlib.reload(swhrv)
 
 
 @torch.no_grad()
-def compare_slice_wise_3d_with_3d(
+def compare_pseudo_3d_with_3d(
     model_2d: torch.nn.Module, 
     model_3d: torch.nn.Module, 
     lr_hr_5d_tensor_tuples,
@@ -161,7 +161,7 @@ def compare_sclice_wise_3d_with_3d_dense(
         lr_hr_volume_tensor_tuples = [(lr_volume_tensors_5d[i].float().contiguous(), hr_volume_tensors_5d[i].float().contiguous()) for i in range(len(lr_volume_tensors_5d))]
 
         print(f"##### DEG {degradation_model_name} #####")
-        result=compare_slice_wise_3d_with_3d(
+        result=compare_pseudo_3d_with_3d(
             model_2d=model_2d, 
             model_3d=model_3d, 
             lr_hr_5d_tensor_tuples=lr_hr_volume_tensor_tuples, 
