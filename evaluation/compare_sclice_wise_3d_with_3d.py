@@ -22,7 +22,7 @@ importlib.reload(swhrv)
 
 
 @torch.no_grad()
-def compare_sclice_wise_3d_with_3d(
+def compare_slice_wise_3d_with_3d(
     model_2d: torch.nn.Module, 
     model_3d: torch.nn.Module, 
     lr_hr_5d_tensor_tuples,
@@ -161,7 +161,7 @@ def compare_sclice_wise_3d_with_3d_dense(
         lr_hr_volume_tensor_tuples = [(lr_volume_tensors_5d[i].float().contiguous(), hr_volume_tensors_5d[i].float().contiguous()) for i in range(len(lr_volume_tensors_5d))]
 
         print(f"##### DEG {degradation_model_name} #####")
-        result=compare_sclice_wise_3d_with_3d(
+        result=compare_slice_wise_3d_with_3d(
             model_2d=model_2d, 
             model_3d=model_3d, 
             lr_hr_5d_tensor_tuples=lr_hr_volume_tensor_tuples, 
@@ -171,6 +171,54 @@ def compare_sclice_wise_3d_with_3d_dense(
         results[degradation_model_name] = result
     
     return results
+
+
+def compare_on_training_degradation(
+    checkpoint_path_2d, 
+    checkpoint_path_3d, 
+    num_images=100, 
+    interpolation_order=3, 
+): 
+    results = {}
+    sys.path.append("/content/superresolution_3d/datasets")
+    import brats_dataset as ds
+    sys.path.append("/content/superresolution_3d/models/dense_net")
+    from basic_efficient_dense_net import BasicEfficientDenseNet
+    from basic_efficient_dense_net_2d import BasicEfficientDenseNet2d
+
+    dataset = ds.LazyLoadingBratsDataset(
+        start_item_index=1100, 
+        item_count=num_images, 
+    )
+
+    model_2d = BasicEfficientDenseNet2d(num_dense_blocks=8, num_units_per_dense_block=8)
+    model_3d = BasicEfficientDenseNet(num_dense_blocks=8, num_units_per_dense_block=8)
+    sd2 = torch.load(checkpoint_path_2d, map_location="cpu")
+    sd3 = torch.load(checkpoint_path_3d, map_location="cpu")
+    sd2 = sd2.get("state_dict", sd2.get("model_state_dict", sd2))
+    sd3 = sd3.get("state_dict", sd3.get("model_state_dict", sd3))
+
+    model_2d.load_state_dict(sd2)
+    model_3d.load_state_dict(sd3)
+
+    
+    # Load np volumes and convert to 5d tensor 
+    lr_hr_volume_tensor_tuples = [dataset[i] for i in range(len(dataset))]
+    
+
+    results = compare_slice_wise_3d_with_3d(
+        model_2d=model_2d, 
+        model_3d=model_3d, 
+        lr_hr_5d_tensor_tuples=lr_hr_volume_tensor_tuples, 
+        interpolation_order=interpolation_order, 
+    )
+    
+    
+    return results
+
+
+
+
 
 
 ##### Helper methods #####
