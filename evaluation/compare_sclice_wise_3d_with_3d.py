@@ -203,7 +203,7 @@ def compare_on_training_degradation(
 
     
     # Load np volumes and convert to 5d tensor 
-    lr_hr_volume_tensor_tuples = [dataset[i] for i in range(len(dataset))]
+    lr_hr_volume_tensor_tuples = [(lr_tensor_4d.unsqueeze(0), hr_tensor_4d.unsqueeze(0)) for lr_tensor_4d, hr_tensor_4d in dataset]
     
 
     results = compare_slice_wise_3d_with_3d(
