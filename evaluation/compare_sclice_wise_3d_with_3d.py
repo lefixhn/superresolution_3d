@@ -106,7 +106,11 @@ def evaluate_models_on_degradation(
     results = {}
 
     for model_name, model in models.items(): 
-        results[model_name] = evaluate_model
+        results[model_name] = evaluate_model(
+             model: Callable,
+            lr_hr_5d_tensor_tuples,
+            autoprint=False, 
+        )
     
     return results
 
@@ -122,6 +126,7 @@ def compare_models(
         Call with results[degradation_name][model_name][metric_name]
     '''
     
+    # Build 3D and 2D Model 
     sys.path.append("/content/superresolution_3d/models/dense_net")
     from basic_efficient_dense_net import BasicEfficientDenseNet
     from basic_efficient_dense_net_2d import BasicEfficientDenseNet2d
@@ -144,34 +149,53 @@ def compare_models(
         upscale_factor=2, 
     ) 
 
-    
+    sys.path.append("/content/superresolution_3d/evaluation")
+    from interpolation_3d import interpolation_3d
+    interpolation_model = lambda tensor_5d: interpolation_3d(
+        tensor_5d=tensor_5d, 
+        order=3, 
+        upscale_factor=2
+    )
+
 
     models = {
         "3D-MODEL" : model_3d, 
         "2D-MODEL SLICE-WISE" : slice_wise_model, 
+        "TRICUBIC INTERPOLATION" : interpolation_model
     }
 
 
-
     degradation_models = build_degradation_models()
-
     # Load np volumes and convert to 5d tensor 
     hr_volumes_np = load_np_volumes(item_count=num_images)
     hr_volume_tensors_5d = [torch.from_numpy(hr_volume_np).float().unsqueeze(0).unsqueeze(0) for hr_volume_np in hr_volumes_np]
 
+    # Iterate through static degradation models
     for index, (degradation_model_name, degradation_model) in enumerate(degradation_models.items()): 
+        # Build tuples from degradation 
         lr_volume_tensors_5d = [degradation_model(hr_volume_tensor_5d) for hr_volume_tensor_5d in hr_volume_tensors_5d]
         lr_hr_volume_tensor_tuples = [(lr_volume_tensors_5d[i].float().contiguous(), hr_volume_tensors_5d[i].float().contiguous()) for i in range(len(lr_volume_tensors_5d))]
-
-        
-        result=compare_slice_wise_3d_with_3d(
-            model_2d=model_2d, 
-            model_3d=model_3d, 
-            lr_hr_5d_tensor_tuples=lr_hr_volume_tensor_tuples, 
-            interpolation_order=interpolation_order, 
+        # Store results of degradationmodel 
+        results[degradation_model_name] = evaluate_models_on_degradation(
+            models = models, 
+            lr_hr_5d_tensor_tuples=lr_hr_volume_tensor_tuples
+        )
+    
+    # Compare on random degradation model 
+    # Load np volumes and convert to 5d tensor 
+    sys.path.append("/content/superresolution_3d/datasets")
+    import brats_dataset as ds
+    lr_hr_volume_tensor_tuples = [(lr_tensor_4d.unsqueeze(0), hr_tensor_4d.unsqueeze(0)) for lr_tensor_4d, hr_tensor_4d in dataset]
+    results["TRAINING DEGRADATION MODEL"] = evaluate_models_on_degradation(
+            models = models, 
+            lr_hr_5d_tensor_tuples=lr_hr_volume_tensor_tuples
         )
 
-        results[degradation_model_name] = result   
+
+    return results
+    
+
+
 
 
 

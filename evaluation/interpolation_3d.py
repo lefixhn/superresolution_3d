@@ -28,7 +28,10 @@ def interpolation_3d(
             hr_vol = torch.from_numpy(hr_vol).unsqueeze(0).unsqueeze(0)  # (1,1,D',H',W')
             c_list.append(hr_vol)
         b_list.append(torch.cat(c_list, dim=1))
-    out = torch.cat(b_list, dim=0)
-    # Stack zu (B,C,D',H',W')
+    
+    out = torch.cat(out_batches, dim=0)  # (B,C,D',H',W')
+    out = out.to(device=in_dev, dtype=in_dtype).contiguous()
+
+    return out.clamp(0, 1)
    
     return out.to(tensor_5d.device).float().clamp(0, 1)
