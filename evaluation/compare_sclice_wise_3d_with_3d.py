@@ -143,7 +143,7 @@ def compare_models(
     model_2d.load_state_dict(sd2)
     model_3d.load_state_dict(sd3)
 
-    slice_wise_model = lambda tensor_5d: build_slice_wise_hr_volume(
+    slice_wise_model = lambda tensor_5d: swhrv.build_slice_wise_hr_volume(
         lr_volume = tensor_5d, 
         model=model_2d, 
         interpolation_order=sclice_wise_interpolation_order, 
