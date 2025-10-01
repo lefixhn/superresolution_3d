@@ -110,7 +110,7 @@ def evaluate_models_on_degradation(
     for model_name, model in models.items(): 
         results[model_name] = evaluate_model(
             model=model,
-            lr_hr_5d_tensor_tuples,
+            lr_hr_5d_tensor_tuples=lr_hr_5d_tensor_tuples,
             autoprint=False, 
         )
     
