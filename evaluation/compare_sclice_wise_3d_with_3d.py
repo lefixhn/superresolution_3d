@@ -27,6 +27,7 @@ def evaluate_model(
     autoprint=True, 
     device="cuda" if torch.cuda.is_available() else "cpu", 
 ) -> Dict[str, float]:
+    assert len(lr_hr_5d_tensor_tuples) > 0, "tuples cannot be empty"
 
     if not isinstance(model, torch.nn.Module): 
         device = "cpu"
