@@ -112,7 +112,7 @@ def evaluate_models_on_degradation(
 
 
 
-def compare_sclie_wise_3d_with_3d(
+def compare_models(
     checkpoint_path_2d, 
     checkpoint_path_3d, 
     num_images=150, 
@@ -121,8 +121,6 @@ def compare_sclie_wise_3d_with_3d(
     '''
         Call with results[degradation_name][model_name][metric_name]
     '''
-    results = {}
-
     
     sys.path.append("/content/superresolution_3d/models/dense_net")
     from basic_efficient_dense_net import BasicEfficientDenseNet
@@ -137,6 +135,21 @@ def compare_sclie_wise_3d_with_3d(
 
     model_2d.load_state_dict(sd2)
     model_3d.load_state_dict(sd3)
+
+    slice_wise_model = lambda tensor_5d: build_slice_wise_hr_volume(
+        lr_volume = tensor_5d, 
+        model=model_2d, 
+        interpolation_order=sclice_wise_interpolation_order, 
+        interpolation_dim="D", 
+        upscale_factor=2, 
+    ) 
+
+    
+
+    models = {
+        "3D-MODEL" : model_3d, 
+        "2D-MODEL SLICE-WISE" : slice_wise_model, 
+    }
 
 
 
