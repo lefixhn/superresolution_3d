@@ -208,8 +208,9 @@ def compare_models(
             print(f"DEGRADATION MODEL: {degradation_name}")
             for model_name, model_results in degradation_results.items(): 
                 print(f"MODEL: {model_name}")
-                for metic_name, metric_value in model_results.items(): 
-                    print(f"METRIC: {metic_name}")
+                for metic_name, metric_value in model_results.items():
+                    mt = " " 
+                    print(f"METRIC: {metic_name} {mt * (10-len(metic_name))} : {metric_value}")
 
     return results
     
