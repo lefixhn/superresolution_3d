@@ -103,7 +103,10 @@ def compare_sclie_wise_3d_with_3d(
     checkpoint_path_3d, 
     num_images=150, 
     sclice_wise_interpolation_order=3, 
-): 
+) -> Dict[str, Dict[str, Dict[str, float]]]: 
+    '''
+        Call with results[degradation_name][model_name][metric_name]
+    '''
     results = {}
 
     
