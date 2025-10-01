@@ -50,8 +50,8 @@ def compare_slice_wise_3d_with_3d(
     }
     
     if isinstance(model, torch.nn.Module):  
-        model_3d = model_3d.to(device).float().eval()
-        model_2d = model_2d.to(device).float().eval()
+        model = model.to(device).float().eval()
+        
 
     for lr_volume_tensor_5d, hr_volume_tensor_5d in tqdm(lr_hr_5d_tensor_tuples, "Iterating trhough lr-hr-tuples"):
         # Bring to device
@@ -87,13 +87,12 @@ def compare_slice_wise_3d_with_3d(
     results[lpips_w_key] /= num_tuples
     results[nmi_key] /= num_tuples
 
+    if autoprint: 
+        for metric, value in results.items(): 
+            print(f"METRIC {metric} : {value}")
+        print("########################")
+
     return results
-
-
-
-
-
-
 
 
 
