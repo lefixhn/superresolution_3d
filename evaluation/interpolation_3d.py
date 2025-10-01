@@ -1,16 +1,21 @@
 import torch 
-from  ndimage import zoom
+from  scipy.ndimage import zoom
+import numpy as np 
 
 def interpolation_3d(
     tensor_5d : torch.Tensor, 
     order=3, 
     upscale_factor=2, 
 ): 
-    if xtensor_5d5d.ndim == 3:
+    if tensor_5d.ndim == 3:
         tensor_5d = tensor_5d.unsqueeze(0).unsqueeze(0)   # (D,H,W) -> (1,1,D,H,W)
     elif tensor_5d.ndim == 4:
         tensor_5d = tensor_5d.unsqueeze(0)                # (C,D,H,W) -> (1,C,D,H,W)
     assert tensor_5d.ndim == 5, f"Expected 5D, got {tuple(tensor_5d.shape)}"
+
+    # Store metadata
+    in_dev   = tensor_5d.device
+    in_dtype = tensor_5d.dtype
 
     B, C, D, H, W = tensor_5d.shape
     b_list = []
