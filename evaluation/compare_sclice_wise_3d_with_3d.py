@@ -107,7 +107,7 @@ def evaluate_models_on_degradation(
 
     for model_name, model in models.items(): 
         results[model_name] = evaluate_model(
-             model: Callable,
+            model: Callable,
             lr_hr_5d_tensor_tuples,
             autoprint=False, 
         )
@@ -121,6 +121,7 @@ def compare_models(
     checkpoint_path_3d, 
     num_images=150, 
     sclice_wise_interpolation_order=3, 
+    autoprint=True, 
 ) -> Dict[str, Dict[str, Dict[str, float]]]: 
     '''
         Call with results[degradation_name][model_name][metric_name]
@@ -191,6 +192,13 @@ def compare_models(
             lr_hr_5d_tensor_tuples=lr_hr_volume_tensor_tuples
         )
 
+    if autoprint: 
+        for degradation_name, degradation_results in results.items(): 
+            print(f"DEGRADATION MODEL: {degradation_name}")
+            for model_name, model_results in degradation_results.items(): 
+                print(f"MODEL: {model_name}")
+                for metic_name, metric_value in model_results.items(): 
+                    print(f"METRIC: {metic_name}")
 
     return results
     
@@ -204,7 +212,7 @@ def compare_models(
 
 
 
-
+'''
 
 def compare_sclice_wise_3d_with_3d_dense(
     checkpoint_path_2d, 
@@ -292,7 +300,7 @@ def compare_on_training_degradation(
     
     return results
 
-
+'''
 
 
 '''
