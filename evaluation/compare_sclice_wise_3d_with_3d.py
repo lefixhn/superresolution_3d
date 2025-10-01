@@ -95,6 +95,11 @@ def evaluate_model(
     return results
 
 
+def evaluate_models_on_degradation(
+    models: Dict[str, Callable], 
+    lr_hr_5d_tensor_tuples
+): 
+    results = 
 
 
 
@@ -124,6 +129,8 @@ def compare_sclie_wise_3d_with_3d(
     model_2d.load_state_dict(sd2)
     model_3d.load_state_dict(sd3)
 
+
+
     degradation_models = build_degradation_models()
 
     # Load np volumes and convert to 5d tensor 
@@ -134,7 +141,7 @@ def compare_sclie_wise_3d_with_3d(
         lr_volume_tensors_5d = [degradation_model(hr_volume_tensor_5d) for hr_volume_tensor_5d in hr_volume_tensors_5d]
         lr_hr_volume_tensor_tuples = [(lr_volume_tensors_5d[i].float().contiguous(), hr_volume_tensors_5d[i].float().contiguous()) for i in range(len(lr_volume_tensors_5d))]
 
-        print(f"##### DEG {degradation_model_name} #####")
+        
         result=compare_slice_wise_3d_with_3d(
             model_2d=model_2d, 
             model_3d=model_3d, 
