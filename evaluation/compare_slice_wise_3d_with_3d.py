@@ -148,13 +148,17 @@ def compare_models(
 
     model_2d.load_state_dict(sd2)
     model_3d.load_state_dict(sd3)
-
+    # Bring  models to device and trainingmode
+    run_device = "cuda" if torch.cuda.is_available() else "cpu"
+    model_2d = model_2d.to(run_device).float().eval()
+    model_3d = model_3d.to(run_device).float().eval()
     slice_wise_model = lambda tensor_5d: swhrv.build_slice_wise_hr_volume(
-        lr_volume = tensor_5d, 
+        lr_volume = tensor_5d.to(run_device), 
         model=model_2d, 
         interpolation_order=sclice_wise_interpolation_order, 
         interpolation_dim="D", 
         upscale_factor=2, 
+        device=run_device,
     ) 
 
     sys.path.append("/content/superresolution_3d/evaluation")
@@ -165,11 +169,13 @@ def compare_models(
         upscale_factor=2
     )
 
+    print("2D training mode? ", model_2d.training)  # sollte False sein
+    print("3D training mode? ", model_3d.training)
 
     models = {
         "3D-MODEL" : model_3d, 
         "2D-MODEL SLICE-WISE" : slice_wise_model, 
-        "TRICUBIC INTERPOLATION" : interpolation_model
+        #"TRICUBIC INTERPOLATION" : interpolation_model
     }
 
 

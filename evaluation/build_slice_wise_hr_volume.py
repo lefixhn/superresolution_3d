@@ -28,6 +28,7 @@ def build_slice_wise_hr_volume(
 
     lr_volume = lr_volume.to(device)
     model = model.to(device)
+   
 
     B = lr_volume.shape[0]
     num_slices = lr_volume.shape[2+interpolation_dim_index]
