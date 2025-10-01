@@ -66,7 +66,6 @@ def compare_slice_wise_3d_with_3d(
 
 
         # Apply metrics 
-        
         results[mse_key] += cm.compare_mse(sr_image_3d_model ,hr_volume_tensor_5d)
         results[mae_key] += cm.compare_mae(sr_image_3d_model ,hr_volume_tensor_5d)
         results[psnr_key] += cm.compare_psnr(sr_image_3d_model ,hr_volume_tensor_5d)
@@ -76,34 +75,16 @@ def compare_slice_wise_3d_with_3d(
         results[nmi_key] += cm.compare_normalized_mutual_information(sr_image_3d_model ,hr_volume_tensor_5d)
 
     num_tuples = len(lr_hr_5d_tensor_tuples)
-    
-    
 
-    name_model_2d = type(model_2d).__name__
-    name_model_3d = type(model_3d).__name__
-    results[name_model_2d]={}
-    results[name_model_3d]={}
+    results[mse_key] /= num_tuples
+    results[mae_key] /= num_tuples
+    results[psnr_key] /= num_tuples
+    results[lpips_d_key] /= num_tuples
+    results[lpips_h_key] /= num_tuples
+    results[lpips_w_key] /= num_tuples
+    results[nmi_key] /= num_tuples
 
 
-    results[name_model_2d]["mse"] = mean_mse_2d / num_tuples
-    results[name_model_2d]["mae"] = mean_mae_2d / num_tuples
-    results[name_model_2d]["psnr"] = mean_psnr_2d / num_tuples
-    results[name_model_2d]["nmi"] = mean_nmi_2d / num_tuples
-    results[name_model_2d]["lpips d"] = mean_lpips_d_2d / num_tuples
-    results[name_model_2d]["lpips h"] = mean_lpips_h_2d / num_tuples
-    results[name_model_2d]["lpips w"] = mean_lpips_w_2d / num_tuples
-
-    results[name_model_3d]["mse"] = mean_mse_3d / num_tuples
-    results[name_model_3d]["mae"] = mean_mae_3d / num_tuples
-    results[name_model_3d]["psnr"] = mean_psnr_3d / num_tuples
-    results[name_model_3d]["nmi"] = mean_nmi_3d / num_tuples
-    results[name_model_3d]["lpips d"] = mean_lpips_d_3d / num_tuples
-    results[name_model_3d]["lpips h"] = mean_lpips_h_3d / num_tuples
-    results[name_model_3d]["lpips w"] = mean_lpips_w_3d / num_tuples
-    
-
-    if autoprint: 
-        _print_compare_results(results)
 
     return results
 
