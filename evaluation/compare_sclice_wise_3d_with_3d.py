@@ -59,7 +59,10 @@ def compare_slice_wise_3d_with_3d(
         hr_volume_tensor_5d = hr_volume_tensor_5d.to(device).float().contiguous()
         # Generate SR
         sr_image_3d_model = model(lr_volume_tensor_5d)
+
         #Safety mechanisms
+        # TODO: THIS CHECK SEEMS DANGEROUS AND NOT RIGHT TO ME
+        assert sr_image_3d_model.shape == hr_volume_tensor_5d.shape[1:5]
         sr_image_3d_model = sr_image_3d_model.clamp(0,1).float()
         if sr_image_3d_model.ndim == 4:
             sr_image_3d_model = sr_image_3d_model.unsqueeze(0)
@@ -83,8 +86,6 @@ def compare_slice_wise_3d_with_3d(
     results[lpips_h_key] /= num_tuples
     results[lpips_w_key] /= num_tuples
     results[nmi_key] /= num_tuples
-
-
 
     return results
 

@@ -2,8 +2,6 @@ import torch
 import torch.nn.functional as F  
 import numpy as np 
 
-
-
 def _convert_to_5d_tensor(image): 
     '''
     Accepts nparray, or 3D 4D or 5d Tensor 
@@ -67,44 +65,7 @@ def _gauss3d(ks=11, sigma=1.5, device=None, dtype=torch.float32):
     g3 = (g[:,None,None] * g[None,:,None] * g[None,None,:]).unsqueeze(0).unsqueeze(0)  # (1,1,K,K,K)
     return g3
 
-# compare_ssim was written through AI, because there was no good implementation that worked well
-def compare_ssim(sr, hr, data_range=None, ks=11, sigma=1.5, K1=0.01, K2=0.03, eps=1e-12):
-    # auf (B,1,D,H,W)
-    if sr.ndim == 3: sr = sr.unsqueeze(0).unsqueeze(0)
-    elif sr.ndim == 4: sr = sr.unsqueeze(1)
-    if hr.ndim == 3: hr = hr.unsqueeze(0).unsqueeze(0)
-    elif hr.ndim == 4: hr = hr.unsqueeze(1)
 
-    sr = sr.detach().to(torch.float32)
-    hr = hr.detach().to(device=sr.device, dtype=sr.dtype)
-
-    # Datenbereich
-    if data_range is None:
-        if hr.amin().item() >= 0 and hr.amax().item() <= 1:
-            L = 1.0
-        else:
-            L = float((hr.amax() - hr.amin()).clamp_min(1e-12).item())
-    else:
-        L = float(data_range)
-
-    kernel = _gauss3d(ks, sigma, device=sr.device, dtype=sr.dtype)
-    pad = ks // 2
-    # depthwise 3D conv: pro Kanal (C=1) okay, für generisch -> repeat auf C und groups=C
-    def conv(z): return F.conv3d(z, kernel, padding=pad)
-
-    with torch.inference_mode():
-        mu_x = conv(sr)
-        mu_y = conv(hr)
-        mu_x2, mu_y2, mu_xy = mu_x*mu_x, mu_y*mu_y, mu_x*mu_y
-        sigma_x2 = conv(sr*sr) - mu_x2
-        sigma_y2 = conv(hr*hr) - mu_y2
-        sigma_xy = conv(sr*hr) - mu_xy
-
-        C1, C2 = (K1*L)**2, (K2*L)**2
-        num = (2*mu_xy + C1) * (2*sigma_xy + C2)
-        den = (mu_x2 + mu_y2 + C1) * (sigma_x2 + sigma_y2 + C2) + eps
-        ssim_map = num / den
-        return float(ssim_map.mean().item())
 
 from piqa import LPIPS
 @torch.inference_mode()
@@ -168,6 +129,47 @@ def compare_lpips(sr_image, hr_image, compare_axis="D", slice_batch_size=8):
     lpips_mean /= batch_size*dimension_length
     return lpips_mean
 
+'''
+# compare_ssim was written through AI, because there was no good implementation that worked well
+def compare_ssim(sr, hr, data_range=None, ks=11, sigma=1.5, K1=0.01, K2=0.03, eps=1e-12):
+    # auf (B,1,D,H,W)
+    if sr.ndim == 3: sr = sr.unsqueeze(0).unsqueeze(0)
+    elif sr.ndim == 4: sr = sr.unsqueeze(1)
+    if hr.ndim == 3: hr = hr.unsqueeze(0).unsqueeze(0)
+    elif hr.ndim == 4: hr = hr.unsqueeze(1)
+
+    sr = sr.detach().to(torch.float32)
+    hr = hr.detach().to(device=sr.device, dtype=sr.dtype)
+
+    # Datenbereich
+    if data_range is None:
+        if hr.amin().item() >= 0 and hr.amax().item() <= 1:
+            L = 1.0
+        else:
+            L = float((hr.amax() - hr.amin()).clamp_min(1e-12).item())
+    else:
+        L = float(data_range)
+
+    kernel = _gauss3d(ks, sigma, device=sr.device, dtype=sr.dtype)
+    pad = ks // 2
+    # depthwise 3D conv: pro Kanal (C=1) okay, für generisch -> repeat auf C und groups=C
+    def conv(z): return F.conv3d(z, kernel, padding=pad)
+
+    with torch.inference_mode():
+        mu_x = conv(sr)
+        mu_y = conv(hr)
+        mu_x2, mu_y2, mu_xy = mu_x*mu_x, mu_y*mu_y, mu_x*mu_y
+        sigma_x2 = conv(sr*sr) - mu_x2
+        sigma_y2 = conv(hr*hr) - mu_y2
+        sigma_xy = conv(sr*hr) - mu_xy
+
+        C1, C2 = (K1*L)**2, (K2*L)**2
+        num = (2*mu_xy + C1) * (2*sigma_xy + C2)
+        den = (mu_x2 + mu_y2 + C1) * (sigma_x2 + sigma_y2 + C2) + eps
+        ssim_map = num / den
+        return float(ssim_map.mean().item())
+'''
+
 # Check weather it works properly
 if __name__ == "__main__": 
     mock_hr = torch.rand(4, 1, 100, 90, 120)
@@ -183,6 +185,7 @@ if __name__ == "__main__":
     print("RESULTS FOR DUMMY DATA")
     for metric in compare_results: 
         print(f"{metric}: {compare_results[metric]}")
+
 
 
     
