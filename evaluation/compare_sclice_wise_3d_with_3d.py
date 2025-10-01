@@ -54,7 +54,7 @@ def evaluate_model(
         model = model.to(device).float().eval()
         
 
-    for lr_volume_tensor_5d, hr_volume_tensor_5d in tqdm(lr_hr_5d_tensor_tuples, "Iterating trhough lr-hr-tuples"):
+    for lr_volume_tensor_5d, hr_volume_tensor_5d in tqdm(lr_hr_5d_tensor_tuples, desc="Iterating trhough lr-hr-tuples"):
         # Bring to device
         lr_volume_tensor_5d = lr_volume_tensor_5d.to(device).float().contiguous()
         hr_volume_tensor_5d = hr_volume_tensor_5d.to(device).float().contiguous()
@@ -63,7 +63,8 @@ def evaluate_model(
 
         #Safety mechanisms
         # TODO: THIS CHECK SEEMS DANGEROUS AND NOT RIGHT TO ME
-        assert sr_image_3d_model.shape == hr_volume_tensor_5d.shape[1:5]
+        assert sr_image_3d_model.shape[-3:] == hr_volume_tensor_5d.shape[-3:], f"Shape mismatch in last 3 dimensions {sr_image_3d_model.shape[-3:]} should equal {hr_volume_tensor_5d.shape[-3:]}"
+
         sr_image_3d_model = sr_image_3d_model.clamp(0,1).float()
         if sr_image_3d_model.ndim == 4:
             sr_image_3d_model = sr_image_3d_model.unsqueeze(0)
@@ -120,7 +121,7 @@ def evaluate_models_on_degradation(
 def compare_models(
     checkpoint_path_2d, 
     checkpoint_path_3d, 
-    num_images=150, 
+    num_images=100, 
     sclice_wise_interpolation_order=3, 
     autoprint=True, 
 ) -> Dict[str, Dict[str, Dict[str, float]]]: 
@@ -187,6 +188,10 @@ def compare_models(
     # Load np volumes and convert to 5d tensor 
     sys.path.append("/content/superresolution_3d/datasets")
     import brats_dataset as ds
+    dataset = ds.LazyLoadingBratsDataset(
+        start_item_index=1100, 
+        item_count=num_images, 
+    )
     lr_hr_volume_tensor_tuples = [(lr_tensor_4d.unsqueeze(0), hr_tensor_4d.unsqueeze(0)) for lr_tensor_4d, hr_tensor_4d in dataset]
     results["TRAINING DEGRADATION MODEL"] = evaluate_models_on_degradation(
             models = models, 
