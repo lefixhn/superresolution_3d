@@ -97,9 +97,18 @@ def evaluate_model(
 
 def evaluate_models_on_degradation(
     models: Dict[str, Callable], 
-    lr_hr_5d_tensor_tuples
-): 
-    results = 
+    lr_hr_5d_tensor_tuples,
+) -> Dict[str, Dict[str, float]]:
+    '''
+        Call with 
+        results[model_name][metric_name]
+    '''
+    results = {}
+
+    for model_name, model in models.items(): 
+        results[model_name] = evaluate_model
+    
+    return results
 
 
 
