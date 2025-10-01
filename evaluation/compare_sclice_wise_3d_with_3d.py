@@ -68,6 +68,9 @@ def evaluate_model(
         sr_image_3d_model = sr_image_3d_model.clamp(0,1).float()
         if sr_image_3d_model.ndim == 4:
             sr_image_3d_model = sr_image_3d_model.unsqueeze(0)
+        
+        sr_image_3d_model = sr_image_3d_model.to(hr_volume_tensor_5d.device)
+        sr_image_3d_model = sr_image_3d_model.to(hr_volume_tensor_5d.dtype)
 
 
         # Apply metrics 
@@ -128,6 +131,8 @@ def compare_models(
     '''
         Call with results[degradation_name][model_name][metric_name]
     '''
+
+    results = {}
     
     # Build 3D and 2D Model 
     sys.path.append("/content/superresolution_3d/models/dense_net")
