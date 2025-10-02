@@ -175,7 +175,7 @@ def compare_models(
     models = {
         "3D-MODEL" : model_3d, 
         "2D-MODEL SLICE-WISE" : slice_wise_model, 
-        #"TRICUBIC INTERPOLATION" : interpolation_model
+        "TRICUBIC INTERPOLATION" : interpolation_model
     }
 
 
