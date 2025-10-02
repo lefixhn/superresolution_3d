@@ -6,7 +6,8 @@ import image_degradation as imd
 from tqdm import tqdm 
 
 SOURCE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/BraTS2021_Training_Data'
-STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_v0'
+#STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_v0'
+STORE_BASE_PATH = '/content/drive/MyDrive/superresolution_3d_data/datasets/advanced_degradation_t1'
 STORE_LR_PATH = os.path.join(STORE_BASE_PATH, 'lr')
 STORE_HR_PATH = os.path.join(STORE_BASE_PATH, 'hr')
 
