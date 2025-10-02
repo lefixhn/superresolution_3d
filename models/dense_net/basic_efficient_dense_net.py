@@ -215,6 +215,9 @@ class BasicEfficientDenseNet(nn.Module):
         upscaled = self.upsampling(input_features)
         return upscaled 
 
+
+
+
 if __name__ == "__main__": 
     print("Checking weather model works")
     # Check weather this works

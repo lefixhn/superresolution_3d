@@ -186,6 +186,9 @@ class BasicEfficientDenseNet2d(nn.Module):
         upscaled = self.upsampling(input_features)
         return upscaled 
 
+
+
+
 if __name__ == "__main__": 
     model = BasicEfficientDenseNet2d()
     lr_image = torch.randn(4, 1, 128, 128)
